@@ -26,11 +26,11 @@ export default function KitchenPage() {
   const units = useApi<{ data: UnitInfo[] }>('/units').data?.data ?? []
   const [adding, setAdding] = useState(false)
   const [openId, setOpenId] = useState<number | null>(null)
-  const [flash, setFlash] = useState('')
+  const [flash, setFlash] = useState<{ kind: 'error' | 'success'; text: string } | null>(null)
 
   useEffect(() => {
     if (!flash) return
-    const t = setTimeout(() => setFlash(''), 3000)
+    const t = setTimeout(() => setFlash(null), 3000)
     return () => clearTimeout(t)
   }, [flash])
 
@@ -41,14 +41,14 @@ export default function KitchenPage() {
     try {
       changed((await api<{ message: string }>('/pantry/discard-expired', { method: 'POST' })).message)
     } catch (e) {
-      setFlash((e as ApiError).message)
+      setFlash({ kind: 'error', text: (e as ApiError).message })
     } finally {
       setWritingOff(false)
     }
   }
 
   const changed = (message: string) => {
-    setFlash(message)
+    setFlash({ kind: 'success', text: message })
     pantry.reload()
   }
 
@@ -75,7 +75,7 @@ export default function KitchenPage() {
       </div>
 
       <div className="mt-4 space-y-2">
-        {flash && <Alert kind="success">{flash}</Alert>}
+        {flash && <Alert kind={flash.kind}>{flash.text}</Alert>}
         {view === 'expired' && pantry.data?.data.some((i) => i.quantity > 0) && (
           <button onClick={writeOffExpired} disabled={writingOff} className="w-full rounded-2xl border border-red-200 bg-white py-3 text-sm font-bold text-red-700 disabled:opacity-60">
             {writingOff ? 'Writing off…' : 'Write off all expired stock'}

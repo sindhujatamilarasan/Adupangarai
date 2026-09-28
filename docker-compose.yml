@@ -24,7 +24,12 @@ services:
     ports: ["8787:8000"]
     depends_on:
       db: { condition: service_healthy }
-    command: sh -c "composer install --no-interaction && php artisan migrate --force && php artisan serve --no-reload --host=0.0.0.0 --port=8000"
+    command: >
+      sh -c "composer install --no-interaction &&
+             ([ -f .env ] || (cp .env.example .env && php artisan key:generate)) &&
+             php artisan migrate --force &&
+             php artisan db:seed --force &&
+             php artisan serve --no-reload --host=0.0.0.0 --port=8000"
 
   web:
     image: node:22-alpine
