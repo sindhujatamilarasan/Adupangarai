@@ -36,4 +36,10 @@ class Ingredient extends Model
     {
         return $this->belongsTo(IngredientCategory::class, 'ingredient_category_id');
     }
+
+    /** Recipes and pantry must use a unit convertible to the default, so they can be compared. */
+    public function acceptsUnit(Unit $unit): bool
+    {
+        return $this->default_unit->isCompatibleWith($unit);
+    }
 }

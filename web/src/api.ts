@@ -102,3 +102,26 @@ export function useApi<T>(path: string | null) {
   const reload = useCallback(() => setTick((t) => t + 1), [])
   return { data: state.data, error: state.done === key ? state.error : null, loading: !!key && state.done !== key, reload }
 }
+
+export type MealType = 'breakfast' | 'lunch' | 'snack' | 'dinner'
+export const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'snack', 'dinner']
+export type RecipeSummary = {
+  id: number
+  name: string
+  description: string | null
+  meal_type: MealType
+  cuisine: string | null
+  servings: number
+  prep_time: number
+  cook_time: number
+  total_time: number
+  is_veg: boolean
+  is_editable: boolean
+  ingredients_count: number
+}
+export type RecipeIngredientRow = { ingredient_id: number; ingredient: Ingredient; quantity: number; unit: UnitValue; optional: boolean }
+export type RecipeDetail = Omit<RecipeSummary, 'ingredients_count'> & {
+  requested_servings: number
+  ingredients: RecipeIngredientRow[]
+  steps: string[]
+}

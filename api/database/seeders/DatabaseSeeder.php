@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(IngredientSeeder::class);
+        $this->call([IngredientSeeder::class, RecipeSeeder::class]);
 
         if (! User::where('email', 'demo@adupangarai.test')->exists()) {
             User::create([

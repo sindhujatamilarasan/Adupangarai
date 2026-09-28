@@ -47,6 +47,13 @@ class PantryController extends Controller
         ]);
         $user = $request->user();
 
+        $ingredient = Ingredient::findOrFail($data['ingredient_id']);
+        if (! $ingredient->acceptsUnit(Unit::from($data['unit']))) {
+            throw ValidationException::withMessages([
+                'unit' => "{$ingredient->name} is measured in {$ingredient->default_unit->value}; {$data['unit']} can't be converted.",
+            ]);
+        }
+
         $item = DB::transaction(function () use ($data, $user) {
             $item = PantryItem::firstOrCreate(
                 ['household_id' => $user->household_id, 'ingredient_id' => $data['ingredient_id']],

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\PantryController;
+use App\Http\Controllers\Api\RecipeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -24,4 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/pantry/{item}', [PantryController::class, 'update']);
     Route::post('/pantry/{item}/adjust', [PantryController::class, 'adjust']);
     Route::delete('/pantry/{item}', [PantryController::class, 'destroy']);
+
+    Route::apiResource('recipes', RecipeController::class);
 });

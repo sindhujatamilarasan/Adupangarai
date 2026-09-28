@@ -7,6 +7,9 @@ import ComingSoon from './pages/ComingSoon'
 import HomePage from './pages/HomePage'
 import KitchenPage from './pages/KitchenPage'
 import ProfilePage from './pages/ProfilePage'
+import RecipeDetailPage from './pages/RecipeDetailPage'
+import RecipeFormPage from './pages/RecipeFormPage'
+import RecipesPage from './pages/RecipesPage'
 
 function AppShell() {
   const { user, loading } = useAuth()
@@ -41,7 +44,10 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/kitchen" element={<KitchenPage />} />
-            <Route path="/cook" element={<ComingSoon title="What can I cook?" emoji="🍳" />} />
+            <Route path="/cook" element={<RecipesPage />} />
+            <Route path="/recipes/new" element={<RecipeFormPage />} />
+            <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+            <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
             <Route path="/planner" element={<ComingSoon title="Meal planner" emoji="📅" />} />
             <Route path="/groceries" element={<ComingSoon title="Groceries" emoji="🛒" />} />
           </Route>
