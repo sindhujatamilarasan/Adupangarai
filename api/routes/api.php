@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CookController;
 use App\Http\Controllers\Api\IngredientController;
+use App\Http\Controllers\Api\MealPlanController;
 use App\Http\Controllers\Api\PantryController;
 use App\Http\Controllers\Api\RecipeController;
 use Illuminate\Support\Facades\Route;
@@ -29,4 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('recipes', RecipeController::class);
     Route::get('/cook', [CookController::class, 'index']);
+
+    Route::apiResource('meal-plans', MealPlanController::class)->except('show');
 });

@@ -142,3 +142,21 @@ export type CookResult = {
   recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg'>
   match: RecipeMatch
 }
+
+export type MealPlanEntry = {
+  id: number
+  date: string
+  meal_type: MealType
+  recipe_id: number
+  servings: number
+  cooked_at: string | null
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg'>
+}
+
+/** Local calendar date as YYYY-MM-DD (display/navigation only). */
+export const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+export const addDays = (iso: string, n: number) => {
+  const d = new Date(`${iso}T00:00:00`)
+  d.setDate(d.getDate() + n)
+  return isoDate(d)
+}

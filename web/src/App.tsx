@@ -7,6 +7,7 @@ import ComingSoon from './pages/ComingSoon'
 import CookPage from './pages/CookPage'
 import HomePage from './pages/HomePage'
 import KitchenPage from './pages/KitchenPage'
+import PlannerPage from './pages/PlannerPage'
 import ProfilePage from './pages/ProfilePage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
 import RecipeFormPage from './pages/RecipeFormPage'
@@ -50,7 +51,7 @@ export default function App() {
             <Route path="/recipes/new" element={<RecipeFormPage />} />
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
-            <Route path="/planner" element={<ComingSoon title="Meal planner" emoji="📅" />} />
+            <Route path="/planner" element={<PlannerPage />} />
             <Route path="/groceries" element={<ComingSoon title="Groceries" emoji="🛒" />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
