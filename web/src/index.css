@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fff8f0;
+  --color-ink: #2b2118;
+  --color-muted: #8a7a6b;
+  --color-line: #efe3d3;
+  --color-brand: #d9622b;
+  --color-brand-dark: #b54d1f;
+  --color-leaf: #4f8a3c;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  @apply bg-cream text-ink antialiased;
+}
