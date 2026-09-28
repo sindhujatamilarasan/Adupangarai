@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fmtQty, useApi, type PantryItem, type PantryView, type UnitInfo } from '../api'
+import { api, ApiError, fmtQty, useApi, type PantryItem, type PantryView, type UnitInfo } from '../api'
 import AddPantrySheet from '../components/AddPantrySheet'
 import PantryItemSheet, { StatusBadges } from '../components/PantryItemSheet'
 import { Alert, EmptyState, ErrorState, Spinner } from '../components/ui'
@@ -34,6 +34,19 @@ export default function KitchenPage() {
     return () => clearTimeout(t)
   }, [flash])
 
+  const [writingOff, setWritingOff] = useState(false)
+  async function writeOffExpired() {
+    if (!confirm('Write off all expired stock? This records it as expired and sets those items to zero.')) return
+    setWritingOff(true)
+    try {
+      changed((await api<{ message: string }>('/pantry/discard-expired', { method: 'POST' })).message)
+    } catch (e) {
+      setFlash((e as ApiError).message)
+    } finally {
+      setWritingOff(false)
+    }
+  }
+
   const changed = (message: string) => {
     setFlash(message)
     pantry.reload()
@@ -63,6 +76,11 @@ export default function KitchenPage() {
 
       <div className="mt-4 space-y-2">
         {flash && <Alert kind="success">{flash}</Alert>}
+        {view === 'expired' && pantry.data?.data.some((i) => i.quantity > 0) && (
+          <button onClick={writeOffExpired} disabled={writingOff} className="w-full rounded-2xl border border-red-200 bg-white py-3 text-sm font-bold text-red-700 disabled:opacity-60">
+            {writingOff ? 'Writing off…' : 'Write off all expired stock'}
+          </button>
+        )}
         {pantry.loading && !pantry.data && <Spinner label="Checking your shelves…" />}
         {pantry.error && <ErrorState message={pantry.error} onRetry={pantry.reload} />}
         {pantry.data && pantry.data.data.length === 0 && (

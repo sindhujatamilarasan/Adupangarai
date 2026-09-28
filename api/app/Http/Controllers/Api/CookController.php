@@ -28,35 +28,15 @@ class CookController extends Controller
             ->when($filters['max_time'] ?? null, fn ($q, $t) => $q->whereRaw('prep_time + cook_time <= ?', [$t]))
             ->get();
 
-        $results = $recipes->map(fn (Recipe $r) => [
-            'recipe' => $r->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'total_time', 'is_veg']),
-            'match' => RecipeMatcher::match($r, $pantry),
-        ]);
+        $results = RecipeMatcher::matchAll($recipes, $pantry);
 
         $results = match ($filters['filter'] ?? 'all') {
-            'available' => $results->where('match.status', RecipeMatcher::AVAILABLE),
-            'almost' => $results->where('match.status', RecipeMatcher::ALMOST),
-            'use_soon' => $results->filter(fn ($r) => $r['match']['uses_expiring'])
-                ->sortBy([
-                    fn ($a, $b) => self::soonest($a) <=> self::soonest($b),
-                    fn ($a, $b) => $b['match']['match_percent'] <=> $a['match']['match_percent'],
-                ]),
-            default => $results,
+            'available' => RecipeMatcher::rank($results->where('match.status', RecipeMatcher::AVAILABLE)),
+            'almost' => RecipeMatcher::rank($results->where('match.status', RecipeMatcher::ALMOST)),
+            'use_soon' => RecipeMatcher::useSoon($results),
+            default => RecipeMatcher::rank($results),
         };
 
-        if (($filters['filter'] ?? 'all') !== 'use_soon') {
-            $results = $results->sortBy([
-                fn ($a, $b) => $b['match']['match_percent'] <=> $a['match']['match_percent'],
-                fn ($a, $b) => $a['recipe']['total_time'] <=> $b['recipe']['total_time'],
-                fn ($a, $b) => $a['recipe']['name'] <=> $b['recipe']['name'],
-            ]);
-        }
-
-        return response()->json(['data' => $results->values(), 'pantry_count' => $pantry->count()]);
-    }
-
-    private static function soonest(array $result): int
-    {
-        return min(array_column($result['match']['uses_expiring'], 'days_to_expiry'));
+        return response()->json(['data' => $results, 'pantry_count' => $pantry->count()]);
     }
 }

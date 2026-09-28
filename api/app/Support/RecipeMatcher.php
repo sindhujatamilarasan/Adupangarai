@@ -97,4 +97,42 @@ class RecipeMatcher
     {
         return PantryItem::where('household_id', $householdId)->get()->keyBy('ingredient_id');
     }
+
+    /**
+     * @param  Collection<int, Recipe>  $recipes  with ingredients.ingredient loaded
+     * @return Collection<int, array{recipe: array, match: array}>
+     */
+    public static function matchAll(Collection $recipes, Collection $pantry): Collection
+    {
+        return $recipes->map(fn (Recipe $r) => [
+            'recipe' => $r->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'total_time', 'is_veg']),
+            'match' => self::match($r, $pantry),
+        ]);
+    }
+
+    /** Best match first, then quickest, then name. */
+    public static function rank(Collection $results): Collection
+    {
+        return $results->sortBy([
+            fn ($a, $b) => $b['match']['match_percent'] <=> $a['match']['match_percent'],
+            fn ($a, $b) => $a['recipe']['total_time'] <=> $b['recipe']['total_time'],
+            fn ($a, $b) => $a['recipe']['name'] <=> $b['recipe']['name'],
+        ])->values();
+    }
+
+    /**
+     * Recipes that use stock expiring soon: nearest expiry first, then those using more
+     * expiring items, then the ones you can most nearly cook.
+     */
+    public static function useSoon(Collection $results): Collection
+    {
+        $soonest = fn ($r) => min(array_column($r['match']['uses_expiring'], 'days_to_expiry'));
+
+        return $results->filter(fn ($r) => $r['match']['uses_expiring'])->sortBy([
+            fn ($a, $b) => $soonest($a) <=> $soonest($b),
+            fn ($a, $b) => count($b['match']['uses_expiring']) <=> count($a['match']['uses_expiring']),
+            fn ($a, $b) => $b['match']['match_percent'] <=> $a['match']['match_percent'],
+            fn ($a, $b) => $a['recipe']['name'] <=> $b['recipe']['name'],
+        ])->values();
+    }
 }

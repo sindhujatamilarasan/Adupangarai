@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CookController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\GroceryController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\MealPlanController;
@@ -17,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
 
+    Route::get('/dashboard', DashboardController::class);
+
     Route::get('/units', [IngredientController::class, 'units']);
     Route::get('/ingredient-categories', [IngredientController::class, 'categories']);
     Route::get('/ingredients', [IngredientController::class, 'index']);
@@ -24,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/pantry', [PantryController::class, 'index']);
     Route::post('/pantry', [PantryController::class, 'store']);
+    Route::post('/pantry/discard-expired', [PantryController::class, 'discardExpired']);
     Route::get('/pantry/{item}', [PantryController::class, 'show']);
     Route::patch('/pantry/{item}', [PantryController::class, 'update']);
     Route::post('/pantry/{item}/adjust', [PantryController::class, 'adjust']);

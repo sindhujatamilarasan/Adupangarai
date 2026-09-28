@@ -10,6 +10,7 @@ use App\Support\TransactionType;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class PantryController extends Controller
@@ -108,6 +109,21 @@ class PantryController extends Controller
         };
 
         return response()->json(['data' => $item->fresh('ingredient.category'), 'transaction' => $transaction]);
+    }
+
+    /** Write off every expired item with stock left, as EXPIRED transactions. */
+    public function discardExpired(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $items = PantryItem::where('household_id', $user->household_id)->view('expired')->where('quantity', '>', 0)->with('ingredient')->get();
+
+        DB::transaction(function () use ($items, $user) {
+            foreach ($items as $item) {
+                PantryLedger::change($item, -$item->quantity, $item->unit, TransactionType::EXPIRED, $user->id, 'Expired - written off');
+            }
+        });
+
+        return response()->json(['message' => $items->count().' expired item(s) written off.', 'count' => $items->count()]);
     }
 
     public function destroy(PantryItem $item): JsonResponse

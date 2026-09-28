@@ -192,3 +192,16 @@ export type CookRow = {
   pantry_unit: UnitValue | null
   pantry_after: number | null
 }
+
+export type Dashboard = {
+  today_meals: { id: number; meal_type: MealType; servings: number; cooked_at: string | null; recipe: { id: number; name: string; is_veg: boolean }; can_cook_now: boolean }[]
+  cook_now: CookResult[]
+  almost_count: number
+  use_soon: CookResult[]
+  expiring: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'days_to_expiry'> & { ingredient: { id: number; name: string } })[]
+  expired_count: number
+  low_stock: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'minimum_stock'> & { ingredient: { id: number; name: string } })[]
+  grocery_remaining: number
+  pantry_count: number
+  recipe_count: number
+}
