@@ -160,3 +160,22 @@ export const addDays = (iso: string, n: number) => {
   d.setDate(d.getDate() + n)
   return isoDate(d)
 }
+
+export type GroceryItem = {
+  id: number
+  ingredient_id: number | null
+  name: string
+  category: string
+  quantity: number | null
+  unit: UnitValue | null
+  source: 'plan' | 'manual'
+  purchased: boolean
+  actual_quantity: number | null
+  price: number | null
+  added_to_pantry_at: string | null
+}
+export type GroceryResponse = {
+  data: GroceryItem[]
+  list: { planned_from: string | null; planned_to: string | null }
+  summary: { total: number; remaining: number; to_add_to_pantry: number; spent: number }
+}

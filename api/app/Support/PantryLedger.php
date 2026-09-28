@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Ingredient;
 use App\Models\PantryItem;
 use App\Models\PantryTransaction;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +68,50 @@ class PantryLedger
             ]);
 
             return self::change($item, $target - $current, $item->unit, TransactionType::ADJUSTMENT, $userId, $note);
+        });
+    }
+
+    /**
+     * Stock-in for an ingredient (manual add or purchase). Creates the pantry item if needed,
+     * converts into its unit, keeps the earliest expiry and records the transaction.
+     *
+     * @param  array{expiry_date?: ?string, minimum_stock?: ?float, storage_location?: ?string}  $details
+     */
+    public static function receive(
+        int $householdId,
+        Ingredient $ingredient,
+        float $quantity,
+        Unit $unit,
+        TransactionType $type,
+        ?int $userId = null,
+        array $details = [],
+        ?string $note = null,
+    ): PantryItem {
+        if (! $ingredient->acceptsUnit($unit)) {
+            throw ValidationException::withMessages([
+                'unit' => "{$ingredient->name} is measured in {$ingredient->default_unit->value}; {$unit->value} can't be converted.",
+            ]);
+        }
+
+        return DB::transaction(function () use ($householdId, $ingredient, $quantity, $unit, $type, $userId, $details, $note) {
+            $item = PantryItem::firstOrCreate(
+                ['household_id' => $householdId, 'ingredient_id' => $ingredient->id],
+                ['quantity' => 0, 'unit' => $unit],
+            );
+
+            $item->fill(collect($details)->only(['minimum_stock', 'storage_location'])->filter(fn ($v) => $v !== null)->all());
+            // Keep the earliest expiry so the pantry warns about the oldest stock first.
+            $expiry = $details['expiry_date'] ?? null;
+            if ($expiry && (! $item->expiry_date || $item->expiry_date->gt($expiry))) {
+                $item->expiry_date = $expiry;
+            }
+            $item->save();
+
+            if ($quantity > 0) {
+                self::change($item, $quantity, $unit, $type, $userId, $note);
+            }
+
+            return $item;
         });
     }
 }

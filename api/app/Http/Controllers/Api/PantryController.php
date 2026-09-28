@@ -10,9 +10,7 @@ use App\Support\TransactionType;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class PantryController extends Controller
 {
@@ -47,38 +45,15 @@ class PantryController extends Controller
         ]);
         $user = $request->user();
 
-        $ingredient = Ingredient::findOrFail($data['ingredient_id']);
-        if (! $ingredient->acceptsUnit(Unit::from($data['unit']))) {
-            throw ValidationException::withMessages([
-                'unit' => "{$ingredient->name} is measured in {$ingredient->default_unit->value}; {$data['unit']} can't be converted.",
-            ]);
-        }
-
-        $item = DB::transaction(function () use ($data, $user) {
-            $item = PantryItem::firstOrCreate(
-                ['household_id' => $user->household_id, 'ingredient_id' => $data['ingredient_id']],
-                ['quantity' => 0, 'unit' => $data['unit']],
-            );
-
-            if (! $item->unit->isCompatibleWith(Unit::from($data['unit']))) {
-                throw ValidationException::withMessages([
-                    'unit' => "This item is stored in {$item->unit->value}; {$data['unit']} can't be converted.",
-                ]);
-            }
-
-            $item->fill(collect($data)->only(['minimum_stock', 'storage_location'])->filter(fn ($v) => $v !== null)->all());
-            // Keep the earliest expiry so the pantry warns about the oldest stock first.
-            if (! empty($data['expiry_date']) && (! $item->expiry_date || $item->expiry_date->gt($data['expiry_date']))) {
-                $item->expiry_date = $data['expiry_date'];
-            }
-            $item->save();
-
-            if ($data['quantity'] > 0) {
-                PantryLedger::change($item, $data['quantity'], Unit::from($data['unit']), TransactionType::ADD, $user->id);
-            }
-
-            return $item;
-        });
+        $item = PantryLedger::receive(
+            $user->household_id,
+            Ingredient::findOrFail($data['ingredient_id']),
+            $data['quantity'],
+            Unit::from($data['unit']),
+            TransactionType::ADD,
+            $user->id,
+            $data,
+        );
 
         return response()->json(['data' => $item->fresh('ingredient.category')], $item->wasRecentlyCreated ? 201 : 200);
     }

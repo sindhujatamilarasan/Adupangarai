@@ -3,8 +3,8 @@ import { AuthProvider, useAuth } from './auth'
 import BottomNav from './components/BottomNav'
 import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
-import ComingSoon from './pages/ComingSoon'
 import CookPage from './pages/CookPage'
+import GroceriesPage from './pages/GroceriesPage'
 import HomePage from './pages/HomePage'
 import KitchenPage from './pages/KitchenPage'
 import PlannerPage from './pages/PlannerPage'
@@ -52,7 +52,7 @@ export default function App() {
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
             <Route path="/planner" element={<PlannerPage />} />
-            <Route path="/groceries" element={<ComingSoon title="Groceries" emoji="🛒" />} />
+            <Route path="/groceries" element={<GroceriesPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

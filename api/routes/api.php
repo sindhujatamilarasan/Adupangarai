@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CookController;
+use App\Http\Controllers\Api\GroceryController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\MealPlanController;
 use App\Http\Controllers\Api\PantryController;
@@ -32,4 +33,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cook', [CookController::class, 'index']);
 
     Route::apiResource('meal-plans', MealPlanController::class)->except('show');
+
+    Route::get('/grocery', [GroceryController::class, 'index']);
+    Route::post('/grocery/generate', [GroceryController::class, 'generate']);
+    Route::post('/grocery/items', [GroceryController::class, 'storeItem']);
+    Route::patch('/grocery/items/{item}', [GroceryController::class, 'updateItem']);
+    Route::delete('/grocery/items/{item}', [GroceryController::class, 'destroyItem']);
+    Route::post('/grocery/clear-purchased', [GroceryController::class, 'clearPurchased']);
+    Route::post('/grocery/add-to-pantry', [GroceryController::class, 'addToPantry']);
 });
