@@ -42,7 +42,7 @@ return [
         'base_url' => env('AI_BASE_URL', 'http://localhost:11435/v1'),
         'key' => env('AI_API_KEY', 'ollama'),
         'model' => env('AI_MODEL', 'qwen2.5:3b'),
-        'timeout' => (int) env('AI_TIMEOUT', 180),
+        'timeout' => (int) env('AI_TIMEOUT', 300),
     ],
 
 ];

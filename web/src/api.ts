@@ -211,3 +211,19 @@ export type Dashboard = {
   pantry_count: number
   recipe_count: number
 }
+
+export type AiItem = {
+  heard: string
+  ingredient_id: number | null
+  name: string
+  quantity: number | null
+  unit: UnitValue | null
+  expiry_days?: number | null
+  problem: null | 'unknown_ingredient' | 'no_quantity' | 'unit_mismatch'
+  optional?: boolean
+}
+export type RecipeDraft = Omit<RecipeDetail, 'id' | 'ingredients' | 'match' | 'requested_servings' | 'total_time' | 'is_editable' | 'health_tags'> & {
+  ingredients: AiItem[]
+}
+export type AiPlanEntry = { date: string; meal_type: MealType; recipe_id: number; servings: number; recipe_name: string }
+export const AI_WAIT = 'On a home computer the free AI can take 1–2 minutes — please keep this open.'

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApi, type RecipeSummary } from '../api'
+import { AiRecipeSheet } from '../components/AiSheets'
 import { HealthBadges } from '../components/Health'
 import { EmptyState, ErrorState, Spinner } from '../components/ui'
 
@@ -32,6 +33,7 @@ export function VegDot({ veg }: { veg: boolean }) {
 export default function RecipesPage() {
   const [filter, setFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [speaking, setSpeaking] = useState(false)
   const query = [filter, search.trim() && `search=${encodeURIComponent(search.trim())}`].filter(Boolean).join('&')
   const recipes = useApi<{ data: RecipeSummary[] }>(`/recipes?${query}`)
 
@@ -39,9 +41,14 @@ export default function RecipesPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold">Recipes</h1>
-        <Link to="/recipes/new" className="rounded-full bg-brand px-4 py-2 font-bold text-white shadow-sm">
-          + New
-        </Link>
+        <div className="flex gap-2">
+          <button onClick={() => setSpeaking(true)} className="rounded-full bg-white px-4 py-2 font-bold text-brand shadow-sm">
+            🎙️ Say
+          </button>
+          <Link to="/recipes/new" className="rounded-full bg-brand px-4 py-2 font-bold text-white shadow-sm">
+            + New
+          </Link>
+        </div>
       </div>
 
       <input
@@ -92,6 +99,7 @@ export default function RecipesPage() {
           </Link>
         ))}
       </div>
+      {speaking && <AiRecipeSheet onClose={() => setSpeaking(false)} />}
     </div>
   )
 }

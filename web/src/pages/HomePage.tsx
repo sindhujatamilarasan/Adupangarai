@@ -39,9 +39,14 @@ export default function HomePage() {
           <h1 className="text-2xl font-extrabold">{user!.name} 👋</h1>
           <p className="text-sm font-semibold text-brand">{user!.household.name}</p>
         </div>
-        <Link to="/profile" aria-label="Profile" className="grid size-11 place-items-center rounded-full bg-brand text-lg font-bold text-white">
-          {user!.name[0]?.toUpperCase()}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/ai" className="rounded-full bg-gradient-to-br from-brand to-amber-500 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm">
+            ✨ AI
+          </Link>
+          <Link to="/profile" aria-label="Profile" className="grid size-11 place-items-center rounded-full bg-brand text-lg font-bold text-white">
+            {user!.name[0]?.toUpperCase()}
+          </Link>
+        </div>
       </header>
 
       {res.loading && !d && <Spinner label="Checking your kitchen…" />}

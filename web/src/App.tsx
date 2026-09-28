@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth'
+import AiPage from './pages/AiPage'
 import BottomNav from './components/BottomNav'
 import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
@@ -45,6 +46,7 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/ai" element={<AiPage />} />
             <Route path="/kitchen" element={<KitchenPage />} />
             <Route path="/cook" element={<CookPage />} />
             <Route path="/recipes" element={<RecipesPage />} />

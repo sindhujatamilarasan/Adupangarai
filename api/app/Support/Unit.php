@@ -68,4 +68,26 @@ enum Unit: string
     {
         return array_column(self::cases(), 'value');
     }
+
+    /** Spoken/typed unit words -> unit and multiplier ("dozen" = 12 pieces). Null if unknown. */
+    public static function fromLoose(?string $word): ?array
+    {
+        $w = strtolower(trim((string) $word, " .\t\n"));
+        $aliases = [
+            'g' => 'g', 'gm' => 'g', 'gms' => 'g', 'gram' => 'g', 'grams' => 'g', 'gramme' => 'g', 'grammes' => 'g',
+            'kg' => 'kg', 'kgs' => 'kg', 'kilo' => 'kg', 'kilos' => 'kg', 'kilogram' => 'kg', 'kilograms' => 'kg',
+            'ml' => 'ml', 'millilitre' => 'ml', 'millilitres' => 'ml', 'milliliter' => 'ml', 'milliliters' => 'ml',
+            'l' => 'L', 'ltr' => 'L', 'ltrs' => 'L', 'litre' => 'L', 'litres' => 'L', 'liter' => 'L', 'liters' => 'L',
+            'cup' => 'cup', 'cups' => 'cup', 'tbsp' => 'tbsp', 'tablespoon' => 'tbsp', 'tablespoons' => 'tbsp',
+            'tsp' => 'tsp', 'teaspoon' => 'tsp', 'teaspoons' => 'tsp',
+            'piece' => 'piece', 'pieces' => 'piece', 'pc' => 'piece', 'pcs' => 'piece', 'nos' => 'piece', 'no' => 'piece', '' => 'piece',
+            'packet' => 'packet', 'packets' => 'packet', 'pack' => 'packet', 'packs' => 'packet', 'pkt' => 'packet',
+        ];
+
+        if (in_array($w, ['dozen', 'dozens'], true)) {
+            return [self::PIECE, 12];
+        }
+
+        return isset($aliases[$w]) ? [self::from($aliases[$w]), 1] : null;
+    }
 }

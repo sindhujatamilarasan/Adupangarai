@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { addDays, api, ApiError, isoDate, MEAL_TYPES, useApi, type DayNutrition, type MealPlanEntry, type MealType, type RecipeSummary } from '../api'
+import { AiPlanSheet } from '../components/AiSheets'
 import { ProteinWeekChart } from '../components/Health'
 import { Alert, Button, ErrorState, Sheet, Spinner } from '../components/ui'
 import { VegDot } from './RecipesPage'
@@ -13,6 +14,8 @@ export default function PlannerPage() {
   const [start, setStart] = useState<string | null>(null)
   const res = useApi<{ data: MealPlanEntry[]; start: string; end: string; nutrition: Record<string, DayNutrition> }>(`/meal-plans${start ? `?start=${start}` : ''}`)
   const [editing, setEditing] = useState<Editing | null>(null)
+  const [aiOpen, setAiOpen] = useState(false)
+  const [flash, setFlash] = useState<string>((useLocation().state as { flash?: string } | null)?.flash ?? '')
   const weekStart = res.data?.start
   const today = isoDate(new Date())
 
@@ -26,7 +29,17 @@ export default function PlannerPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold">Meal planner</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-extrabold">Meal planner</h1>
+        <button onClick={() => setAiOpen(true)} className="rounded-full bg-gradient-to-br from-brand to-amber-500 px-4 py-2 text-sm font-extrabold text-white shadow-sm">
+          ✨ AI plan
+        </button>
+      </div>
+      {flash && (
+        <div className="mt-3">
+          <Alert kind="success">{flash}</Alert>
+        </div>
+      )}
 
       {weekStart && (
         <div className="mt-4 flex items-center justify-between rounded-2xl bg-white p-2">
@@ -85,6 +98,17 @@ export default function PlannerPage() {
           ))}
       </div>
 
+      {aiOpen && (
+        <AiPlanSheet
+          start={weekStart && weekStart > today ? weekStart : today}
+          onClose={() => setAiOpen(false)}
+          onDone={(m) => {
+            setAiOpen(false)
+            setFlash(m)
+            res.reload()
+          }}
+        />
+      )}
       {editing && <PlanSheet key={editing.mode === 'edit' ? editing.entry.id : 'add'} editing={editing} onClose={() => setEditing(null)} onSaved={res.reload} />}
     </div>
   )

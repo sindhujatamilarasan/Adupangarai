@@ -1,41 +1,51 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { api, ApiError, MEAL_TYPES, fmtQty, useApi, type Ingredient, type RecipeDetail, type UnitInfo } from '../api'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { api, ApiError, MEAL_TYPES, fmtQty, useApi, type Ingredient, type RecipeDetail, type RecipeDraft, type UnitInfo } from '../api'
 import { Alert, Button, ErrorState, Field, Select, Spinner } from '../components/ui'
 
-type Row = { ingredient_id: string; quantity: string; unit: string; optional: boolean }
+type Row = { ingredient_id: string; quantity: string; unit: string; optional: boolean; heard?: string }
 
 export default function RecipeFormPage() {
   const { id } = useParams()
   const existing = useApi<{ data: RecipeDetail }>(id ? `/recipes/${id}` : null)
   const ingredients = useApi<{ data: Ingredient[] }>('/ingredients')
   const units = useApi<{ data: UnitInfo[] }>('/units')
+  const state = useLocation().state as { draft?: RecipeDraft } | null
+  const draft = id ? undefined : state?.draft
 
   const error = existing.error ?? ingredients.error ?? units.error
   if (error) return <ErrorState message={error} onRetry={() => [existing, ingredients, units].forEach((r) => r.reload())} />
   if ((id && !existing.data) || !ingredients.data || !units.data) return <Spinner />
   if (existing.data && !existing.data.data.is_editable) return <ErrorState message="Built-in recipes can't be edited." />
 
-  return <RecipeForm id={id} recipe={existing.data?.data} ingredients={ingredients.data.data} units={units.data.data} />
+  return <RecipeForm id={id} recipe={existing.data?.data} draft={draft} ingredients={ingredients.data.data} units={units.data.data} />
 }
 
-function RecipeForm({ id, recipe, ingredients, units }: { id?: string; recipe?: RecipeDetail; ingredients: Ingredient[]; units: UnitInfo[] }) {
+type FormProps = { id?: string; recipe?: RecipeDetail; draft?: RecipeDraft; ingredients: Ingredient[]; units: UnitInfo[] }
+
+function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
   const navigate = useNavigate()
+  const src = recipe ?? draft
   const [form, setForm] = useState({
-    name: recipe?.name ?? '',
-    description: recipe?.description ?? '',
-    meal_type: recipe?.meal_type ?? 'lunch',
-    cuisine: recipe?.cuisine ?? '',
-    servings: String(recipe?.servings ?? 2),
-    prep_time: String(recipe?.prep_time ?? 10),
-    cook_time: String(recipe?.cook_time ?? 20),
-    is_veg: recipe?.is_veg ?? true,
-    steps: recipe?.steps.join('\n') ?? '',
+    name: src?.name ?? '',
+    description: src?.description ?? '',
+    meal_type: src?.meal_type ?? 'lunch',
+    cuisine: src?.cuisine ?? '',
+    servings: String(src?.servings ?? 2),
+    prep_time: String(src?.prep_time ?? 10),
+    cook_time: String(src?.cook_time ?? 20),
+    is_veg: src?.is_veg ?? true,
+    steps: src?.steps.join('\n') ?? '',
   })
   const [rows, setRows] = useState<Row[]>(
-    recipe?.ingredients.map((i) => ({ ingredient_id: String(i.ingredient_id), quantity: fmtQty(i.quantity), unit: i.unit, optional: i.optional })) ?? [
-      { ingredient_id: '', quantity: '', unit: '', optional: false },
-    ],
+    recipe?.ingredients.map((i) => ({ ingredient_id: String(i.ingredient_id), quantity: fmtQty(i.quantity), unit: i.unit, optional: i.optional })) ??
+      draft?.ingredients.map((i) => ({
+        ingredient_id: i.ingredient_id ? String(i.ingredient_id) : '',
+        quantity: i.quantity ? fmtQty(i.quantity) : '',
+        unit: i.unit ?? '',
+        optional: !!i.optional,
+        heard: i.problem ? i.heard : undefined,
+      })) ?? [{ ingredient_id: '', quantity: '', unit: '', optional: false }],
   )
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [message, setMessage] = useState('')
@@ -69,6 +79,10 @@ function RecipeForm({ id, recipe, ingredients, units }: { id?: string; recipe?: 
       description: form.description || null,
       cuisine: form.cuisine || null,
       steps: form.steps.split('\n').map((s) => s.trim()).filter(Boolean),
+      // Keep the AI's nutrition estimate for a new recipe made from a voice draft.
+      ...(draft && !id && draft.calories !== null
+        ? { calories: draft.calories, protein_g: draft.protein_g, carbs_g: draft.carbs_g, fat_g: draft.fat_g, fiber_g: draft.fiber_g }
+        : {}),
       ingredients: rows
         .filter((r) => r.ingredient_id)
         .map((r) => ({ ingredient_id: Number(r.ingredient_id), quantity: Number(r.quantity), unit: r.unit, optional: r.optional })),
@@ -90,7 +104,13 @@ function RecipeForm({ id, recipe, ingredients, units }: { id?: string; recipe?: 
       <button type="button" onClick={() => navigate(-1)} className="text-sm font-bold text-muted">
         ← Cancel
       </button>
-      <h1 className="text-2xl font-extrabold">{id ? 'Edit recipe' : 'New recipe'}</h1>
+      <h1 className="text-2xl font-extrabold">{id ? 'Edit recipe' : draft ? '✨ Check your recipe' : 'New recipe'}</h1>
+      {draft && (
+        <div className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+          Drafted by AI from what you said. Check the amounts, pick any highlighted ingredients, then save.
+          {draft.calories !== null && ` Estimated ${draft.calories} kcal and ${draft.protein_g} g protein per serving.`}
+        </div>
+      )}
       {message && <Alert kind="error">{message}</Alert>}
 
       <section className="space-y-3 rounded-3xl bg-white p-4">
@@ -129,7 +149,8 @@ function RecipeForm({ id, recipe, ingredients, units }: { id?: string; recipe?: 
         <h2 className="font-extrabold">Ingredients</h2>
         {errors.ingredients && <Alert kind="error">{errors.ingredients[0]}</Alert>}
         {rows.map((row, i) => (
-          <div key={i} className="space-y-2 rounded-2xl border border-line p-3">
+          <div key={i} className={`space-y-2 rounded-2xl border p-3 ${row.heard && !row.ingredient_id ? 'border-amber-400 bg-amber-50' : 'border-line'}`}>
+            {row.heard && !row.ingredient_id && <p className="text-xs font-bold text-amber-800">AI heard “{row.heard}” — pick the closest ingredient or remove this row.</p>}
             <Select
               label={`Ingredient ${i + 1}`}
               value={row.ingredient_id}

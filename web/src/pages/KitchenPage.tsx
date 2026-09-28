@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, ApiError, fmtQty, useApi, type PantryItem, type PantryView, type UnitInfo } from '../api'
 import AddPantrySheet from '../components/AddPantrySheet'
+import { AiPantrySheet } from '../components/AiSheets'
 import PantryItemSheet, { StatusBadges } from '../components/PantryItemSheet'
 import { Alert, EmptyState, ErrorState, Spinner } from '../components/ui'
 
@@ -25,6 +26,7 @@ export default function KitchenPage() {
   const pantry = useApi<{ data: PantryItem[]; counts: Record<PantryView, number> }>(`/pantry?view=${view}`)
   const units = useApi<{ data: UnitInfo[] }>('/units').data?.data ?? []
   const [adding, setAdding] = useState(false)
+  const [speaking, setSpeaking] = useState(false)
   const [openId, setOpenId] = useState<number | null>(null)
   const [flash, setFlash] = useState<{ kind: 'error' | 'success'; text: string } | null>(null)
 
@@ -56,9 +58,14 @@ export default function KitchenPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold">Kitchen</h1>
-        <button onClick={() => setAdding(true)} className="rounded-full bg-brand px-4 py-2 font-bold text-white shadow-sm">
-          + Add
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setSpeaking(true)} className="rounded-full bg-white px-4 py-2 font-bold text-brand shadow-sm" aria-label="Add by voice">
+            🎙️ Speak
+          </button>
+          <button onClick={() => setAdding(true)} className="rounded-full bg-brand px-4 py-2 font-bold text-white shadow-sm">
+            + Add
+          </button>
+        </div>
       </div>
 
       <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
@@ -111,6 +118,15 @@ export default function KitchenPage() {
         ))}
       </div>
 
+      {speaking && (
+        <AiPantrySheet
+          onClose={() => setSpeaking(false)}
+          onDone={(m) => {
+            setSpeaking(false)
+            changed(m)
+          }}
+        />
+      )}
       <AddPantrySheet open={adding} onClose={() => setAdding(false)} onSaved={changed} units={units} />
       <PantryItemSheet itemId={openId} onClose={() => setOpenId(null)} onChanged={changed} units={units} />
     </div>

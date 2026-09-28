@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AiController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CookController;
 use App\Http\Controllers\Api\DashboardController;
@@ -27,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/pantry', [PantryController::class, 'index']);
     Route::post('/pantry', [PantryController::class, 'store']);
+    Route::post('/pantry/bulk', [PantryController::class, 'bulk']);
     Route::post('/pantry/discard-expired', [PantryController::class, 'discardExpired']);
     Route::get('/pantry/{item}', [PantryController::class, 'show']);
     Route::patch('/pantry/{item}', [PantryController::class, 'update']);
@@ -39,7 +41,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/recipes/{recipe}/nutrition', [RecipeController::class, 'estimateNutrition'])->middleware('throttle:10,1');
     Route::get('/cook', [CookController::class, 'index']);
 
+    Route::post('/meal-plans/bulk', [MealPlanController::class, 'bulk']);
     Route::apiResource('meal-plans', MealPlanController::class)->except('show');
+
+    Route::middleware('throttle:20,1')->prefix('ai')->group(function () {
+        Route::post('/pantry-parse', [AiController::class, 'pantryParse']);
+        Route::post('/recipe-parse', [AiController::class, 'recipeParse']);
+        Route::post('/meal-plan', [AiController::class, 'mealPlan']);
+    });
 
     Route::get('/grocery', [GroceryController::class, 'index']);
     Route::post('/grocery/generate', [GroceryController::class, 'generate']);

@@ -107,7 +107,11 @@ class RecipeController extends Controller
         $data = $this->validated($request);
 
         $recipe = DB::transaction(function () use ($data, $request) {
-            $recipe = Recipe::create([...$data, 'household_id' => $request->user()->household_id]);
+            $recipe = Recipe::create([
+                ...$data,
+                'household_id' => $request->user()->household_id,
+                'nutrition_estimated_at' => isset($data['calories']) ? now() : null,
+            ]);
             $this->syncChildren($recipe, $data);
 
             return $recipe;
@@ -122,8 +126,8 @@ class RecipeController extends Controller
         $data = $this->validated($request);
 
         DB::transaction(function () use ($recipe, $data) {
-            // Ingredients may have changed, so the old estimate no longer applies.
-            $recipe->update([...$data, ...array_fill_keys(Nutrition::FIELDS, null), 'nutrition_estimated_at' => null]);
+            // Ingredients may have changed, so an old estimate no longer applies unless a new one is sent.
+            $recipe->update([...array_fill_keys(Nutrition::FIELDS, null), 'nutrition_estimated_at' => null, ...$data]);
             $this->syncChildren($recipe, $data);
         });
 
@@ -163,6 +167,12 @@ class RecipeController extends Controller
             'ingredients.*.optional' => ['boolean'],
             'steps' => ['array', 'max:50'],
             'steps.*' => ['required', 'string', 'max:1000'],
+            // Optional estimate (e.g. from a voice draft); all five or none.
+            'calories' => ['nullable', 'required_with:protein_g,carbs_g,fat_g,fiber_g', 'numeric', 'min:0', 'max:3000'],
+            'protein_g' => ['nullable', 'required_with:calories', 'numeric', 'min:0', 'max:200'],
+            'carbs_g' => ['nullable', 'required_with:calories', 'numeric', 'min:0', 'max:400'],
+            'fat_g' => ['nullable', 'required_with:calories', 'numeric', 'min:0', 'max:250'],
+            'fiber_g' => ['nullable', 'required_with:calories', 'numeric', 'min:0', 'max:100'],
         ]);
 
         $ingredients = Ingredient::findMany(array_column($data['ingredients'], 'ingredient_id'))->keyBy('id');

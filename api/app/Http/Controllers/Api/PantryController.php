@@ -59,6 +59,32 @@ class PantryController extends Controller
         return response()->json(['data' => $item->fresh('ingredient.category')], $item->wasRecentlyCreated ? 201 : 200);
     }
 
+    /** Add several items at once (e.g. a confirmed voice entry). All or nothing. */
+    public function bulk(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'type' => ['required', Rule::in(['ADD', 'PURCHASE'])],
+            'items' => ['required', 'array', 'min:1', 'max:50'],
+            'items.*.ingredient_id' => ['required', 'distinct', 'exists:ingredients,id'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0', 'max:1000000'],
+            'items.*.unit' => ['required', Rule::enum(Unit::class)],
+            'items.*.expiry_date' => ['nullable', 'date'],
+        ]);
+        $user = $request->user();
+        $ingredients = Ingredient::findMany(array_column($data['items'], 'ingredient_id'))->keyBy('id');
+
+        DB::transaction(function () use ($data, $user, $ingredients) {
+            foreach ($data['items'] as $row) {
+                PantryLedger::receive(
+                    $user->household_id, $ingredients[$row['ingredient_id']], $row['quantity'], Unit::from($row['unit']),
+                    TransactionType::from($data['type']), $user->id, ['expiry_date' => $row['expiry_date'] ?? null],
+                );
+            }
+        });
+
+        return response()->json(['message' => count($data['items']).' item(s) added to your kitchen.']);
+    }
+
     public function show(Request $request, PantryItem $item): JsonResponse
     {
         $this->ensureOwned($item);

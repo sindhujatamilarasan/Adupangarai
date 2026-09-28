@@ -9,6 +9,7 @@ use App\Support\Nutrition;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class MealPlanController extends Controller
@@ -40,6 +41,27 @@ class MealPlanController extends Controller
         $plan = MealPlan::create([...$data, 'household_id' => $request->user()->household_id]);
 
         return response()->json(['data' => $plan->load('recipe')], 201);
+    }
+
+    /** Add several planned meals at once (e.g. an accepted AI plan). All or nothing. */
+    public function bulk(Request $request): JsonResponse
+    {
+        $household = $request->user()->household_id;
+        $data = $request->validate([
+            'entries' => ['required', 'array', 'min:1', 'max:60'],
+            'entries.*.date' => ['required', 'date_format:Y-m-d'],
+            'entries.*.meal_type' => ['required', Rule::in(Recipe::MEAL_TYPES)],
+            'entries.*.recipe_id' => ['required', Rule::exists('recipes', 'id')->where(
+                fn ($q) => $q->whereNull('household_id')->orWhere('household_id', $household)
+            )],
+            'entries.*.servings' => ['required', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        DB::transaction(fn () => collect($data['entries'])->each(
+            fn ($e) => MealPlan::create([...$e, 'household_id' => $household])
+        ));
+
+        return response()->json(['message' => count($data['entries']).' meal(s) added to your plan.'], 201);
     }
 
     public function update(Request $request, MealPlan $mealPlan): JsonResponse
