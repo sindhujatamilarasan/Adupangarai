@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Support\RecipeMatcher;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,6 +51,7 @@ class RecipeController extends Controller
                 'requested_servings' => $servings,
                 'ingredients' => $recipe->scaledIngredients($servings),
                 'steps' => $recipe->steps->pluck('text'),
+                'match' => RecipeMatcher::match($recipe, RecipeMatcher::pantryFor($request->user()->household_id), $servings),
             ],
         ]);
     }

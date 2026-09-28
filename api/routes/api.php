@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CookController;
 use App\Http\Controllers\Api\IngredientController;
 use App\Http\Controllers\Api\PantryController;
 use App\Http\Controllers\Api\RecipeController;
@@ -27,4 +28,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/pantry/{item}', [PantryController::class, 'destroy']);
 
     Route::apiResource('recipes', RecipeController::class);
+    Route::get('/cook', [CookController::class, 'index']);
 });

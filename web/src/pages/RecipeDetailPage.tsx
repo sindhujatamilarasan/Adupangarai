@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api, ApiError, fmtQty, useApi, type RecipeDetail } from '../api'
 import { Alert, ErrorState, Spinner } from '../components/ui'
+import { MatchBar } from './CookPage'
 import { VegDot } from './RecipesPage'
 
 export default function RecipeDetailPage() {
@@ -26,6 +27,8 @@ export default function RecipeDetailPage() {
   if (!recipe) return <ErrorState message={res.error ?? 'Recipe not found.'} onRetry={res.reload} />
 
   const current = recipe.requested_servings
+  const m = recipe.match
+  const shortById = new Map([...m.insufficient, ...m.missing, ...m.optional_missing].map((r) => [r.ingredient_id, r]))
   return (
     <div className="space-y-5">
       <button onClick={() => navigate(-1)} className="text-sm font-bold text-muted">
@@ -74,18 +77,37 @@ export default function RecipeDetailPage() {
           </div>
         </div>
         {res.error && <Alert kind="error">{res.error}</Alert>}
+        <div className="mb-2">
+          <MatchBar percent={m.match_percent} status={m.status} />
+          <p className="mt-1 text-xs text-muted">
+            {m.status === 'available' ? 'You have everything for this.' : 'Compared with what’s in your kitchen (expired items excluded).'}
+          </p>
+        </div>
         <ul className={`divide-y divide-line ${res.loading ? 'opacity-50' : ''}`}>
-          {recipe.ingredients.map((i) => (
-            <li key={i.ingredient_id} className="flex justify-between py-2.5">
-              <span>
-                {i.ingredient.name}
-                {i.optional && <span className="ml-1 text-xs text-muted">(optional)</span>}
-              </span>
-              <span className="font-bold">
-                {fmtQty(i.quantity)} {i.unit}
-              </span>
-            </li>
-          ))}
+          {recipe.ingredients.map((i) => {
+            const short = shortById.get(i.ingredient_id)
+            return (
+              <li key={i.ingredient_id} className="flex items-center justify-between gap-3 py-2.5">
+                <span className="flex items-center gap-2">
+                  <span aria-hidden className={short ? (short.optional ? 'text-muted' : 'text-red-700') : 'text-leaf'}>
+                    {short ? '○' : '✓'}
+                  </span>
+                  <span>
+                    {i.ingredient.name}
+                    {i.optional && <span className="ml-1 text-xs text-muted">(optional)</span>}
+                    {short && (
+                      <span className={`block text-xs ${short.optional ? 'text-muted' : 'text-red-700'}`}>
+                        {short.have > 0 ? `Have ${fmtQty(short.have)} · need ${fmtQty(short.short ?? 0)} more` : 'Not in kitchen'}
+                      </span>
+                    )}
+                  </span>
+                </span>
+                <span className="shrink-0 font-bold">
+                  {fmtQty(i.quantity)} {i.unit}
+                </span>
+              </li>
+            )
+          })}
         </ul>
       </section>
 

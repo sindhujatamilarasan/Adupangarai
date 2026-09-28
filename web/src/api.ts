@@ -124,4 +124,21 @@ export type RecipeDetail = Omit<RecipeSummary, 'ingredients_count'> & {
   requested_servings: number
   ingredients: RecipeIngredientRow[]
   steps: string[]
+  match: RecipeMatch
+}
+
+export type MatchRow = { ingredient_id: number; name: string; unit: UnitValue; need: number; have: number; optional: boolean; short?: number }
+export type RecipeMatch = {
+  servings: number
+  match_percent: number
+  status: 'available' | 'almost' | 'unavailable'
+  available: MatchRow[]
+  missing: MatchRow[]
+  insufficient: MatchRow[]
+  optional_missing: MatchRow[]
+  uses_expiring: { ingredient_id: number; name: string; days_to_expiry: number }[]
+}
+export type CookResult = {
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg'>
+  match: RecipeMatch
 }

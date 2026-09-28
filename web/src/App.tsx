@@ -4,6 +4,7 @@ import BottomNav from './components/BottomNav'
 import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
 import ComingSoon from './pages/ComingSoon'
+import CookPage from './pages/CookPage'
 import HomePage from './pages/HomePage'
 import KitchenPage from './pages/KitchenPage'
 import ProfilePage from './pages/ProfilePage'
@@ -44,7 +45,8 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/kitchen" element={<KitchenPage />} />
-            <Route path="/cook" element={<RecipesPage />} />
+            <Route path="/cook" element={<CookPage />} />
+            <Route path="/recipes" element={<RecipesPage />} />
             <Route path="/recipes/new" element={<RecipeFormPage />} />
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />

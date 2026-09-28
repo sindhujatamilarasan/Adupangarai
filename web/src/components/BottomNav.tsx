@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 const tabs = [
   { to: '/', label: 'Home', icon: 'M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z' },
@@ -9,6 +9,7 @@ const tabs = [
 ]
 
 export default function BottomNav() {
+  const { pathname } = useLocation()
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       <ul className="mx-auto flex max-w-lg justify-around">
@@ -18,7 +19,7 @@ export default function BottomNav() {
               to={t.to}
               end={t.to === '/'}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-2 text-xs font-semibold ${isActive ? 'text-brand' : 'text-muted'}`
+                `flex flex-col items-center gap-0.5 px-3 py-2 text-xs font-semibold ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'text-brand' : 'text-muted'}`
               }
             >
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
