@@ -5,6 +5,7 @@ import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
 import ComingSoon from './pages/ComingSoon'
 import HomePage from './pages/HomePage'
+import KitchenPage from './pages/KitchenPage'
 import ProfilePage from './pages/ProfilePage'
 
 function AppShell() {
@@ -39,7 +40,7 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/kitchen" element={<ComingSoon title="Kitchen" emoji="🧺" />} />
+            <Route path="/kitchen" element={<KitchenPage />} />
             <Route path="/cook" element={<ComingSoon title="What can I cook?" emoji="🍳" />} />
             <Route path="/planner" element={<ComingSoon title="Meal planner" emoji="📅" />} />
             <Route path="/groceries" element={<ComingSoon title="Groceries" emoji="🛒" />} />

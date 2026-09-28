@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
@@ -65,4 +65,53 @@ export function Field({ label, error, ...props }: InputHTMLAttributes<HTMLInputE
       {error && <span className="mt-1 block text-sm text-red-700">{error}</span>}
     </label>
   )
+}
+
+export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 sm:items-center" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[90svh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-cream p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-extrabold">{title}</h2>
+          <button onClick={onClose} aria-label="Close" className="grid size-9 place-items-center rounded-full bg-white text-xl text-muted">
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+export function Select({ label, error, children, ...props }: SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-sm font-semibold text-muted">{label}</span>
+      <select
+        {...props}
+        className={`w-full rounded-xl border bg-white px-3 py-3 outline-none focus:border-brand ${error ? 'border-red-400' : 'border-line'}`}
+      >
+        {children}
+      </select>
+      {error && <span className="mt-1 block text-sm text-red-700">{error}</span>}
+    </label>
+  )
+}
+
+const badgeStyles = {
+  red: 'bg-red-100 text-red-800',
+  amber: 'bg-amber-100 text-amber-800',
+  green: 'bg-green-100 text-green-800',
+  gray: 'bg-stone-100 text-stone-700',
+}
+
+export function Badge({ color, children }: { color: keyof typeof badgeStyles; children: ReactNode }) {
+  return <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${badgeStyles[color]}`}>{children}</span>
 }
