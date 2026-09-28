@@ -1,14 +1,19 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api, ApiError, fmtQty, useApi, type RecipeDetail } from '../api'
-import { Alert, ErrorState, Spinner } from '../components/ui'
+import CookSheet from '../components/CookSheet'
+import { Alert, Button, ErrorState, Spinner } from '../components/ui'
 import { MatchBar } from './CookPage'
 import { VegDot } from './RecipesPage'
 
 export default function RecipeDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [servings, setServings] = useState<number | null>(null)
+  const [params] = useSearchParams()
+  const planId = params.get('plan')
+  const [servings, setServings] = useState<number | null>(Number(params.get('servings')) || null)
+  const [cooking, setCooking] = useState(false)
+  const [cooked, setCooked] = useState('')
   const res = useApi<{ data: RecipeDetail }>(`/recipes/${id}${servings ? `?servings=${servings}` : ''}`)
   const recipe = res.data?.data
   const [error, setError] = useState('')
@@ -123,6 +128,22 @@ export default function RecipeDetailPage() {
             ))}
           </ol>
         </section>
+      )}
+
+      {cooked && <Alert kind="success">{cooked}</Alert>}
+      <Button onClick={() => setCooking(true)}>🍳 Cook this · serves {current}</Button>
+      {cooking && (
+        <CookSheet
+          recipeId={recipe.id}
+          servings={current}
+          mealPlanId={planId ? Number(planId) : null}
+          onClose={() => setCooking(false)}
+          onCooked={(message) => {
+            setCooking(false)
+            setCooked(message)
+            res.reload()
+          }}
+        />
       )}
 
       {recipe.is_editable && (

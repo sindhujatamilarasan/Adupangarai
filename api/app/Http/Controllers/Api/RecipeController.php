@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
+use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Support\CookDeduction;
 use App\Support\RecipeMatcher;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
@@ -54,6 +56,38 @@ class RecipeController extends Controller
                 'match' => RecipeMatcher::match($recipe, RecipeMatcher::pantryFor($request->user()->household_id), $servings),
             ],
         ]);
+    }
+
+    /** Preview of what cooking would deduct. Changes nothing. */
+    public function cookPreview(Request $request, Recipe $recipe): JsonResponse
+    {
+        $this->ensureVisible($recipe);
+        $servings = (int) ($request->validate(['servings' => ['nullable', 'integer', 'min:1', 'max:100']])['servings'] ?? $recipe->servings);
+        $recipe->load('ingredients.ingredient');
+
+        return response()->json([
+            'data' => CookDeduction::preview($recipe, RecipeMatcher::pantryFor($request->user()->household_id), $servings),
+            'servings' => $servings,
+        ]);
+    }
+
+    public function cook(Request $request, Recipe $recipe): JsonResponse
+    {
+        $this->ensureVisible($recipe);
+        $user = $request->user();
+        $data = $request->validate([
+            'servings' => ['required', 'integer', 'min:1', 'max:100'],
+            'meal_plan_id' => ['nullable', 'integer'],
+        ]);
+
+        $plan = null;
+        if (isset($data['meal_plan_id'])) {
+            $plan = MealPlan::where('household_id', $user->household_id)->where('recipe_id', $recipe->id)->findOrFail($data['meal_plan_id']);
+        }
+
+        $rows = CookDeduction::apply($recipe->load('ingredients.ingredient'), $user->household_id, $data['servings'], $user->id, $plan);
+
+        return response()->json(['data' => $rows, 'message' => "Enjoy your {$recipe->name}! Kitchen updated."]);
     }
 
     public function store(Request $request): JsonResponse

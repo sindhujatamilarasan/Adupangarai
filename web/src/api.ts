@@ -179,3 +179,16 @@ export type GroceryResponse = {
   list: { planned_from: string | null; planned_to: string | null }
   summary: { total: number; remaining: number; to_add_to_pantry: number; spent: number }
 }
+
+export type CookRow = {
+  ingredient_id: number
+  name: string
+  optional: boolean
+  need: number
+  unit: UnitValue
+  short: number
+  pantry_item_id: number | null
+  deduct: number
+  pantry_unit: UnitValue | null
+  pantry_after: number | null
+}

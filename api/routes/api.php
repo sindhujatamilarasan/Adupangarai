@@ -30,6 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/pantry/{item}', [PantryController::class, 'destroy']);
 
     Route::apiResource('recipes', RecipeController::class);
+    Route::get('/recipes/{recipe}/cook', [RecipeController::class, 'cookPreview']);
+    Route::post('/recipes/{recipe}/cook', [RecipeController::class, 'cook']);
     Route::get('/cook', [CookController::class, 'index']);
 
     Route::apiResource('meal-plans', MealPlanController::class)->except('show');
