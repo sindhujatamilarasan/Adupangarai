@@ -16,11 +16,16 @@ services:
 
   api:
     build: ./api
+    user: "${UID:-1000}:${GID:-1000}" # files written to ./api stay owned by you
     working_dir: /app
     volumes: ["./api:/app"]
     environment:
       DB_HOST: db
       DB_PORT: 5432
+      # Several workers so a slow AI request doesn't block other requests.
+      HOME: /tmp
+      PHP_CLI_SERVER_WORKERS: 4
+      AI_BASE_URL: ${AI_BASE_URL:-http://ollama:11434/v1}
     ports: ["8787:8000"]
     depends_on:
       db: { condition: service_healthy }
@@ -33,13 +38,30 @@ services:
 
   web:
     image: node:22-alpine
+    user: "${UID:-1000}:${GID:-1000}"
     working_dir: /app
     volumes: ["./web:/app"]
     environment:
+      HOME: /tmp
       VITE_API_PROXY: http://api:8000
     ports: ["5173:5173"]
     depends_on: [api]
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
+  # Free local AI (no key). Swap to a hosted free tier via AI_* settings in api/.env.
+  ollama:
+    image: ollama/ollama:latest
+    volumes: ["ollama:/root/.ollama"]
+    ports: ["11435:11434"]
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: ollama:11434
+    depends_on: [ollama]
+    entrypoint: ["sh", "-c", "sleep 3 && ollama pull ${AI_MODEL:-qwen2.5:3b}"]
+    restart: "no"
+
 volumes:
   pgdata:
+  ollama:

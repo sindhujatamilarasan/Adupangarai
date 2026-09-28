@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recipe;
+use App\Support\Nutrition;
 use App\Support\RecipeMatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class CookController extends Controller
             'filter' => ['nullable', Rule::in(['all', 'available', 'almost', 'use_soon'])],
             'meal_type' => ['nullable', Rule::in(Recipe::MEAL_TYPES)],
             'max_time' => ['nullable', 'integer', 'min:1'],
+            'health' => ['nullable', Rule::in(Nutrition::TAGS)],
         ]);
         $household = $request->user()->household_id;
         $pantry = RecipeMatcher::pantryFor($household);
@@ -26,6 +28,7 @@ class CookController extends Controller
             ->with('ingredients.ingredient')
             ->when($filters['meal_type'] ?? null, fn ($q, $t) => $q->where('meal_type', $t))
             ->when($filters['max_time'] ?? null, fn ($q, $t) => $q->whereRaw('prep_time + cook_time <= ?', [$t]))
+            ->when($filters['health'] ?? null, fn ($q, $tag) => Nutrition::whereTag($q, $tag))
             ->get();
 
         $results = RecipeMatcher::matchAll($recipes, $pantry);

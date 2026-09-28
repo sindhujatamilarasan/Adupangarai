@@ -118,7 +118,12 @@ export type RecipeSummary = {
   is_veg: boolean
   is_editable: boolean
   ingredients_count: number
-}
+  health_tags: HealthTag[]
+} & NutritionValues
+
+export type HealthTag = 'high_protein' | 'low_calorie' | 'high_fiber'
+/** Estimated, per serving; null until estimated. */
+export type NutritionValues = { calories: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null; fiber_g: number | null }
 export type RecipeIngredientRow = { ingredient_id: number; ingredient: Ingredient; quantity: number; unit: UnitValue; optional: boolean }
 export type RecipeDetail = Omit<RecipeSummary, 'ingredients_count'> & {
   requested_servings: number
@@ -139,7 +144,7 @@ export type RecipeMatch = {
   uses_expiring: { ingredient_id: number; name: string; days_to_expiry: number }[]
 }
 export type CookResult = {
-  recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg'>
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg' | 'calories' | 'protein_g' | 'health_tags'>
   match: RecipeMatch
 }
 
@@ -150,8 +155,9 @@ export type MealPlanEntry = {
   recipe_id: number
   servings: number
   cooked_at: string | null
-  recipe: Pick<RecipeSummary, 'id' | 'name' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg'>
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g' | 'fiber_g'>
 }
+export type DayNutrition = { calories: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number; missing: number }
 
 /** Local calendar date as YYYY-MM-DD (display/navigation only). */
 export const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

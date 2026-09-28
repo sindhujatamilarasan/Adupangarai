@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { addDays, api, ApiError, isoDate, MEAL_TYPES, useApi, type MealPlanEntry, type MealType, type RecipeSummary } from '../api'
+import { addDays, api, ApiError, isoDate, MEAL_TYPES, useApi, type DayNutrition, type MealPlanEntry, type MealType, type RecipeSummary } from '../api'
+import { ProteinWeekChart } from '../components/Health'
 import { Alert, Button, ErrorState, Sheet, Spinner } from '../components/ui'
 import { VegDot } from './RecipesPage'
 
@@ -10,7 +11,7 @@ type Editing = { mode: 'add'; date: string; meal_type: MealType } | { mode: 'edi
 
 export default function PlannerPage() {
   const [start, setStart] = useState<string | null>(null)
-  const res = useApi<{ data: MealPlanEntry[]; start: string; end: string }>(`/meal-plans${start ? `?start=${start}` : ''}`)
+  const res = useApi<{ data: MealPlanEntry[]; start: string; end: string; nutrition: Record<string, DayNutrition> }>(`/meal-plans${start ? `?start=${start}` : ''}`)
   const [editing, setEditing] = useState<Editing | null>(null)
   const weekStart = res.data?.start
   const today = isoDate(new Date())
@@ -42,6 +43,7 @@ export default function PlannerPage() {
       )}
 
       <div className="mt-4 space-y-4">
+        {weekStart && <ProteinWeekChart days={Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))} nutrition={res.data!.nutrition} />}
         {res.loading && !res.data && <Spinner label="Loading your week…" />}
         {res.error && <ErrorState message={res.error} onRetry={res.reload} />}
         {weekStart &&

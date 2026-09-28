@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('recipes', RecipeController::class);
     Route::get('/recipes/{recipe}/cook', [RecipeController::class, 'cookPreview']);
     Route::post('/recipes/{recipe}/cook', [RecipeController::class, 'cook']);
+    Route::post('/recipes/{recipe}/nutrition', [RecipeController::class, 'estimateNutrition'])->middleware('throttle:10,1');
     Route::get('/cook', [CookController::class, 'index']);
 
     Route::apiResource('meal-plans', MealPlanController::class)->except('show');

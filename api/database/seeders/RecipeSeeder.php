@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Support\Nutrition;
 use Illuminate\Database\Seeder;
 
 class RecipeSeeder extends Seeder
@@ -105,6 +106,25 @@ class RecipeSeeder extends Seeder
         ],
     ];
 
+    /** Estimated nutrition per serving: [kcal, protein g, carbs g, fat g, fiber g]. */
+    private const NUTRITION = [
+        'Omelette' => [210, 13, 4, 16, 1],
+        'Egg Fried Rice' => [520, 17, 80, 15, 3],
+        'Chicken Fried Rice' => [600, 36, 80, 15, 3],
+        'Chicken Curry' => [300, 30, 10, 16, 3],
+        'Tomato Rice' => [440, 8, 80, 11, 4],
+        'Curd Rice' => [330, 10, 55, 8, 1],
+        'Dal' => [230, 11, 30, 8, 7],
+        'Chapati' => [280, 9, 55, 5, 8],
+        'Upma' => [330, 8, 50, 11, 3],
+        'Paneer Butter Masala' => [420, 17, 16, 32, 3],
+        'Paneer Bhurji' => [340, 20, 9, 25, 2],
+        'Ven Pongal' => [360, 11, 52, 12, 4],
+        'Lemon Rice' => [400, 7, 70, 11, 2],
+        'Potato Poriyal' => [220, 3, 30, 10, 3],
+        'Masala Chai' => [110, 4, 13, 4, 0],
+    ];
+
     public function run(): void
     {
         $ingredients = Ingredient::pluck('id', 'name');
@@ -112,7 +132,10 @@ class RecipeSeeder extends Seeder
         foreach (self::RECIPES as $data) {
             $recipe = Recipe::updateOrCreate(
                 ['household_id' => null, 'name' => $data['name']],
-                collect($data)->except(['ingredients', 'steps'])->all(),
+                [
+                    ...collect($data)->except(['ingredients', 'steps'])->all(),
+                    ...array_combine(Nutrition::FIELDS, self::NUTRITION[$data['name']]),
+                ],
             );
 
             $recipe->ingredients()->delete();

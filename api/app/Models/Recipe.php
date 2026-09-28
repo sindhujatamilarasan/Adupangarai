@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Nutrition;
 use App\Support\Quantities;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,13 +14,18 @@ class Recipe extends Model
 
     protected $fillable = [
         'household_id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg',
+        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at',
     ];
 
-    protected $appends = ['total_time', 'is_editable'];
+    protected $appends = ['total_time', 'is_editable', 'health_tags'];
 
     protected function casts(): array
     {
-        return ['is_veg' => 'boolean', 'servings' => 'integer', 'prep_time' => 'integer', 'cook_time' => 'integer'];
+        return [
+            'is_veg' => 'boolean', 'servings' => 'integer', 'prep_time' => 'integer', 'cook_time' => 'integer',
+            'calories' => 'float', 'protein_g' => 'float', 'carbs_g' => 'float', 'fat_g' => 'float', 'fiber_g' => 'float',
+            'nutrition_estimated_at' => 'datetime',
+        ];
     }
 
     public function ingredients(): HasMany
@@ -41,6 +47,11 @@ class Recipe extends Model
     public function getTotalTimeAttribute(): int
     {
         return $this->prep_time + $this->cook_time;
+    }
+
+    public function getHealthTagsAttribute(): array
+    {
+        return Nutrition::tags($this);
     }
 
     public function getIsEditableAttribute(): bool

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApi, type RecipeSummary } from '../api'
+import { HealthBadges } from '../components/Health'
 import { EmptyState, ErrorState, Spinner } from '../components/ui'
 
 const filters = [
@@ -11,6 +12,9 @@ const filters = [
   { key: 'meal_type=snack', label: 'Snack' },
   { key: 'max_time=30', label: 'Under 30 min' },
   { key: 'veg=1', label: 'Veg' },
+  { key: 'health=high_protein', label: '💪 High protein' },
+  { key: 'health=low_calorie', label: '🥗 Low calorie' },
+  { key: 'health=high_fiber', label: '🌾 High fiber' },
   { key: 'mine=1', label: 'My recipes' },
 ]
 
@@ -78,7 +82,13 @@ export default function RecipesPage() {
             {r.description && <p className="mt-1 line-clamp-1 text-sm text-muted">{r.description}</p>}
             <p className="mt-1 text-xs font-semibold capitalize text-brand">
               {r.meal_type} · serves {r.servings} · {r.ingredients_count} ingredients
+              {r.calories !== null && <span className="normal-case text-muted"> · {r.calories} kcal · {r.protein_g} g protein</span>}
             </p>
+            {r.health_tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <HealthBadges tags={r.health_tags} />
+              </div>
+            )}
           </Link>
         ))}
       </div>

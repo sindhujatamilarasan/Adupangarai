@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\AiUnavailable;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,4 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*'));
+        $exceptions->dontReport(AiUnavailable::class);
+        $exceptions->render(fn (AiUnavailable $e) => response()->json(['message' => $e->getMessage()], 503));
     })->create();

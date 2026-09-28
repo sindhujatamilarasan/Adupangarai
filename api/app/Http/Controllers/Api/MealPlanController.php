@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Support\Nutrition;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -21,11 +22,16 @@ class MealPlanController extends Controller
 
         $plans = MealPlan::where('household_id', $request->user()->household_id)
             ->whereBetween('date', [$start, $end])
-            ->with('recipe:id,name,meal_type,servings,prep_time,cook_time,is_veg')
+            ->with('recipe:id,name,meal_type,servings,prep_time,cook_time,is_veg,calories,protein_g,carbs_g,fat_g,fiber_g')
             ->orderBy('date')->orderBy('id')
             ->get();
 
-        return response()->json(['data' => $plans, 'start' => $start->toDateString(), 'end' => $end->toDateString()]);
+        return response()->json([
+            'data' => $plans,
+            'start' => $start->toDateString(),
+            'end' => $end->toDateString(),
+            'nutrition' => Nutrition::dailyTotals($plans),
+        ]);
     }
 
     public function store(Request $request): JsonResponse

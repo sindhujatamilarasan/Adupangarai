@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fmtQty, useApi, type CookResult } from '../api'
+import { HealthBadges } from '../components/Health'
 import { Badge, EmptyState, ErrorState, Spinner } from '../components/ui'
 import { VegDot } from './RecipesPage'
 
@@ -16,6 +17,8 @@ const extras = [
   { key: 'meal_type=lunch', label: 'Lunch' },
   { key: 'meal_type=dinner', label: 'Dinner' },
   { key: 'max_time=30', label: 'Under 30 min' },
+  { key: 'health=high_protein', label: '💪 High protein' },
+  { key: 'health=low_calorie', label: '🥗 Low calorie' },
 ]
 
 const empty: Record<string, [string, string, string]> = {
@@ -100,12 +103,15 @@ export default function CookPage() {
             <div className="flex items-center gap-2">
               <VegDot veg={recipe.is_veg} />
               <p className="flex-1 truncate font-bold">{recipe.name}</p>
-              <span className="text-xs font-semibold text-muted">{recipe.total_time} min</span>
+              <span className="text-xs font-semibold text-muted">
+                {recipe.total_time} min{recipe.calories !== null && ` · ${recipe.calories} kcal`}
+              </span>
             </div>
             <MatchBar percent={match.match_percent} status={match.status} />
             <p className={`text-sm ${match.status === 'available' ? 'font-semibold text-leaf' : 'text-muted'}`}>{shortSummary(match)}</p>
-            {match.uses_expiring.length > 0 && (
+            {(match.uses_expiring.length > 0 || recipe.health_tags.length > 0) && (
               <div className="flex flex-wrap gap-1.5">
+                <HealthBadges tags={recipe.health_tags} />
                 {match.uses_expiring.map((e) => (
                   <Badge key={e.ingredient_id} color="amber">
                     Uses {e.name} · {e.days_to_expiry === 0 ? 'today' : e.days_to_expiry === 1 ? 'tomorrow' : `${e.days_to_expiry}d`}

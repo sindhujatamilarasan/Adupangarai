@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api, ApiError, fmtQty, useApi, type RecipeDetail } from '../api'
 import CookSheet from '../components/CookSheet'
+import { HealthBadges, NutritionCard } from '../components/Health'
 import { Alert, Button, ErrorState, Spinner } from '../components/ui'
 import { MatchBar } from './CookPage'
 import { VegDot } from './RecipesPage'
@@ -50,11 +51,14 @@ export default function RecipeDetailPage() {
         </div>
         <h1 className="mt-1 text-3xl font-extrabold">{recipe.name}</h1>
         {recipe.description && <p className="mt-1 text-muted">{recipe.description}</p>}
-        <div className="mt-3 flex gap-2 text-sm">
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
           <span className="rounded-full bg-white px-3 py-1 font-semibold">Prep {recipe.prep_time} min</span>
           <span className="rounded-full bg-white px-3 py-1 font-semibold">Cook {recipe.cook_time} min</span>
+          <HealthBadges tags={recipe.health_tags} />
         </div>
       </header>
+
+      <NutritionCard recipeId={recipe.id} values={recipe} canEstimate={recipe.is_editable} onEstimated={res.reload} />
 
       {error && <Alert kind="error">{error}</Alert>}
 

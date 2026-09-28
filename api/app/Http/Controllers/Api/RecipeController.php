@@ -7,6 +7,7 @@ use App\Models\Ingredient;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Support\CookDeduction;
+use App\Support\Nutrition;
 use App\Support\RecipeMatcher;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
@@ -25,6 +26,7 @@ class RecipeController extends Controller
             'veg' => ['nullable', 'boolean'],
             'max_time' => ['nullable', 'integer', 'min:1'],
             'mine' => ['nullable', 'boolean'],
+            'health' => ['nullable', Rule::in(Nutrition::TAGS)],
         ]);
 
         $recipes = Recipe::visibleTo($request->user()->household_id)
@@ -34,6 +36,7 @@ class RecipeController extends Controller
             ->when(isset($filters['veg']), fn ($q) => $q->where('is_veg', $request->boolean('veg')))
             ->when($filters['max_time'] ?? null, fn ($q, $t) => $q->whereRaw('prep_time + cook_time <= ?', [$t]))
             ->when($request->boolean('mine'), fn ($q) => $q->whereNotNull('household_id'))
+            ->when($filters['health'] ?? null, fn ($q, $tag) => Nutrition::whereTag($q, $tag))
             ->orderBy('name')
             ->get();
 
@@ -49,13 +52,22 @@ class RecipeController extends Controller
 
         return response()->json([
             'data' => [
-                ...$recipe->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg', 'total_time', 'is_editable']),
+                ...$recipe->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg', 'total_time', 'is_editable', 'health_tags', ...Nutrition::FIELDS]),
                 'requested_servings' => $servings,
                 'ingredients' => $recipe->scaledIngredients($servings),
                 'steps' => $recipe->steps->pluck('text'),
                 'match' => RecipeMatcher::match($recipe, RecipeMatcher::pantryFor($request->user()->household_id), $servings),
             ],
         ]);
+    }
+
+    /** AI estimate of per-serving nutrition for the household's own recipe. */
+    public function estimateNutrition(Recipe $recipe): JsonResponse
+    {
+        $this->ensureOwned($recipe);
+        $recipe->update([...Nutrition::estimate($recipe), 'nutrition_estimated_at' => now()]);
+
+        return response()->json(['data' => $recipe->only([...Nutrition::FIELDS, 'health_tags'])]);
     }
 
     /** Preview of what cooking would deduct. Changes nothing. */
@@ -110,7 +122,8 @@ class RecipeController extends Controller
         $data = $this->validated($request);
 
         DB::transaction(function () use ($recipe, $data) {
-            $recipe->update($data);
+            // Ingredients may have changed, so the old estimate no longer applies.
+            $recipe->update([...$data, ...array_fill_keys(Nutrition::FIELDS, null), 'nutrition_estimated_at' => null]);
             $this->syncChildren($recipe, $data);
         });
 
