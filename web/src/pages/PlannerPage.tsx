@@ -31,8 +31,8 @@ export default function PlannerPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold">Meal planner</h1>
-        <button onClick={() => setAiOpen(true)} className="rounded-full bg-gradient-to-br from-brand to-brand-dark px-4 py-2 text-sm font-extrabold text-white shadow-sm">
-          <span className="text-accent">✨</span> AI plan
+        <button onClick={() => setAiOpen(true)} className="rounded-full bg-brand px-4 py-2 text-sm font-extrabold text-kolam shadow-sm">
+          ✨ AI plan
         </button>
       </div>
       {flash && (
@@ -61,7 +61,7 @@ export default function PlannerPage() {
         {res.error && <ErrorState message={res.error} onRetry={res.reload} />}
         {weekStart &&
           Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).map((date) => (
-            <section key={date} className={`rounded-3xl bg-white p-4 ${date === today ? 'ring-2 ring-brand' : ''}`}>
+            <section key={date} className={`kolam-card rounded-3xl px-1.5 py-4 ${date === today ? 'ring-2 ring-brand' : ''}`}>
               <h2 className="mb-2 font-extrabold">
                 {fmt(date, { weekday: 'long' })} <span className="font-semibold text-muted">{fmt(date, { day: 'numeric', month: 'short' })}</span>
                 {date === today && <span className="ml-2 text-xs font-bold text-brand">TODAY</span>}

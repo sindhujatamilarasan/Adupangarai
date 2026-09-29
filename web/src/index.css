@@ -1,20 +1,58 @@
 @import "tailwindcss";
 
-/* Adupangarai theme: peacock teal + turmeric gold on ivory (all text pairs >= 4.5:1). */
+/* Adupangarai kambi kolam theme: rice-flour white lines on kaavi (earth) brown. All text pairs >= 5.7:1. */
 @theme {
-  --color-cream: #f6f4ec;
-  --color-ink: #16282a;
-  --color-muted: #5f7072;
-  --color-line: #e2e1d5;
-  --color-brand: #0e7479;
-  --color-brand-dark: #0a4d52;
-  --color-accent: #f2b42c;
+  --color-cream: #faf5ec;
+  --color-ink: #2d1a10;
+  --color-muted: #735c4b;
+  --color-line: #e3d3bd;
+  --color-brand: #7b3f1d;
+  --color-brand-dark: #5e2e14;
+  --color-accent: #e8a33a;
+  --color-kolam: #fffaf2;
+  --color-kolam-muted: #e8d3bd;
   --color-leaf: #4f8a3c;
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   @apply bg-cream text-ink antialiased;
-  background-image: radial-gradient(circle at 100% 0%, #dcefec 0, transparent 40%), radial-gradient(circle at 0% 30%, #fbf0d2 0, transparent 35%);
+  /* faint pulli (dot) grid, like a kolam floor before drawing */
+  background-image: radial-gradient(rgb(123 63 29 / 0.09) 1.1px, transparent 1.3px);
+  background-size: 24px 24px;
   background-attachment: fixed;
+}
+
+/* Kambi kolam border strips (tiles in /public). */
+@utility kolam-band-white {
+  height: 16px;
+  background: url(/kolam-white.svg) repeat-x center / 16px 16px;
+}
+@utility kolam-band-brown {
+  height: 14px;
+  background: url(/kolam-brown.svg) repeat-x center / 14px 14px;
+}
+
+/* Section card framed top and bottom by a soft kolam line. */
+@utility kolam-card {
+  /* white border keeps the kolam lines clear of the rounded corners */
+  border: 10px solid #fff;
+  background:
+    url(/kolam-soft.svg) repeat-x left top 0.1rem / 14px 14px,
+    url(/kolam-soft.svg) repeat-x left bottom 0.1rem / 14px 14px,
+    #fff;
+  background-clip: padding-box, padding-box, border-box;
+  background-origin: padding-box;
+}
+
+/* Page titles get a short kolam underline. */
+@layer base {
+  main h1::after {
+    content: '';
+    display: block;
+    width: 6.5rem;
+    height: 12px;
+    margin-top: 4px;
+    background: url(/kolam-brown.svg) repeat-x left center / 12px 12px;
+  }
 }

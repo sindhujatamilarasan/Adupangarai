@@ -100,7 +100,7 @@ export default function RecipeDetailPage() {
 
       {error && <Alert kind="error">{error}</Alert>}
 
-      <section className="rounded-3xl bg-white p-4">
+      <section className="kolam-card rounded-3xl px-1.5 py-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-extrabold">Ingredients</h2>
           <div className="flex items-center gap-2 rounded-full bg-cream p-1">
@@ -160,7 +160,7 @@ export default function RecipeDetailPage() {
       </section>
 
       {recipe.steps.length > 0 && (
-        <section className="rounded-3xl bg-white p-4">
+        <section className="kolam-card rounded-3xl px-1.5 py-4">
           <h2 className="mb-3 text-lg font-extrabold">Method</h2>
           <ol className="space-y-3">
             {recipe.steps.map((s, i) => (

@@ -58,7 +58,7 @@ export function NutritionCard({
   }
 
   return (
-    <section className="rounded-3xl bg-white p-4">
+    <section className="kolam-card rounded-3xl px-1.5 py-4">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-lg font-extrabold">Nutrition</h2>
         <span className="text-xs text-muted">per serving · estimated</span>
@@ -118,7 +118,7 @@ export function ProteinWeekChart({ days, nutrition }: { days: string[]; nutritio
   if (!values.some((v) => v > 0)) return null
 
   return (
-    <section className="rounded-3xl bg-white p-4">
+    <section className="kolam-card rounded-3xl px-1.5 py-4">
       <div className="mb-1 flex items-baseline justify-between">
         <h2 className="font-extrabold">Protein per person</h2>
         <button onClick={() => setTable(!table)} className="text-xs font-bold text-brand">

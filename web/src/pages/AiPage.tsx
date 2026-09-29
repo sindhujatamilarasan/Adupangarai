@@ -16,17 +16,17 @@ export default function AiPage() {
 
   return (
     <div className="space-y-4">
-      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand to-brand-dark p-5 text-white shadow-sm">
-        <span className="absolute -top-8 -right-8 size-32 rounded-full bg-accent/25" aria-hidden />
+      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand to-brand-dark p-5 pb-8 text-kolam shadow-sm">
+        <div className="kolam-band-white absolute inset-x-0 bottom-2 opacity-80" aria-hidden />
         <p className="text-3xl">✨</p>
-        <h1 className="text-2xl font-extrabold">AI mode</h1>
+        <p className="text-2xl font-extrabold">AI mode</p>
         <p className="text-sm opacity-90">Talk to your kitchen. The AI only prepares drafts — you always check before anything is saved.</p>
       </header>
 
       {done && <Alert kind="success">{done}</Alert>}
 
       {actions.map((a) => (
-        <button key={a.key} onClick={() => setOpen(a.key)} className="flex w-full items-start gap-4 rounded-3xl bg-white p-4 text-left shadow-sm active:scale-[.99]">
+        <button key={a.key} onClick={() => setOpen(a.key)} className="flex w-full items-start gap-4 kolam-card rounded-3xl px-1.5 py-4 text-left shadow-sm active:scale-[.99]">
           <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-cream text-3xl">{a.emoji}</span>
           <span>
             <span className="block font-extrabold">{a.title}</span>

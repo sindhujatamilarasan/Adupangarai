@@ -113,7 +113,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
       )}
       {message && <Alert kind="error">{message}</Alert>}
 
-      <section className="space-y-3 rounded-3xl bg-white p-4">
+      <section className="space-y-3 kolam-card rounded-3xl px-1.5 py-4">
         <Field label="Name" value={form.name} onChange={set('name')} error={errors.name?.[0]} />
         <Field label="Short description" value={form.description} onChange={set('description')} error={errors.description?.[0]} />
         <div className="grid grid-cols-2 gap-3">
@@ -145,7 +145,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
         </div>
       </section>
 
-      <section className="space-y-3 rounded-3xl bg-white p-4">
+      <section className="space-y-3 kolam-card rounded-3xl px-1.5 py-4">
         <h2 className="font-extrabold">Ingredients</h2>
         {errors.ingredients && <Alert kind="error">{errors.ingredients[0]}</Alert>}
         {rows.map((row, i) => (
@@ -211,7 +211,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
         </button>
       </section>
 
-      <section className="rounded-3xl bg-white p-4">
+      <section className="kolam-card rounded-3xl px-1.5 py-4">
         <label className="block">
           <span className="mb-1 block font-extrabold">Method</span>
           <span className="mb-2 block text-sm text-muted">One step per line.</span>

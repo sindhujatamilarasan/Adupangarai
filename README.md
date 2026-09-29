@@ -7,7 +7,10 @@ Track what's in your kitchen, see which recipes you can make right now, plan the
 list that subtracts what you already have, add purchases back to the pantry, and deduct ingredients
 when you cook.
 
-**Brand:** the logo (`web/public/logo.svg`) is a clay *paanai* on the *adupu* (stove), with steam and a kolam band. The theme is peacock teal `#0e7479` with turmeric gold `#f2b42c` on ivory `#f6f4ec`. Tokens live in `web/src/index.css`, and every text colour pair meets WCAG AA.
+**Brand:** the design uses a kambi kolam theme: rice-flour white kolam lines on *kaavi* earth brown.
+- **Logo** (`web/public/logo.svg`): a clay *paanai* on the *adupu* (stove) with a kolam band and a *pulli* dot frame.
+- **Kolam band** (`web/public/kolam-*.svg`): one repeating kambi kolam tile used for the top and bottom bars, section cards, page titles and sheets.
+- **Colours:** brown `#7b3f1d` / `#5e2e14`, cream `#faf5ec`, kolam white `#fffaf2`. Tokens and the `kolam-*` utilities live in `web/src/index.css`, and every text colour pair is ≥ 5.7:1.
 
 ## Run it
 

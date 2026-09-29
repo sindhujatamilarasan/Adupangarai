@@ -78,12 +78,13 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
         onClick={(e) => e.stopPropagation()}
         className="max-h-[90svh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-cream p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl"
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold">{title}</h2>
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="text-xl font-extrabold text-brand">{title}</h2>
           <button onClick={onClose} aria-label="Close" className="grid size-9 place-items-center rounded-full bg-white text-xl text-muted">
             ×
           </button>
         </div>
+        <div className="kolam-band-brown mb-4 opacity-70" aria-hidden />
         {children}
       </div>
     </div>

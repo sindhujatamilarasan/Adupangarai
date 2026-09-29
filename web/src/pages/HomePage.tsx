@@ -8,7 +8,7 @@ import { VegDot } from './RecipesPage'
 
 function Card({ title, link, linkLabel, children }: { title: string; link?: string; linkLabel?: string; children: ReactNode }) {
   return (
-    <section className="rounded-3xl bg-white p-4 shadow-sm">
+    <section className="kolam-card rounded-3xl px-1.5 py-4 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="font-extrabold">{title}</h2>
         {link && (
@@ -83,7 +83,7 @@ export default function HomePage() {
                 <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
                   {d.cook_now.map(({ recipe }) => (
                     <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="w-36 shrink-0">
-                      <RecipeCover recipe={recipe} className="h-24 w-36 rounded-2xl" />
+                      <RecipeCover recipe={recipe} framed className="h-24 w-36 rounded-2xl" />
                       <span className="mt-1.5 flex items-center gap-1.5 text-sm font-bold">
                         <VegDot veg={recipe.is_veg} />
                         <span className="truncate">{recipe.name}</span>
@@ -131,12 +131,12 @@ export default function HomePage() {
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <Link to="/kitchen" className="rounded-3xl bg-white p-4 shadow-sm">
+            <Link to="/kitchen" className="kolam-card rounded-3xl px-1.5 py-4 shadow-sm">
               <p className="text-3xl font-extrabold">{d.low_stock.length}</p>
               <p className="text-sm font-semibold text-muted">Low stock</p>
               {d.low_stock.length > 0 && <p className="mt-1 truncate text-xs text-muted">{d.low_stock.map((i) => i.ingredient.name).join(', ')}</p>}
             </Link>
-            <Link to="/groceries" className="rounded-3xl bg-white p-4 shadow-sm">
+            <Link to="/groceries" className="kolam-card rounded-3xl px-1.5 py-4 shadow-sm">
               <p className="text-3xl font-extrabold">{d.grocery_remaining}</p>
               <p className="text-sm font-semibold text-muted">Groceries to buy</p>
             </Link>

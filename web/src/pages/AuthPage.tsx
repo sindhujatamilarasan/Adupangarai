@@ -40,8 +40,9 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     <main className="mx-auto flex min-h-svh max-w-sm flex-col justify-center px-6 py-10">
       <div className="mb-8 text-center">
         <img src="/logo.svg" alt="" className="mx-auto size-24 rounded-3xl shadow-lg" />
-        <h1 className="mt-3 text-3xl font-extrabold text-brand">Adupangarai</h1>
+        <p className="mt-3 text-3xl font-extrabold text-brand">Adupangarai</p>
         <p className="text-sm font-semibold text-muted">அடுப்பங்கரை</p>
+        <div className="kolam-band-brown mx-auto my-3 w-48" aria-hidden />
         <p className="text-muted">{isRegister ? 'Set up your kitchen' : 'Welcome back to your kitchen'}</p>
       </div>
 
