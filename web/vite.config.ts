@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
+      '/storage': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
     },
   },
 })

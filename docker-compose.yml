@@ -32,6 +32,7 @@ services:
     command: >
       sh -c "composer install --no-interaction &&
              ([ -f .env ] || (cp .env.example .env && php artisan key:generate)) &&
+             ([ -L public/storage ] || ln -s ../storage/app/public public/storage) &&
              php artisan migrate --force &&
              php artisan db:seed --force &&
              php artisan serve --no-reload --host=0.0.0.0 --port=8000"

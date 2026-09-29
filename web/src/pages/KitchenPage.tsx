@@ -3,6 +3,7 @@ import { api, ApiError, fmtQty, useApi, type PantryItem, type PantryView, type U
 import AddPantrySheet from '../components/AddPantrySheet'
 import { AiPantrySheet } from '../components/AiSheets'
 import PantryItemSheet, { StatusBadges } from '../components/PantryItemSheet'
+import { IconTile } from '../components/RecipeCover'
 import { Alert, EmptyState, ErrorState, Spinner } from '../components/ui'
 
 const views: { key: PantryView; label: string }[] = [
@@ -101,14 +102,16 @@ export default function KitchenPage() {
             onClick={() => setOpenId(item.id)}
             className="flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm active:scale-[.99]"
           >
-            <span className="text-2xl" aria-hidden>
-              {item.storage_location ? locationIcon[item.storage_location] : '🥄'}
-            </span>
+            <IconTile icon={item.ingredient.display_icon} className="size-12 text-2xl" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-bold">{item.ingredient.name}</p>
               <div className="mt-0.5 flex flex-wrap gap-1.5">
                 <StatusBadges item={item} />
-                {!item.expiry_status && !item.is_low_stock && <span className="text-xs text-muted">{item.ingredient.category.name}</span>}
+                {!item.expiry_status && !item.is_low_stock && (
+                  <span className="text-xs text-muted">
+                    {item.storage_location ? `${locationIcon[item.storage_location]} ${item.storage_location}` : item.ingredient.category.name}
+                  </span>
+                )}
               </div>
             </div>
             <p className={`shrink-0 text-lg font-extrabold ${item.quantity === 0 ? 'text-muted' : ''}`}>

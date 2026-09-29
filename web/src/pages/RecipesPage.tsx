@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useApi, type RecipeSummary } from '../api'
 import { AiRecipeSheet } from '../components/AiSheets'
 import { HealthBadges } from '../components/Health'
+import RecipeCover from '../components/RecipeCover'
 import { EmptyState, ErrorState, Spinner } from '../components/ui'
 
 const filters = [
@@ -80,7 +81,9 @@ export default function RecipesPage() {
           </EmptyState>
         )}
         {recipes.data?.data.map((r) => (
-          <Link key={r.id} to={`/recipes/${r.id}`} className="block rounded-2xl bg-white p-4 shadow-sm active:scale-[.99]">
+          <Link key={r.id} to={`/recipes/${r.id}`} className="flex gap-3 rounded-3xl bg-white p-3 shadow-sm active:scale-[.99]">
+            <RecipeCover recipe={r} className="size-24 shrink-0 rounded-2xl" />
+            <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <VegDot veg={r.is_veg} />
               <p className="flex-1 truncate font-bold">{r.name}</p>
@@ -96,6 +99,7 @@ export default function RecipesPage() {
                 <HealthBadges tags={r.health_tags} />
               </div>
             )}
+            </div>
           </Link>
         ))}
       </div>

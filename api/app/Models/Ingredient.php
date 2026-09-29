@@ -9,7 +9,9 @@ use Illuminate\Support\Str;
 
 class Ingredient extends Model
 {
-    protected $fillable = ['name', 'ingredient_category_id', 'default_unit'];
+    protected $fillable = ['name', 'ingredient_category_id', 'default_unit', 'icon'];
+
+    protected $appends = ['display_icon'];
 
     protected $hidden = ['normalized_name'];
 
@@ -30,6 +32,12 @@ class Ingredient extends Model
         $words[] = Str::singular(array_pop($words) ?? '');
 
         return implode(' ', $words);
+    }
+
+    /** Own emoji, else the category's, else a generic bowl. */
+    public function getDisplayIconAttribute(): string
+    {
+        return $this->icon ?? ($this->relationLoaded('category') ? $this->category?->icon : null) ?? '🥣';
     }
 
     public function category(): BelongsTo

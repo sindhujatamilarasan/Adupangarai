@@ -149,8 +149,12 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
         <h2 className="font-extrabold">Ingredients</h2>
         {errors.ingredients && <Alert kind="error">{errors.ingredients[0]}</Alert>}
         {rows.map((row, i) => (
-          <div key={i} className={`space-y-2 rounded-2xl border p-3 ${row.heard && !row.ingredient_id ? 'border-amber-400 bg-amber-50' : 'border-line'}`}>
-            {row.heard && !row.ingredient_id && <p className="text-xs font-bold text-amber-800">AI heard “{row.heard}” — pick the closest ingredient or remove this row.</p>}
+          <div key={i} className={`space-y-2 rounded-2xl border p-3 ${row.heard ? 'border-amber-400 bg-amber-50' : 'border-line'}`}>
+            {row.heard && (
+              <p className="text-xs font-bold text-amber-800">
+                AI heard “{row.heard}” — {row.ingredient_id ? 'check this is the right ingredient and amount.' : 'pick the closest ingredient or remove this row.'}
+              </p>
+            )}
             <Select
               label={`Ingredient ${i + 1}`}
               value={row.ingredient_id}

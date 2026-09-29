@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { fmtQty, useApi, type CookResult } from '../api'
 import { HealthBadges } from '../components/Health'
+import RecipeCover from '../components/RecipeCover'
 import { Badge, EmptyState, ErrorState, Spinner } from '../components/ui'
 import { VegDot } from './RecipesPage'
 
@@ -99,7 +100,9 @@ export default function CookPage() {
           </EmptyState>
         )}
         {res.data?.data.map(({ recipe, match }) => (
-          <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="block space-y-2 rounded-2xl bg-white p-4 shadow-sm active:scale-[.99]">
+          <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="flex gap-3 rounded-3xl bg-white p-3 shadow-sm active:scale-[.99]">
+            <RecipeCover recipe={{ ...recipe, meal_type: recipe.meal_type }} className="size-20 shrink-0 rounded-2xl" />
+            <div className="min-w-0 flex-1 space-y-2">
             <div className="flex items-center gap-2">
               <VegDot veg={recipe.is_veg} />
               <p className="flex-1 truncate font-bold">{recipe.name}</p>
@@ -119,6 +122,7 @@ export default function CookPage() {
                 ))}
               </div>
             )}
+            </div>
           </Link>
         ))}
       </div>

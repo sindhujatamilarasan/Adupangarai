@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { fmtQty, useApi, type Dashboard } from '../api'
 import { useAuth } from '../auth'
 import { Badge, ErrorState, Spinner } from '../components/ui'
+import RecipeCover, { IconTile } from '../components/RecipeCover'
 import { VegDot } from './RecipesPage'
 
 function Card({ title, link, linkLabel, children }: { title: string; link?: string; linkLabel?: string; children: ReactNode }) {
@@ -68,10 +69,15 @@ export default function HomePage() {
                 <ul className="divide-y divide-line">
                   {d.today_meals.map((m) => (
                     <li key={m.id}>
-                      <Link to={`/recipes/${m.recipe.id}?servings=${m.servings}&plan=${m.id}`} className="flex items-center gap-2 py-2.5">
-                        <span className="w-20 text-xs font-bold uppercase text-muted">{m.meal_type}</span>
-                        <VegDot veg={m.recipe.is_veg} />
-                        <span className="flex-1 truncate font-semibold">{m.recipe.name}</span>
+                      <Link to={`/recipes/${m.recipe.id}?servings=${m.servings}&plan=${m.id}`} className="flex items-center gap-3 py-2.5">
+                        <RecipeCover recipe={m.recipe} className="size-12 shrink-0 rounded-xl" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xs font-bold uppercase text-muted">{m.meal_type}</span>
+                          <span className="flex items-center gap-1.5 font-semibold">
+                            <VegDot veg={m.recipe.is_veg} />
+                            <span className="truncate">{m.recipe.name}</span>
+                          </span>
+                        </span>
                         {m.cooked_at ? <Badge color="green">Cooked</Badge> : m.can_cook_now ? <Badge color="green">Ready</Badge> : <Badge color="amber">Missing items</Badge>}
                       </Link>
                     </li>
@@ -84,11 +90,17 @@ export default function HomePage() {
             {d.cook_now.length === 0
               ? muted(d.almost_count > 0 ? `Nothing fully ready — ${d.almost_count} recipe${d.almost_count > 1 ? 's are' : ' is'} almost there.` : 'Add more to your kitchen to unlock recipes.')
               : (
-                <div className="flex flex-wrap gap-2">
+                <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
                   {d.cook_now.map(({ recipe }) => (
-                    <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-2 text-sm font-bold text-leaf">
-                      <VegDot veg={recipe.is_veg} />
-                      {recipe.name}
+                    <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="w-36 shrink-0">
+                      <RecipeCover recipe={recipe} className="h-24 w-36 rounded-2xl" />
+                      <span className="mt-1.5 flex items-center gap-1.5 text-sm font-bold">
+                        <VegDot veg={recipe.is_veg} />
+                        <span className="truncate">{recipe.name}</span>
+                      </span>
+                      <span className="block text-xs text-muted">
+                        {recipe.total_time} min{recipe.calories !== null && ` · ${recipe.calories} kcal`}
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -99,8 +111,9 @@ export default function HomePage() {
             <Card title="Use soon" link="/kitchen" linkLabel="Kitchen">
               <ul className="space-y-1.5">
                 {d.expiring.map((i) => (
-                  <li key={i.id} className="flex justify-between text-sm">
-                    <span className="font-semibold">
+                  <li key={i.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="flex items-center gap-2 font-semibold">
+                      <IconTile icon={i.ingredient.display_icon} className="size-8 text-base" />
                       {i.ingredient.name} <span className="text-muted">· {fmtQty(i.quantity)} {i.unit}</span>
                     </span>
                     <Badge color="amber">Expires {days(i.days_to_expiry)}</Badge>

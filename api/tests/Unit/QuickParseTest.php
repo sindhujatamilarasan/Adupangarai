@@ -19,6 +19,11 @@ class QuickParseTest extends TestCase
         ], QuickParse::items('I bought 1 kg chicken, a dozen eggs, 2 litres of milk and half kilo paneer; 12 eggs plus 1.5kg basmati rice.'));
     }
 
+    public function test_fractions(): void
+    {
+        $this->assertSame([['name' => 'turmeric', 'quantity' => 0.5, 'unit' => 'teaspoon']], QuickParse::items('1/2 teaspoon turmeric'));
+    }
+
     public function test_gives_up_on_free_form_text(): void
     {
         $this->assertNull(QuickParse::items('some chicken and whatever milk was left'));

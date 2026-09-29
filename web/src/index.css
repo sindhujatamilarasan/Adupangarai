@@ -13,4 +13,6 @@
 
 body {
   @apply bg-cream text-ink antialiased;
+  background-image: radial-gradient(circle at 100% 0%, #ffe9d6 0, transparent 40%), radial-gradient(circle at 0% 30%, #fff1e0 0, transparent 35%);
+  background-attachment: fixed;
 }

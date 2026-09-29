@@ -21,7 +21,8 @@ export class ApiError extends Error {
 
 export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json' }
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json'
+  const isForm = options.body instanceof FormData
+  if (options.body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
   const t = token.get()
   if (t) headers.Authorization = `Bearer ${t}`
 
@@ -30,7 +31,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
     res = await fetch(`/api${path}`, {
       method: options.method ?? 'GET',
       headers,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      body: isForm ? (options.body as FormData) : options.body !== undefined ? JSON.stringify(options.body) : undefined,
     })
   } catch {
     throw new ApiError(0, 'Could not reach the server. Check your connection.')
@@ -52,8 +53,8 @@ export type User = { id: number; name: string; email: string; household_id: numb
 
 export type UnitValue = 'g' | 'kg' | 'ml' | 'L' | 'cup' | 'tbsp' | 'tsp' | 'piece' | 'packet'
 export type UnitInfo = { value: UnitValue; dimension: string }
-export type Category = { id: number; name: string }
-export type Ingredient = { id: number; name: string; default_unit: UnitValue; ingredient_category_id: number; category: Category }
+export type Category = { id: number; name: string; icon: string | null }
+export type Ingredient = { id: number; name: string; default_unit: UnitValue; ingredient_category_id: number; category: Category; display_icon: string }
 export type ExpiryStatus = 'fresh' | 'expiring_soon' | 'expired' | null
 export type PantryView = 'all' | 'low_stock' | 'expiring_soon' | 'expired'
 export type PantryItem = {
@@ -119,6 +120,7 @@ export type RecipeSummary = {
   is_editable: boolean
   ingredients_count: number
   health_tags: HealthTag[]
+  image_url: string | null
 } & NutritionValues
 
 export type HealthTag = 'high_protein' | 'low_calorie' | 'high_fiber'
@@ -144,7 +146,7 @@ export type RecipeMatch = {
   uses_expiring: { ingredient_id: number; name: string; days_to_expiry: number }[]
 }
 export type CookResult = {
-  recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg' | 'calories' | 'protein_g' | 'health_tags'>
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg' | 'calories' | 'protein_g' | 'health_tags' | 'image_url'>
   match: RecipeMatch
 }
 
@@ -155,7 +157,7 @@ export type MealPlanEntry = {
   recipe_id: number
   servings: number
   cooked_at: string | null
-  recipe: Pick<RecipeSummary, 'id' | 'name' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g' | 'fiber_g'>
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g' | 'fiber_g' | 'image_url'>
 }
 export type DayNutrition = { calories: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number; missing: number }
 
@@ -179,6 +181,7 @@ export type GroceryItem = {
   actual_quantity: number | null
   price: number | null
   added_to_pantry_at: string | null
+  ingredient: { display_icon: string } | null
 }
 export type GroceryResponse = {
   data: GroceryItem[]
@@ -200,13 +203,13 @@ export type CookRow = {
 }
 
 export type Dashboard = {
-  today_meals: { id: number; meal_type: MealType; servings: number; cooked_at: string | null; recipe: { id: number; name: string; is_veg: boolean }; can_cook_now: boolean }[]
+  today_meals: { id: number; meal_type: MealType; servings: number; cooked_at: string | null; recipe: { id: number; name: string; is_veg: boolean; meal_type: MealType; image_url: string | null }; can_cook_now: boolean }[]
   cook_now: CookResult[]
   almost_count: number
   use_soon: CookResult[]
-  expiring: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'days_to_expiry'> & { ingredient: { id: number; name: string } })[]
+  expiring: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'days_to_expiry'> & { ingredient: { id: number; name: string; display_icon: string } })[]
   expired_count: number
-  low_stock: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'minimum_stock'> & { ingredient: { id: number; name: string } })[]
+  low_stock: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'minimum_stock'> & { ingredient: { id: number; name: string; display_icon: string } })[]
   grocery_remaining: number
   pantry_count: number
   recipe_count: number
@@ -219,10 +222,10 @@ export type AiItem = {
   quantity: number | null
   unit: UnitValue | null
   expiry_days?: number | null
-  problem: null | 'unknown_ingredient' | 'no_quantity' | 'unit_mismatch'
+  problem: null | 'unknown_ingredient' | 'no_quantity' | 'unit_mismatch' | 'guessed'
   optional?: boolean
 }
-export type RecipeDraft = Omit<RecipeDetail, 'id' | 'ingredients' | 'match' | 'requested_servings' | 'total_time' | 'is_editable' | 'health_tags'> & {
+export type RecipeDraft = Omit<RecipeDetail, 'id' | 'ingredients' | 'match' | 'requested_servings' | 'total_time' | 'is_editable' | 'health_tags' | 'image_url'> & {
   ingredients: AiItem[]
 }
 export type AiPlanEntry = { date: string; meal_type: MealType; recipe_id: number; servings: number; recipe_name: string }

@@ -125,11 +125,20 @@ class AiDrafts
         return $plan;
     }
 
-    /** Map an AI item to a known ingredient and a compatible unit; problems are reported, not guessed. */
+    /** Map an AI item to a known ingredient and a compatible unit; problems and guesses are flagged for the user. */
     public static function ingredientRow(array $row): array
     {
         $name = trim((string) ($row['name'] ?? ''));
-        $ingredient = $name === '' ? null : Ingredient::where('normalized_name', Ingredient::normalize($name))->first();
+
+        // Small models sometimes put the amount in the name: "2 tablespoons oil".
+        $split = $name !== '' ? QuickParse::items($name) : null;
+        if ($split && count($split) === 1) {
+            $name = $split[0]['name'];
+            $row['quantity'] ??= $split[0]['quantity'];
+            $row['unit'] ??= $split[0]['unit'];
+        }
+
+        [$ingredient, $guessed] = $name === '' ? [null, false] : self::findIngredient($name);
         $loose = Unit::fromLoose($row['unit'] ?? null);
         $multiplier = $loose[1] ?? 1;
         // Models sometimes say "12 dozen" for twelve eggs; 12+ with "dozen" is taken as pieces already.
@@ -143,6 +152,7 @@ class AiDrafts
             ! $ingredient => 'unknown_ingredient',
             ! $quantity || $quantity <= 0 => 'no_quantity',
             ! $unit || ! $ingredient->acceptsUnit($unit) => 'unit_mismatch',
+            $guessed => 'guessed',
             default => null,
         };
 
@@ -156,5 +166,31 @@ class AiDrafts
             'expiry_days' => is_numeric($row['expiry_days'] ?? null) ? max(0, min(3650, (int) $row['expiry_days'])) : null,
             'problem' => $problem,
         ];
+    }
+
+    /**
+     * Exact normalised match first; otherwise the most specific known name inside what was heard
+     * ("fresh coriander leaves" -> Coriander Leaves), else the shortest known name containing it
+     * ("oil" -> Cooking Oil). Returns [ingredient|null, wasGuessed].
+     */
+    public static function findIngredient(string $name): array
+    {
+        $key = Ingredient::normalize($name);
+        if ($exact = Ingredient::where('normalized_name', $key)->first()) {
+            return [$exact, false];
+        }
+        if (mb_strlen($key) < 3) {
+            return [null, false];
+        }
+
+        $all = Ingredient::all();
+        $inside = $all->filter(fn ($i) => preg_match('/\\b'.preg_quote($i->normalized_name, '/').'\\b/u', $key))
+            ->sortByDesc(fn ($i) => mb_strlen($i->normalized_name))->first();
+        $containing = $all->filter(fn ($i) => preg_match('/\\b'.preg_quote($key, '/').'\\b/u', $i->normalized_name))
+            ->sortBy(fn ($i) => mb_strlen($i->normalized_name))->first();
+
+        $guess = $inside ?? $containing;
+
+        return [$guess, (bool) $guess];
     }
 }

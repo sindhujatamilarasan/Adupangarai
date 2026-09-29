@@ -103,8 +103,13 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
           <ul className="max-h-72 divide-y divide-line overflow-y-auto rounded-2xl bg-white">
             {matches.map((i) => (
               <li key={i.id}>
-                <button type="button" onClick={() => pick(i)} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                  <span className="font-semibold">{i.name}</span>
+                <button type="button" onClick={() => pick(i)} className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left">
+                  <span className="flex items-center gap-3 font-semibold">
+                    <span className="text-2xl" aria-hidden>
+                      {i.display_icon}
+                    </span>
+                    {i.name}
+                  </span>
                   <span className="text-xs text-muted">{i.category.name}</span>
                 </button>
               </li>

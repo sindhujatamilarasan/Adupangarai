@@ -14,10 +14,12 @@ class Recipe extends Model
 
     protected $fillable = [
         'household_id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg',
-        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at',
+        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at', 'image_path',
     ];
 
-    protected $appends = ['total_time', 'is_editable', 'health_tags'];
+    protected $hidden = ['image_path'];
+
+    protected $appends = ['total_time', 'is_editable', 'health_tags', 'image_url'];
 
     protected function casts(): array
     {
@@ -52,6 +54,12 @@ class Recipe extends Model
     public function getHealthTagsAttribute(): array
     {
         return Nutrition::tags($this);
+    }
+
+    /** Relative URL so it works behind the web dev proxy and any host. */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? '/storage/'.$this->image_path : null;
     }
 
     public function getIsEditableAttribute(): bool

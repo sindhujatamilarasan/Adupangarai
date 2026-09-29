@@ -13,6 +13,7 @@ use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -52,13 +53,38 @@ class RecipeController extends Controller
 
         return response()->json([
             'data' => [
-                ...$recipe->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg', 'total_time', 'is_editable', 'health_tags', ...Nutrition::FIELDS]),
+                ...$recipe->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg', 'total_time', 'is_editable', 'health_tags', 'image_url', ...Nutrition::FIELDS]),
                 'requested_servings' => $servings,
                 'ingredients' => $recipe->scaledIngredients($servings),
                 'steps' => $recipe->steps->pluck('text'),
                 'match' => RecipeMatcher::match($recipe, RecipeMatcher::pantryFor($request->user()->household_id), $servings),
             ],
         ]);
+    }
+
+    public function uploadPhoto(Request $request, Recipe $recipe): JsonResponse
+    {
+        $this->ensureOwned($recipe);
+        $request->validate(['photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']]);
+
+        $old = $recipe->image_path;
+        $recipe->update(['image_path' => $request->file('photo')->store('recipes', 'public')]);
+        if ($old) {
+            Storage::disk('public')->delete($old);
+        }
+
+        return response()->json(['data' => ['image_url' => $recipe->image_url]]);
+    }
+
+    public function deletePhoto(Recipe $recipe): JsonResponse
+    {
+        $this->ensureOwned($recipe);
+        if ($recipe->image_path) {
+            Storage::disk('public')->delete($recipe->image_path);
+            $recipe->update(['image_path' => null]);
+        }
+
+        return response()->json(['data' => ['image_url' => null]]);
     }
 
     /** AI estimate of per-serving nutrition for the household's own recipe. */
@@ -137,6 +163,9 @@ class RecipeController extends Controller
     public function destroy(Recipe $recipe): JsonResponse
     {
         $this->ensureOwned($recipe);
+        if ($recipe->image_path) {
+            Storage::disk('public')->delete($recipe->image_path);
+        }
         $recipe->delete();
 
         return response()->json(['message' => 'Recipe deleted.']);

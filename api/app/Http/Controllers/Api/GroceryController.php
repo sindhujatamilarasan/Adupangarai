@@ -178,7 +178,7 @@ class GroceryController extends Controller
 
     private function listResponse(GroceryList $list): JsonResponse
     {
-        $items = $list->items()->orderBy('category')->orderBy('name')->get();
+        $items = $list->items()->with('ingredient.category')->orderBy('category')->orderBy('name')->get();
 
         return response()->json([
             'data' => $items,

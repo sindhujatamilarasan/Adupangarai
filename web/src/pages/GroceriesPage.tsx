@@ -123,7 +123,12 @@ export default function GroceriesPage() {
                     {i.purchased && '✓'}
                   </button>
                   <button onClick={() => setOpenId(i.id)} className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left">
-                    <span className={`truncate font-semibold ${i.purchased ? 'text-muted line-through' : ''}`}>{i.name}</span>
+                    <span className={`flex min-w-0 items-center gap-2 font-semibold ${i.purchased ? 'text-muted line-through opacity-70' : ''}`}>
+                      <span className="text-xl" aria-hidden>
+                        {i.ingredient?.display_icon ?? '🧴'}
+                      </span>
+                      <span className="truncate">{i.name}</span>
+                    </span>
                     <span className="shrink-0 text-sm text-muted">
                       {i.actual_quantity ? `${fmtQty(i.actual_quantity)} ${i.unit ?? ''}` : qty(i)}
                       {i.price !== null && ` · ₹${fmtQty(i.price)}`}

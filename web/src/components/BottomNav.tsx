@@ -19,7 +19,7 @@ export default function BottomNav() {
               to={t.to}
               end={t.to === '/'}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-2 text-xs font-semibold ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'text-brand' : 'text-muted'}`
+                `my-1 flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs font-bold transition ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'bg-brand/10 text-brand' : 'text-muted'}`
               }
             >
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>

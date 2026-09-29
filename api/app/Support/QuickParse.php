@@ -29,10 +29,14 @@ class QuickParse
         foreach ($chunks as $chunk) {
             $chunk = trim($chunk, ' .!');
             // [quantity] [unit] [of] name   e.g. "2 litres of milk", "12 eggs", "half kilo paneer", "1.5kg rice"
-            if (! preg_match("/^(\\d+(?:\\.\\d+)?|{$numbers})\\s*([a-z]+)?\\s+(?:of\\s+)?(.+)$/", $chunk, $m)) {
+            if (! preg_match("/^(\\d+\\/\\d+|\\d+(?:\\.\\d+)?|{$numbers})\\s*([a-z]+)?\\s+(?:of\\s+)?(.+)$/", $chunk, $m)) {
                 return null;
             }
-            $quantity = is_numeric($m[1]) ? (float) $m[1] : self::NUMBER_WORDS[$m[1]];
+            $quantity = match (true) {
+                is_numeric($m[1]) => (float) $m[1],
+                str_contains($m[1], '/') => (fn ($a, $b) => $b ? $a / $b : 0)(...array_map('floatval', explode('/', $m[1]))),
+                default => self::NUMBER_WORDS[$m[1]],
+            };
             $unitWord = $m[2] ?? '';
             $name = trim($m[3]);
 

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api, ApiError, fmtQty, useApi, type RecipeDetail } from '../api'
 import CookSheet from '../components/CookSheet'
 import { HealthBadges, NutritionCard } from '../components/Health'
+import RecipeCover, { IconTile } from '../components/RecipeCover'
 import { Alert, Button, ErrorState, Spinner } from '../components/ui'
 import { MatchBar } from './CookPage'
 import { VegDot } from './RecipesPage'
@@ -15,6 +16,26 @@ export default function RecipeDetailPage() {
   const [servings, setServings] = useState<number | null>(Number(params.get('servings')) || null)
   const [cooking, setCooking] = useState(false)
   const [cooked, setCooked] = useState('')
+  const [uploading, setUploading] = useState(false)
+
+  async function setPhoto(file: File | null) {
+    setUploading(true)
+    setError('')
+    try {
+      if (file) {
+        const body = new FormData()
+        body.append('photo', file)
+        await api(`/recipes/${id}/photo`, { method: 'POST', body })
+      } else {
+        await api(`/recipes/${id}/photo`, { method: 'DELETE' })
+      }
+      res.reload()
+    } catch (e) {
+      setError((e as ApiError).message)
+    } finally {
+      setUploading(false)
+    }
+  }
   const res = useApi<{ data: RecipeDetail }>(`/recipes/${id}${servings ? `?servings=${servings}` : ''}`)
   const recipe = res.data?.data
   const [error, setError] = useState('')
@@ -40,6 +61,23 @@ export default function RecipeDetailPage() {
       <button onClick={() => navigate(-1)} className="text-sm font-bold text-muted">
         ← Back
       </button>
+
+      <div className="relative -mx-4 -mt-2 overflow-hidden sm:mx-0 sm:rounded-3xl">
+        <RecipeCover recipe={recipe} big className="h-56 w-full" />
+        {recipe.is_editable && (
+          <div className="absolute right-3 bottom-3 flex gap-2">
+            <label className={`cursor-pointer rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-ink shadow backdrop-blur ${uploading ? 'opacity-60' : ''}`}>
+              📷 {uploading ? 'Uploading…' : recipe.image_url ? 'Change photo' : 'Add photo'}
+              <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="hidden" disabled={uploading} onChange={(e) => e.target.files?.[0] && setPhoto(e.target.files[0])} />
+            </label>
+            {recipe.image_url && (
+              <button onClick={() => setPhoto(null)} disabled={uploading} className="rounded-full bg-white/90 px-3 py-2 text-sm font-bold text-red-700 shadow backdrop-blur" aria-label="Remove photo">
+                ✕
+              </button>
+            )}
+          </div>
+        )}
+      </div>
 
       <header>
         <div className="flex items-center gap-2">
@@ -98,6 +136,7 @@ export default function RecipeDetailPage() {
             return (
               <li key={i.ingredient_id} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="flex items-center gap-2">
+                  <IconTile icon={i.ingredient.display_icon} className="size-9 text-lg" />
                   <span aria-hidden className={short ? (short.optional ? 'text-muted' : 'text-red-700') : 'text-leaf'}>
                     {short ? '○' : '✓'}
                   </span>

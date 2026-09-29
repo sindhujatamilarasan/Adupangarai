@@ -22,6 +22,7 @@ const problemText: Record<NonNullable<AiItem['problem']>, string> = {
   unknown_ingredient: 'Not in your ingredient list — pick one',
   no_quantity: 'How much?',
   unit_mismatch: 'Check the unit',
+  guessed: 'Best guess — check it',
 }
 
 function Thinking({ label }: { label: string }) {

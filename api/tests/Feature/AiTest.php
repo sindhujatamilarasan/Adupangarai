@@ -66,6 +66,24 @@ class AiTest extends TestCase
         $this->assertSame(0, PantryItem::count());
     }
 
+    public function test_messy_model_output_is_cleaned_and_guesses_are_flagged(): void
+    {
+        $this->fakeAi(['items' => [
+            ['name' => '2 tablespoons oil'],
+            ['name' => '1/2 teaspoon turmeric'],
+            ['name' => 'fresh coriander leaves', 'quantity' => 10, 'unit' => 'g'],
+            ['name' => 'Onions', 'quantity' => 2, 'unit' => 'pieces'],
+            ['name' => 'xyz', 'quantity' => 1, 'unit' => 'g'],
+        ]]);
+
+        $rows = $this->actingAs($this->user)->postJson('/api/ai/pantry-parse', ['text' => 'oil, turmeric, coriander and so on'])->json('data');
+
+        $this->assertSame(['Cooking Oil', 'Turmeric Powder', 'Coriander Leaves', 'Onion', 'xyz'], array_column($rows, 'name'));
+        $this->assertEquals([2, 0.5, 10, 2, 1], array_column($rows, 'quantity'));
+        $this->assertSame(['tbsp', 'tsp', 'g', 'piece', null], array_column($rows, 'unit'));
+        $this->assertSame(['guessed', 'guessed', 'guessed', null, 'unknown_ingredient'], array_column($rows, 'problem'));
+    }
+
     public function test_simple_lists_are_read_without_ai(): void
     {
         Http::fake();
