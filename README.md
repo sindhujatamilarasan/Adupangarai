@@ -7,6 +7,8 @@ Track what's in your kitchen, see which recipes you can make right now, plan the
 list that subtracts what you already have, add purchases back to the pantry, and deduct ingredients
 when you cook.
 
+**Brand:** the logo (`web/public/logo.svg`) is a clay *paanai* on the *adupu* (stove), with steam and a kolam band. The theme is peacock teal `#0e7479` with turmeric gold `#f2b42c` on ivory `#f6f4ec`. Tokens live in `web/src/index.css`, and every text colour pair meets WCAG AA.
+
 ## Run it
 
 ```bash

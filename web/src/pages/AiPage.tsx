@@ -16,7 +16,8 @@ export default function AiPage() {
 
   return (
     <div className="space-y-4">
-      <header className="rounded-3xl bg-gradient-to-br from-brand to-amber-500 p-5 text-white shadow-sm">
+      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand to-brand-dark p-5 text-white shadow-sm">
+        <span className="absolute -top-8 -right-8 size-32 rounded-full bg-accent/25" aria-hidden />
         <p className="text-3xl">✨</p>
         <h1 className="text-2xl font-extrabold">AI mode</h1>
         <p className="text-sm opacity-90">Talk to your kitchen. The AI only prepares drafts — you always check before anything is saved.</p>

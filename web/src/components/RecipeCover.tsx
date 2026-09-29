@@ -1,10 +1,10 @@
 import type { MealType } from '../api'
 
 const looks: Record<MealType, { emoji: string; bg: string }> = {
-  breakfast: { emoji: '🍳', bg: 'from-amber-200 via-orange-200 to-rose-200' },
-  lunch: { emoji: '🍛', bg: 'from-orange-300 via-amber-200 to-yellow-100' },
-  snack: { emoji: '☕', bg: 'from-stone-200 via-amber-100 to-orange-100' },
-  dinner: { emoji: '🍲', bg: 'from-rose-300 via-orange-200 to-amber-100' },
+  breakfast: { emoji: '🍳', bg: 'from-amber-100 via-yellow-100 to-amber-200' },
+  lunch: { emoji: '🍛', bg: 'from-teal-100 via-emerald-50 to-amber-100' },
+  snack: { emoji: '☕', bg: 'from-stone-100 via-amber-50 to-yellow-100' },
+  dinner: { emoji: '🍲', bg: 'from-cyan-100 via-teal-100 to-teal-200' },
 }
 
 /** Recipe photo, or a warm meal-type illustration when there is none. */

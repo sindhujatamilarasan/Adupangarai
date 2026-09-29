@@ -31,8 +31,8 @@ export default function PlannerPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold">Meal planner</h1>
-        <button onClick={() => setAiOpen(true)} className="rounded-full bg-gradient-to-br from-brand to-amber-500 px-4 py-2 text-sm font-extrabold text-white shadow-sm">
-          ✨ AI plan
+        <button onClick={() => setAiOpen(true)} className="rounded-full bg-gradient-to-br from-brand to-brand-dark px-4 py-2 text-sm font-extrabold text-white shadow-sm">
+          <span className="text-accent">✨</span> AI plan
         </button>
       </div>
       {flash && (

@@ -1,18 +1,20 @@
 @import "tailwindcss";
 
+/* Adupangarai theme: peacock teal + turmeric gold on ivory (all text pairs >= 4.5:1). */
 @theme {
-  --color-cream: #fff8f0;
-  --color-ink: #2b2118;
-  --color-muted: #8a7a6b;
-  --color-line: #efe3d3;
-  --color-brand: #d9622b;
-  --color-brand-dark: #b54d1f;
+  --color-cream: #f6f4ec;
+  --color-ink: #16282a;
+  --color-muted: #5f7072;
+  --color-line: #e2e1d5;
+  --color-brand: #0e7479;
+  --color-brand-dark: #0a4d52;
+  --color-accent: #f2b42c;
   --color-leaf: #4f8a3c;
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   @apply bg-cream text-ink antialiased;
-  background-image: radial-gradient(circle at 100% 0%, #ffe9d6 0, transparent 40%), radial-gradient(circle at 0% 30%, #fff1e0 0, transparent 35%);
+  background-image: radial-gradient(circle at 100% 0%, #dcefec 0, transparent 40%), radial-gradient(circle at 0% 30%, #fbf0d2 0, transparent 35%);
   background-attachment: fixed;
 }

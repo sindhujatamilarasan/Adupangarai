@@ -39,8 +39,9 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   return (
     <main className="mx-auto flex min-h-svh max-w-sm flex-col justify-center px-6 py-10">
       <div className="mb-8 text-center">
-        <div className="text-5xl">🍲</div>
-        <h1 className="mt-2 text-3xl font-extrabold text-brand">Adupangarai</h1>
+        <img src="/logo.svg" alt="" className="mx-auto size-24 rounded-3xl shadow-lg" />
+        <h1 className="mt-3 text-3xl font-extrabold text-brand">Adupangarai</h1>
+        <p className="text-sm font-semibold text-muted">அடுப்பங்கரை</p>
         <p className="text-muted">{isRegister ? 'Set up your kitchen' : 'Welcome back to your kitchen'}</p>
       </div>
 
