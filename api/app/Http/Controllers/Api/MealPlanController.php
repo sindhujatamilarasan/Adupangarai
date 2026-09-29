@@ -56,13 +56,14 @@ class MealPlanController extends Controller
             'goal' => ['required', Rule::in(MealPlanner::GOALS)],
             'servings' => ['required', 'integer', 'min:1', 'max:20'],
             'seed' => ['nullable', 'integer', 'min:0', 'max:1000000'],
+            'diet' => ['nullable', Rule::in(MealPlanner::DIETS)],
         ]);
         $household = $request->user()->household_id;
         $recipes = Recipe::visibleTo($household)->with('ingredients.ingredient.category')->get();
         $matches = RecipeMatcher::matchAll($recipes, RecipeMatcher::pantryFor($household))->keyBy('recipe.id');
         $meals = array_values(array_intersect(Recipe::MEAL_TYPES, $data['meals']));
 
-        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0);
+        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0, $data['diet'] ?? 'any');
         $labels = $recipes->pluck('label', 'id');
 
         return response()->json([

@@ -129,6 +129,24 @@ class MealPlannerTest extends TestCase
         $this->assertNotSame($a, $this->names($this->suggest(['seed' => 7])), 'shuffle gives a different plan');
     }
 
+    public function test_veg_plan_is_fully_vegetarian_and_nonveg_leans_to_meat_fish_egg(): void
+    {
+        $isVeg = Recipe::pluck('is_veg', 'id');
+
+        foreach (['balanced', 'high_protein', 'low_calorie'] as $goal) {
+            $veg = $this->suggest(['goal' => $goal, 'diet' => 'veg'])['data'];
+            $this->assertNotEmpty($veg);
+            $this->assertTrue(collect($veg)->every(fn ($p) => $isVeg[$p['recipe_id']]), "$goal veg plan has non-veg");
+        }
+
+        $count = fn ($diet) => collect($this->suggest(['diet' => $diet])['data'])->reject(fn ($p) => $isVeg[$p['recipe_id']])->count();
+        $this->assertGreaterThan($count('any'), $count('nonveg'));
+
+        $this->actingAs($this->user)->postJson('/api/meal-plans/suggest', [
+            'start' => '2026-10-05', 'days' => 1, 'meals' => ['lunch'], 'goal' => 'balanced', 'servings' => 2, 'diet' => 'vegan',
+        ])->assertJsonValidationErrors('diet');
+    }
+
     public function test_suggesting_saves_nothing_and_ignores_other_households_recipes(): void
     {
         Recipe::create(['household_id' => User::factory()->create()->household_id, 'name' => 'Secret', 'meal_type' => 'dinner', 'servings' => 1, 'is_veg' => true, 'calories' => 100, 'protein_g' => 90, 'carbs_g' => 1, 'fat_g' => 1, 'fiber_g' => 1]);

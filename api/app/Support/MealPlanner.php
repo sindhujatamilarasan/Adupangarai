@@ -17,6 +17,9 @@ class MealPlanner
 {
     public const GOALS = ['balanced', 'high_protein', 'low_calorie'];
 
+    /** any = everything; veg = vegetarian only; nonveg = everything, leaning to meat/fish/egg dishes. */
+    public const DIETS = ['any', 'veg', 'nonveg'];
+
     /** Everyday basics ignored when comparing dishes (almost every recipe uses them). */
     private const STAPLES = [
         'salt', 'cooking oil', 'onion', 'green chilli', 'mustard seed', 'turmeric powder', 'curry leaf', 'ginger',
@@ -39,8 +42,12 @@ class MealPlanner
      * @param  Collection<int, array{recipe: array, match: array}>  $matches  keyed by recipe id
      * @return list<array{date: string, meal_type: string, recipe_id: int, servings: int}>
      */
-    public static function suggest(Collection $recipes, Collection $matches, Carbon $start, int $days, array $meals, string $goal, int $servings, int $seed = 0): array
+    public static function suggest(Collection $recipes, Collection $matches, Carbon $start, int $days, array $meals, string $goal, int $servings, int $seed = 0, string $diet = 'any'): array
     {
+        if ($diet === 'veg') {
+            $recipes = $recipes->where('is_veg', true)->values();
+        }
+
         mt_srand($seed);
         $jitter = $recipes->mapWithKeys(fn (Recipe $r) => [$r->id => mt_rand(0, 800) / 1000])->all();
         $main = $recipes->mapWithKeys(fn (Recipe $r) => [$r->id => self::mainIngredients($r)])->all();
@@ -83,7 +90,8 @@ class MealPlanner
                         + $match['match_percent'] / 50
                         + ($freshExpiring ? 1.5 : 0)
                         + $jitter[$r->id]
-                        - ($uses ? 2 : 0); // prefer something new, but a great fit may return
+                        - ($uses ? 2 : 0) // prefer something new, but a great fit may return
+                        + ($diet === 'nonveg' && ! $r->is_veg ? 2 : 0);
 
                     if ($score > $bestScore) {
                         [$best, $bestScore] = [$r, $score];

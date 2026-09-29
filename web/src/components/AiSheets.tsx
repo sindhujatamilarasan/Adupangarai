@@ -212,14 +212,41 @@ const goals = [
   { key: 'low_calorie', label: tk('🥗 Lighter') },
 ] as const
 
-/** AI picks recipes for the coming days -> preview -> add to planner. */
+const diets = [
+  { key: 'any', label: tk('Any') },
+  { key: 'veg', label: tk('🟢 Veg only') },
+  { key: 'nonveg', label: tk('🔴 Non-veg') },
+] as const
+
+type PlanPrefs = Partial<{ days: number; meals: MealType[]; goal: (typeof goals)[number]['key']; diet: (typeof diets)[number]['key']; servings: number }>
+const PREFS_KEY = 'adupangarai.planPrefs'
+
+/** Last used plan options, remembered on this device (a convenience; safe to lose). */
+function loadPlanPrefs(): PlanPrefs {
+  try {
+    return JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as PlanPrefs
+  } catch {
+    return {}
+  }
+}
+function savePlanPrefs(p: PlanPrefs) {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(p))
+  } catch {
+    /* private mode */
+  }
+}
+
+/** Smart plan (rules-based, see api MealPlanner): options -> preview -> add to planner. */
 export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: string; onClose: () => void; onDone: (message: string) => void }) {
   const { t, fmtDate } = useI18n()
   const [start, setStart] = useState(initialStart ?? isoDate(new Date()))
-  const [days, setDays] = useState(3)
-  const [meals, setMeals] = useState<MealType[]>(['breakfast', 'lunch', 'dinner'])
-  const [goal, setGoal] = useState<(typeof goals)[number]['key']>('balanced')
-  const [servings, setServings] = useState(2)
+  const saved = loadPlanPrefs()
+  const [days, setDays] = useState(saved.days ?? 3)
+  const [meals, setMeals] = useState<MealType[]>(saved.meals ?? ['breakfast', 'lunch', 'dinner'])
+  const [goal, setGoal] = useState<(typeof goals)[number]['key']>(saved.goal ?? 'balanced')
+  const [diet, setDiet] = useState<(typeof diets)[number]['key']>(saved.diet ?? 'any')
+  const [servings, setServings] = useState(saved.servings ?? 2)
   const [plan, setPlan] = useState<AiPlanEntry[] | null>(null)
   const [summary, setSummary] = useState<PlanSummary | null>(null)
   const [seed, setSeed] = useState(0)
@@ -242,9 +269,10 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
     run(async () => {
       const r = await api<{ data: AiPlanEntry[]; summary: PlanSummary }>('/meal-plans/suggest', {
         method: 'POST',
-        body: { start, days, meals: MEAL_TYPES.filter((m) => meals.includes(m)), goal, servings, seed: nextSeed },
+        body: { start, days, meals: MEAL_TYPES.filter((m) => meals.includes(m)), goal, diet, servings, seed: nextSeed },
       })
       if (r.data.length === 0) throw new ApiError(0, t('No recipes fit these meals yet. Add a few recipes and try again.'))
+      savePlanPrefs({ days, meals, goal, diet, servings })
       setSeed(nextSeed)
       setPlan(r.data)
       setSummary(r.summary)
@@ -285,8 +313,18 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
               <p className="mb-1 text-sm font-semibold text-muted">{t('Meals')}</p>
               <div className="flex flex-wrap gap-2">
                 {MEAL_TYPES.map((m) => (
-                  <button key={m} onClick={() => setMeals(meals.includes(m) ? meals.filter((x) => x !== m) : [...meals, m])} className={chip(meals.includes(m))}>
+                  <button key={m} onClick={() => setMeals(meals.includes(m) ? meals.filter((x) => x !== m) : [...meals, m])} className={`${chip(meals.includes(m))} capitalize`}>
                     {t(m)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="mb-1 text-sm font-semibold text-muted">{t('Food preference')}</p>
+              <div className="flex flex-wrap gap-2">
+                {diets.map((d) => (
+                  <button key={d.key} onClick={() => setDiet(d.key)} aria-pressed={diet === d.key} className={chip(diet === d.key)}>
+                    {t(d.label)}
                   </button>
                 ))}
               </div>

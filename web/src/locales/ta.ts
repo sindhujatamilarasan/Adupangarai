@@ -373,6 +373,12 @@ const ta: Record<string, string> = {
   'kcal per person / day': 'ஒருவருக்கு / நாளுக்கு கலோரி',
   'Balanced, high-protein or lighter days from your recipes — no look-alike dishes on one day.': 'சமச்சீரான, அதிக புரதம் அல்லது இலகுவான நாட்கள் — ஒரே நாளில் ஒத்த உணவுகள் இல்லை.',
 
+  // Diet
+  'Food preference': 'உணவு விருப்பம்',
+  Any: 'எதுவும்',
+  '🟢 Veg only': '🟢 சைவம் மட்டும்',
+  '🔴 Non-veg': '🔴 அசைவம்',
+
   // Google
   or: 'அல்லது',
 
