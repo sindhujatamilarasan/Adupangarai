@@ -20,3 +20,13 @@ test('the line stays near its dot grid and the path is closed', () => {
   assert.match(sikkuPath(m, n), /^M.*Z$/)
   assert.equal(pulliDots(m, n).length, 12)
 })
+
+test('the classic 1-3-5-7-5-3-1 kolam: 25 pulli in rows of 1,3,5,7,5,3,1 once turned 45°', async () => {
+  const { inBetweenDots } = await import('./kolam.ts')
+  const dots = [...pulliDots(4, 4), ...inBetweenDots(4, 4)]
+  assert.equal(dots.length, 25)
+  // Turning 45° makes rows out of x + y (the anti-diagonals); count dots per row.
+  const rows = new Map<number, number>()
+  for (const [x, y] of dots) rows.set(x + y, (rows.get(x + y) ?? 0) + 1)
+  assert.deepEqual([...rows.entries()].sort((a, b) => a[0] - b[0]).map(([, c]) => c), [1, 3, 5, 7, 5, 3, 1])
+})

@@ -20,7 +20,7 @@ export default function AiPage() {
   return (
     <div className="space-y-4">
       <header className="card relative overflow-hidden p-6">
-        <Kolam m={2} n={3} diamond className="pointer-events-none absolute -top-3 -right-3 size-32 text-brand opacity-[.12]" strokeWidth={0.07} />
+        <Kolam classic className="pointer-events-none absolute -top-4 -right-4 size-36 text-brand opacity-[.12]" strokeWidth={0.05} />
         <p className="text-xs font-semibold tracking-[.18em] text-accent uppercase">✦ {t('Assistant')}</p>
         <h1 className="mt-1 font-display text-[1.75rem] font-semibold tracking-tight">{t('AI mode')}</h1>
         <p className="mt-1 max-w-xs text-sm text-muted">{t('Talk to your kitchen. The AI only prepares drafts — you always check before anything is saved.')}</p>

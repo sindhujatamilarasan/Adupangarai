@@ -60,9 +60,9 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
         <img src="/logo.svg" alt="" className="mx-auto size-20 rounded-[1.4rem] shadow-[0_8px_24px_rgb(122_67_32/0.25)]" />
         <p className="mt-5 font-display text-[2rem] font-semibold tracking-tight">Adupangarai</p>
         <p className="font-tamil text-sm text-muted">அடுப்பங்கரை</p>
-        <div className="mx-auto my-3 flex w-56 items-center gap-2" aria-hidden>
+        <div className="mx-auto my-3 flex w-60 items-center gap-3" aria-hidden>
           <span className="h-px flex-1 bg-line" />
-          <Kolam m={5} n={1} className="h-7 w-28 text-brand/80" strokeWidth={0.07} />
+          <Kolam classic className="size-16 text-brand/80" strokeWidth={0.06} />
           <span className="h-px flex-1 bg-line" />
         </div>
         <p className="text-muted">{isRegister ? t('Set up your kitchen') : t('Welcome back to your kitchen')}</p>

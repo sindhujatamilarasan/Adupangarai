@@ -6,7 +6,7 @@ export function Spinner({ label }: { label?: string }) {
   const { t } = useI18n()
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted" role="status">
-      <Kolam m={2} n={3} animate className="size-14 text-brand" strokeWidth={0.09} />
+      <Kolam classic animate className="size-16 text-brand" strokeWidth={0.07} />
       <span className="text-sm">{label ?? t('Loading…')}</span>
     </div>
   )

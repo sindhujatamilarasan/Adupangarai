@@ -39,7 +39,7 @@ export default function HomePage() {
   return (
     <div className="space-y-4">
       <header className="relative overflow-hidden pt-2 pb-1">
-        <Kolam m={3} n={4} diamond className="pointer-events-none absolute -top-2 -right-4 size-36 text-brand opacity-[.12]" strokeWidth={0.06} />
+        <Kolam classic className="pointer-events-none absolute -top-3 -right-4 size-40 text-brand opacity-[.13]" strokeWidth={0.05} />
         <p className="text-sm text-muted">{greeting}</p>
         <h1 className="font-display text-[2rem] leading-tight font-semibold tracking-tight">{user!.name}</h1>
         <p className="mt-0.5 text-sm text-muted">{user!.household.name}</p>

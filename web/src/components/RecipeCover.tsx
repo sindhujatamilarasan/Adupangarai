@@ -27,7 +27,7 @@ export default function RecipeCover({
   }
   return (
     <div className={`relative grid place-items-center bg-gradient-to-br ${look.bg} ${className}`} role="img" aria-label={recipe.name}>
-      {framed && <Kolam m={2} n={3} className="absolute right-1.5 bottom-1.5 size-8 text-brand opacity-30" strokeWidth={0.09} />}
+      {framed && <Kolam classic className="absolute right-1 bottom-1 size-10 text-brand opacity-30" strokeWidth={0.08} />}
       <span className={big ? 'text-7xl drop-shadow-sm' : 'text-3xl'}>{look.emoji}</span>
     </div>
   )
