@@ -192,6 +192,30 @@ class AiTest extends TestCase
         $this->assertSame($this->user->household_id, MealPlan::first()->household_id);
     }
 
+    public function test_falls_back_to_second_model_when_busy_or_unreadable(): void
+    {
+        config(['services.ai.model' => 'main', 'services.ai.fallback_model' => 'lite']);
+        $ok = Http::response(['choices' => [['message' => ['content' => json_encode(['items' => [['name' => 'Egg', 'quantity' => 6, 'unit' => 'piece']]])]]]]);
+
+        Http::fakeSequence('*/chat/completions')
+            ->push(['error' => 'busy'], 503)->pushResponse($ok)                            // busy -> fallback
+            ->push(['choices' => [['message' => ['content' => '{"items": [']]]])->pushResponse($ok); // cut off -> fallback
+
+        $this->actingAs($this->user)->postJson('/api/ai/pantry-parse', ['text' => 'some eggs please'])->assertOk()->assertJsonPath('data.0.name', 'Egg');
+        $this->actingAs($this->user)->postJson('/api/ai/pantry-parse', ['text' => 'some eggs please'])->assertOk()->assertJsonPath('data.0.name', 'Egg');
+
+        Http::assertSent(fn ($r) => $r['model'] === 'lite');
+    }
+
+    public function test_busy_without_fallback_gives_friendly_message(): void
+    {
+        config(['services.ai.fallback_model' => null]);
+        Http::fake(['*/chat/completions' => Http::response([], 429)]);
+
+        $this->actingAs($this->user)->postJson('/api/ai/pantry-parse', ['text' => 'some eggs please'])
+            ->assertStatus(503)->assertJsonPath('message', fn ($m) => str_contains($m, 'busy'));
+    }
+
     public function test_ai_endpoints_require_auth(): void
     {
         $this->postJson('/api/ai/pantry-parse', ['text' => 'x'])->assertUnauthorized();

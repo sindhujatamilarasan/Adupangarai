@@ -39,9 +39,11 @@ return [
     // Free hosted alternatives: Gemini (https://generativelanguage.googleapis.com/v1beta/openai)
     // or Groq (https://api.groq.com/openai/v1) with their free API keys.
     'ai' => [
-        'base_url' => env('AI_BASE_URL', 'http://localhost:11435/v1'),
+        'base_url' => env('AI_BASE_URL', 'http://ollama:11434/v1'),
         'key' => env('AI_API_KEY', 'ollama'),
         'model' => env('AI_MODEL', 'qwen2.5:3b'),
+        // Tried once if the main model is busy or rate-limited (common on free tiers).
+        'fallback_model' => env('AI_FALLBACK_MODEL'),
         'timeout' => (int) env('AI_TIMEOUT', 300),
     ],
 

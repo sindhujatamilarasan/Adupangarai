@@ -40,15 +40,15 @@ Running the API tests from the host needs PHP 8.2+ with `pdo_pgsql`, plus the `d
 - **No AI for simple lists.** A list like "1 kg chicken, a dozen eggs and 2 litres milk" is read instantly by plain code (`Support/QuickParse.php`); the AI is only used for free-form text.
 - **Nutrition.** Estimated per serving (by AI for your own recipes; built-in recipes ship with estimates). Health tags (high protein ≥ 15 g, low calorie ≤ 350 kcal, high fiber ≥ 6 g) are calculated in code from those numbers.
 
-**AI provider:** any OpenAI-compatible API works. Configure it in `api/.env`:
+**AI provider:** any OpenAI-compatible API works. All settings live in `api/.env` (gitignored, so keys stay private). Restart the API container after changing them.
 
 | Option | Settings | Notes |
 |---|---|---|
-| Local Ollama (default) | `AI_BASE_URL=http://localhost:11435/v1`, `AI_MODEL=qwen2.5:3b` | Free, no key, runs in Docker. Slow on a CPU-only laptop (a recipe can take minutes). `qwen2.5:1.5b` is faster but less accurate. |
-| Google Gemini (free tier) | `AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, `AI_API_KEY=<key from aistudio.google.com>`, `AI_MODEL=<a current Flash model>` | Fast. Free key. Check AI Studio for current free model names. |
-| Groq (free tier) | `AI_BASE_URL=https://api.groq.com/openai/v1`, `AI_API_KEY=<key from console.groq.com>`, `AI_MODEL=<a current Llama model>` | Very fast. Free key. Check the Groq console for current model names. |
+| **Google Gemini (recommended)** | `AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, `AI_API_KEY=<key from aistudio.google.com>`, `AI_MODEL=gemini-flash-latest`, `AI_FALLBACK_MODEL=gemini-flash-lite-latest` | Free tier. A few seconds per request. The `-latest` aliases follow Google's current models. |
+| Local Ollama (no key) | `AI_BASE_URL=http://ollama:11434/v1`, `AI_API_KEY=ollama`, `AI_MODEL=qwen2.5:3b` | Free and offline, but very slow on a CPU-only laptop (recipes can time out). |
+| Groq (free tier) | `AI_BASE_URL=https://api.groq.com/openai/v1`, `AI_API_KEY=<key from console.groq.com>`, `AI_MODEL=<a current model>` | Very fast. Check the Groq console for current model names. |
 
-If you use a hosted provider, also remove the `AI_BASE_URL` override in `docker-compose.yml` (or set it in your shell) so the API container uses it.
+`AI_FALLBACK_MODEL` is optional. It is tried once when the main model is busy, rate-limited or returns an unreadable answer, which happens often on free tiers.
 
 ## Stack
 

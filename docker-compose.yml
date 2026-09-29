@@ -25,7 +25,6 @@ services:
       # Several workers so a slow AI request doesn't block other requests.
       HOME: /tmp
       PHP_CLI_SERVER_WORKERS: 4
-      AI_BASE_URL: ${AI_BASE_URL:-http://ollama:11434/v1}
     ports: ["8787:8000"]
     depends_on:
       db: { condition: service_healthy }
