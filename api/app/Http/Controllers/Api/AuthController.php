@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\SetLocale;
 use App\Models\Household;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,7 @@ class AuthController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'household_name' => ['nullable', 'string', 'max:100'],
+            'locale' => ['nullable', Rule::in(SetLocale::SUPPORTED)],
         ]);
 
         $user = DB::transaction(function () use ($data) {
@@ -33,6 +35,7 @@ class AuthController extends Controller
                 'name' => $data['name'],
                 'email' => strtolower($data['email']),
                 'password' => $data['password'],
+                'locale' => $data['locale'] ?? app()->getLocale(),
             ]);
         });
 
@@ -49,7 +52,7 @@ class AuthController extends Controller
         $user = User::where('email', strtolower($data['email']))->first();
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
-            throw ValidationException::withMessages(['email' => 'Invalid email or password.']);
+            throw ValidationException::withMessages(['email' => __('Invalid email or password.')]);
         }
 
         return $this->tokenResponse($user);
@@ -59,7 +62,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out.']);
+        return response()->json(['message' => __('Logged out.')]);
     }
 
     public function profile(Request $request): JsonResponse
@@ -77,13 +80,14 @@ class AuthController extends Controller
             'household_name' => ['sometimes', 'required', 'string', 'max:100'],
             'current_password' => ['required_with:password', 'current_password'],
             'password' => ['sometimes', 'string', 'min:8'],
+            'locale' => ['sometimes', Rule::in(SetLocale::SUPPORTED)],
         ]);
 
         DB::transaction(function () use ($user, $data) {
             if (isset($data['email'])) {
                 $data['email'] = strtolower($data['email']);
             }
-            $user->update(collect($data)->only(['name', 'email', 'password'])->all());
+            $user->update(collect($data)->only(['name', 'email', 'password', 'locale'])->all());
 
             if (isset($data['household_name'])) {
                 $user->household->update(['name' => $data['household_name']]);

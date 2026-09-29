@@ -86,7 +86,7 @@ class GroceryController extends Controller
             ? Ingredient::with('category')->find($data['ingredient_id'])
             : Ingredient::with('category')->where('normalized_name', Ingredient::normalize($data['name']))->first();
         if ($ingredient && isset($data['unit']) && ! $ingredient->acceptsUnit(Unit::from($data['unit']))) {
-            throw ValidationException::withMessages(['unit' => "{$ingredient->name} is measured in {$ingredient->default_unit->value}."]);
+            throw ValidationException::withMessages(['unit' => __(':name is measured in :default.', ['name' => $ingredient->label, 'default' => $ingredient->default_unit->value])]);
         }
 
         $item = GroceryList::for($request->user()->household_id)->items()->create([
@@ -113,7 +113,7 @@ class GroceryController extends Controller
         ]);
 
         if ($item->added_to_pantry_at && array_diff(array_keys($data), ['price'])) {
-            throw ValidationException::withMessages(['purchased' => 'Already added to the pantry; only the price can change.']);
+            throw ValidationException::withMessages(['purchased' => __('Already added to your kitchen; only the price can change.')]);
         }
 
         $item->update($data);
@@ -126,7 +126,7 @@ class GroceryController extends Controller
         $this->ensureItemOwned($item);
         $item->delete();
 
-        return response()->json(['message' => 'Removed.']);
+        return response()->json(['message' => __('Removed.')]);
     }
 
     /** Remove bought items that are finished with: non-food, or food already in the pantry. */
@@ -154,7 +154,7 @@ class GroceryController extends Controller
 
         foreach ($items as $item) {
             if (! $item->purchased || ! $item->ingredient_id || $item->added_to_pantry_at || ! $item->unit || ! $item->boughtQuantity()) {
-                throw ValidationException::withMessages(['item_ids' => "{$item->name} can't be added to the pantry (not a purchased food item with a quantity, or already added)."]);
+                throw ValidationException::withMessages(['item_ids' => __(':name can\'t be added to your kitchen (not a purchased food item with a quantity, or already added).', ['name' => $item->label])]);
             }
         }
 

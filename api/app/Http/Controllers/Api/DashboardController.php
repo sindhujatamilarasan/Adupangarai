@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $results = RecipeMatcher::matchAll($recipes, $pantry);
 
         $todayMeals = MealPlan::where('household_id', $household)->whereDate('date', Carbon::today())
-            ->with('recipe:id,name,is_veg,servings,meal_type,image_path')->orderBy('id')->get()
+            ->with('recipe:id,name,name_ta,is_veg,servings,meal_type,image_path')->orderBy('id')->get()
             ->sortBy(fn ($p) => array_search($p->meal_type, Recipe::MEAL_TYPES))->values()
             ->map(fn (MealPlan $p) => [
                 'id' => $p->id, 'meal_type' => $p->meal_type, 'servings' => $p->servings, 'cooked_at' => $p->cooked_at,
@@ -38,10 +38,10 @@ class DashboardController extends Controller
             'almost_count' => $results->where('match.status', RecipeMatcher::ALMOST)->count(),
             'use_soon' => RecipeMatcher::useSoon($results)->take(3)->values(),
             'expiring' => PantryItem::where('household_id', $household)->view('expiring_soon')->where('quantity', '>', 0)
-                ->with('ingredient:id,name,icon')->orderBy('expiry_date')->limit(5)->get(),
+                ->with('ingredient:id,name,name_ta,icon')->orderBy('expiry_date')->limit(5)->get(),
             'expired_count' => PantryItem::where('household_id', $household)->view('expired')->where('quantity', '>', 0)->count(),
             'low_stock' => PantryItem::where('household_id', $household)->view('low_stock')
-                ->with('ingredient:id,name,icon')->orderBy('quantity')->limit(5)->get(),
+                ->with('ingredient:id,name,name_ta,icon')->orderBy('quantity')->limit(5)->get(),
             'grocery_remaining' => $list ? $list->items()->where('purchased', false)->count() : 0,
             'pantry_count' => $pantry->count(),
             'recipe_count' => $recipes->count(),

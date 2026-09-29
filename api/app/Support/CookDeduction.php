@@ -28,7 +28,7 @@ class CookDeduction
 
             $rows[] = [
                 'ingredient_id' => $ri->ingredient_id,
-                'name' => $ri->ingredient->name,
+                'name' => $ri->ingredient->label,
                 'optional' => $ri->optional,
                 'need' => $need,
                 'unit' => $ri->unit->value,

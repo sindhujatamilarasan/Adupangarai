@@ -1,4 +1,5 @@
 import type { MealType } from '../api'
+import Kolam from './Kolam'
 
 const looks: Record<MealType, { emoji: string; bg: string }> = {
   breakfast: { emoji: '🍳', bg: 'from-[#fbf1e1] to-[#f5e2c4]' },
@@ -26,7 +27,7 @@ export default function RecipeCover({
   }
   return (
     <div className={`relative grid place-items-center bg-gradient-to-br ${look.bg} ${className}`} role="img" aria-label={recipe.name}>
-      {framed && <img src="/kolam-mark.svg" alt="" className="absolute right-2 bottom-2 size-7 opacity-25" aria-hidden />}
+      {framed && <Kolam m={2} n={3} className="absolute right-1.5 bottom-1.5 size-8 text-brand opacity-30" strokeWidth={0.09} />}
       <span className={big ? 'text-7xl drop-shadow-sm' : 'text-3xl'}>{look.emoji}</span>
     </div>
   )

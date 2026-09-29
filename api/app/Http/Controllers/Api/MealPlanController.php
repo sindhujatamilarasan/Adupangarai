@@ -23,7 +23,7 @@ class MealPlanController extends Controller
 
         $plans = MealPlan::where('household_id', $request->user()->household_id)
             ->whereBetween('date', [$start, $end])
-            ->with('recipe:id,name,meal_type,servings,prep_time,cook_time,is_veg,calories,protein_g,carbs_g,fat_g,fiber_g,image_path')
+            ->with('recipe:id,name,name_ta,meal_type,servings,prep_time,cook_time,is_veg,calories,protein_g,carbs_g,fat_g,fiber_g,image_path')
             ->orderBy('date')->orderBy('id')
             ->get();
 
@@ -61,7 +61,7 @@ class MealPlanController extends Controller
             fn ($e) => MealPlan::create([...$e, 'household_id' => $household])
         ));
 
-        return response()->json(['message' => count($data['entries']).' meal(s) added to your plan.'], 201);
+        return response()->json(['message' => __(':count meal(s) added to your plan.', ['count' => count($data['entries'])])], 201);
     }
 
     public function update(Request $request, MealPlan $mealPlan): JsonResponse
@@ -77,7 +77,7 @@ class MealPlanController extends Controller
         $this->ensureOwned($mealPlan);
         $mealPlan->delete();
 
-        return response()->json(['message' => 'Removed from plan.']);
+        return response()->json(['message' => __('Removed from plan.')]);
     }
 
     private function validated(Request $request, bool $partial = false): array

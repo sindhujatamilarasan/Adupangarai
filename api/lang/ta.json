@@ -1,0 +1,23 @@
+{
+  ":count expired item(s) written off.": "காலாவதியான :count பொருள்(கள்) நீக்கப்பட்டன.",
+  ":count item(s) added to your kitchen.": ":count பொருள்(கள்) உங்கள் சமையலறையில் சேர்க்கப்பட்டன.",
+  ":count meal(s) added to your plan.": ":count உணவு(கள்) திட்டத்தில் சேர்க்கப்பட்டன.",
+  ":name can't be added to your kitchen (not a purchased food item with a quantity, or already added).": ":name-ஐ சமையலறையில் சேர்க்க முடியாது (அளவுடன் வாங்கிய உணவுப் பொருள் அல்ல, அல்லது ஏற்கனவே சேர்க்கப்பட்டது).",
+  ":name is measured in :default.": ":name :default அலகில் அளக்கப்படுகிறது.",
+  ":name is measured in :default; :unit can't be converted.": ":name :default அலகில் அளக்கப்படுகிறது; :unit-ஐ மாற்ற முடியாது.",
+  "Already added to your kitchen; only the price can change.": "ஏற்கனவே சமையலறையில் சேர்க்கப்பட்டது; விலையை மட்டும் மாற்றலாம்.",
+  "Cannot use :unit for :name; it is stored in :stored.": ":name-க்கு :unit பயன்படுத்த முடியாது; இது :stored அலகில் சேமிக்கப்பட்டுள்ளது.",
+  "Enjoy your :name! Kitchen updated.": ":name-ஐ ருசித்து மகிழுங்கள்! சமையலறை புதுப்பிக்கப்பட்டது.",
+  "Invalid email or password.": "மின்னஞ்சல் அல்லது கடவுச்சொல் தவறு.",
+  "Logged out.": "வெளியேறினீர்கள்.",
+  "Not enough :name: only :qty :unit in your kitchen.": "போதுமான :name இல்லை: சமையலறையில் :qty :unit மட்டுமே உள்ளது.",
+  "Recipe deleted.": "சமையல் குறிப்பு நீக்கப்பட்டது.",
+  "Removed from plan.": "திட்டத்திலிருந்து நீக்கப்பட்டது.",
+  "Removed from your kitchen.": "சமையலறையிலிருந்து நீக்கப்பட்டது.",
+  "Removed.": "நீக்கப்பட்டது.",
+  "The AI assistant gave an unreadable answer. Please try again.": "AI உதவியாளரின் பதிலைப் படிக்க முடியவில்லை. மீண்டும் முயலவும்.",
+  "The AI assistant is busy (free limit reached). Please try again in a minute.": "AI உதவியாளர் பிஸியாக உள்ளது (இலவச வரம்பு எட்டப்பட்டது). ஒரு நிமிடம் கழித்து முயலவும்.",
+  "The AI assistant is not reachable. Is the AI service running?": "AI உதவியாளரை அணுக முடியவில்லை. AI சேவை இயங்குகிறதா?",
+  "The AI assistant returned an error (:status). Please try again.": "AI உதவியாளர் பிழை தந்தது (:status). மீண்டும் முயலவும்.",
+  "The AI gave an unrealistic nutrition estimate. Please try again.": "AI தந்த ஊட்டச்சத்து மதிப்பீடு நம்பத்தகுந்ததாக இல்லை. மீண்டும் முயலவும்."
+}

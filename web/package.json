@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --experimental-strip-types --no-warnings --test src/lib/*.test.ts",
+    "logo": "node --experimental-strip-types --no-warnings scripts/make-logo.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

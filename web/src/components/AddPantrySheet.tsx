@@ -1,10 +1,12 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { api, ApiError, useApi, type Category, type Ingredient, type UnitInfo, type UnitValue } from '../api'
+import { nm, unitLabel, useI18n } from '../i18n'
 import { Alert, Button, Field, Select, Sheet, Spinner } from './ui'
 
 type Props = { open: boolean; onClose: () => void; onSaved: (message: string) => void; units: UnitInfo[] }
 
 export default function AddPantrySheet({ open, onClose, onSaved, units }: Props) {
+  const { t, lang } = useI18n()
   const ingredients = useApi<{ data: Ingredient[] }>(open ? '/ingredients' : null)
   const categories = useApi<{ data: Category[] }>(open ? '/ingredient-categories' : null)
   const [search, setSearch] = useState('')
@@ -18,7 +20,7 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
   const matches = useMemo(() => {
     const q = search.trim().toLowerCase()
     const list = ingredients.data?.data ?? []
-    return q ? list.filter((i) => i.name.toLowerCase().includes(q)) : list
+    return q ? list.filter((i) => i.name.toLowerCase().includes(q) || nm(i).toLowerCase().includes(q)) : list
   }, [search, ingredients.data])
 
   const unitOptions = useMemo(() => {
@@ -80,7 +82,7 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
           storage_location: form.storage_location || null,
         },
       })
-      onSaved(`${picked.name} added to your kitchen.`)
+      onSaved(t('{name} added to your kitchen.', { name: nm(picked) }))
       close()
     } catch (err) {
       const e = err as ApiError
@@ -94,10 +96,10 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [k]: e.target.value })
 
   return (
-    <Sheet open={open} onClose={close} title={picked ? `Add ${picked.name}` : 'Add to kitchen'}>
+    <Sheet open={open} onClose={close} title={picked ? t('Add {name}', { name: nm(picked) }) : t('Add to kitchen')}>
       {!picked ? (
         <div className="space-y-3">
-          <Field label="Search ingredient" placeholder="e.g. tomato" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+          <Field label={t('Search ingredient')} placeholder={t('e.g. tomato')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
           {ingredients.loading && <Spinner />}
           {ingredients.error && <Alert kind="error">{ingredients.error}</Alert>}
           <ul className="max-h-72 divide-y divide-line overflow-y-auto rounded-2xl bg-white">
@@ -108,9 +110,9 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
                     <span className="text-2xl" aria-hidden>
                       {i.display_icon}
                     </span>
-                    {i.name}
+                    {nm(i)}
                   </span>
-                  <span className="text-xs text-muted">{i.category.name}</span>
+                  <span className="text-xs text-muted">{nm(i.category)}</span>
                 </button>
               </li>
             ))}
@@ -118,14 +120,14 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
           {search.trim() && !ingredients.loading && matches.length === 0 && (
             <div className="space-y-3 rounded-2xl border border-line bg-white p-4">
               <p className="text-sm">
-                No match. Add <b>{search.trim()}</b> as a new ingredient:
+                {t('No match. Add “{name}” as a new ingredient:', { name: search.trim() })}
               </p>
               {message && <Alert kind="error">{message}</Alert>}
-              <Select label="Category" value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
-                <option value="">Choose…</option>
+              <Select label={t('Category')} value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                <option value="">{t('Choose…')}</option>
                 {categories.data?.data.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}
+                    {nm(c)}
                   </option>
                 ))}
               </Select>
@@ -138,11 +140,11 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
                     onClick={() => createIngredient(u.value)}
                     className="rounded-full border border-line px-3 py-1.5 text-sm font-semibold disabled:opacity-40"
                   >
-                    {u.value}
+                    {unitLabel(lang, u.value)}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-muted">Pick the unit you usually measure it in.</p>
+              <p className="text-xs text-muted">{t('Pick the unit you usually measure it in.')}</p>
             </div>
           )}
         </div>
@@ -150,29 +152,31 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
         <form onSubmit={submit} className="space-y-4" noValidate>
           {message && <Alert kind="error">{message}</Alert>}
           <div className="grid grid-cols-[1fr_7rem] gap-3">
-            <Field label="Quantity" type="number" inputMode="decimal" min="0" step="any" value={form.quantity} onChange={set('quantity')} error={errors.quantity?.[0]} autoFocus />
-            <Select label="Unit" value={form.unit} onChange={set('unit')} error={errors.unit?.[0]}>
+            <Field label={t('Quantity')} type="number" inputMode="decimal" min="0" step="any" value={form.quantity} onChange={set('quantity')} error={errors.quantity?.[0]} autoFocus />
+            <Select label={t('Unit')} value={form.unit} onChange={set('unit')} error={errors.unit?.[0]}>
               {unitOptions.map((u) => (
-                <option key={u.value}>{u.value}</option>
+                <option key={u.value} value={u.value}>
+                  {unitLabel(lang, u.value)}
+                </option>
               ))}
             </Select>
           </div>
-          <Field label="Expiry date (optional)" type="date" value={form.expiry_date} onChange={set('expiry_date')} error={errors.expiry_date?.[0]} />
+          <Field label={t('Expiry date (optional)')} type="date" value={form.expiry_date} onChange={set('expiry_date')} error={errors.expiry_date?.[0]} />
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Min. stock (optional)" type="number" inputMode="decimal" min="0" step="any" value={form.minimum_stock} onChange={set('minimum_stock')} error={errors.minimum_stock?.[0]} />
-            <Select label="Stored in" value={form.storage_location} onChange={set('storage_location')}>
+            <Field label={t('Min. stock (optional)')} type="number" inputMode="decimal" min="0" step="any" value={form.minimum_stock} onChange={set('minimum_stock')} error={errors.minimum_stock?.[0]} />
+            <Select label={t('Stored in')} value={form.storage_location} onChange={set('storage_location')}>
               <option value="">—</option>
-              <option value="pantry">Pantry</option>
-              <option value="fridge">Fridge</option>
-              <option value="freezer">Freezer</option>
+              <option value="pantry">{t('pantry')}</option>
+              <option value="fridge">{t('fridge')}</option>
+              <option value="freezer">{t('freezer')}</option>
             </Select>
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={() => setPicked(null)} className="rounded-2xl border border-line bg-white px-4 font-bold text-muted">
-              Back
+              {t('Back')}
             </button>
             <Button type="submit" loading={busy} disabled={!form.quantity}>
-              Add to kitchen
+              {t('Add to kitchen')}
             </Button>
           </div>
         </form>

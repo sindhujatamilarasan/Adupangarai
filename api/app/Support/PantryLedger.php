@@ -27,7 +27,7 @@ class PantryLedger
 
         if ($converted === null) {
             throw ValidationException::withMessages([
-                'unit' => "Cannot use {$unit->value} for {$item->ingredient->name}; it is stored in {$item->unit->value}.",
+                'unit' => __('Cannot use :unit for :name; it is stored in :stored.', ['unit' => $unit->value, 'name' => $item->ingredient->label, 'stored' => $item->unit->value]),
             ]);
         }
 
@@ -37,7 +37,7 @@ class PantryLedger
 
             if ($newQuantity < 0) {
                 throw ValidationException::withMessages([
-                    'quantity' => "Not enough {$item->ingredient->name}: only {$locked->quantity} {$locked->unit->value} in pantry.",
+                    'quantity' => __('Not enough :name: only :qty :unit in your kitchen.', ['name' => $item->ingredient->label, 'qty' => $locked->quantity, 'unit' => $locked->unit->value]),
                 ]);
             }
 
@@ -64,7 +64,7 @@ class PantryLedger
         return DB::transaction(function () use ($item, $quantity, $unit, $userId, $note) {
             $current = (float) PantryItem::lockForUpdate()->findOrFail($item->id)->quantity;
             $target = Unit::convert($quantity, $unit, $item->unit) ?? throw ValidationException::withMessages([
-                'unit' => "Cannot use {$unit->value} for {$item->ingredient->name}; it is stored in {$item->unit->value}.",
+                'unit' => __('Cannot use :unit for :name; it is stored in :stored.', ['unit' => $unit->value, 'name' => $item->ingredient->label, 'stored' => $item->unit->value]),
             ]);
 
             return self::change($item, $target - $current, $item->unit, TransactionType::ADJUSTMENT, $userId, $note);
@@ -89,7 +89,7 @@ class PantryLedger
     ): PantryItem {
         if (! $ingredient->acceptsUnit($unit)) {
             throw ValidationException::withMessages([
-                'unit' => "{$ingredient->name} is measured in {$ingredient->default_unit->value}; {$unit->value} can't be converted.",
+                'unit' => __(':name is measured in :default; :unit can\'t be converted.', ['name' => $ingredient->label, 'default' => $ingredient->default_unit->value, 'unit' => $unit->value]),
             ]);
         }
 

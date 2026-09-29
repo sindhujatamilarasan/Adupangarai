@@ -71,7 +71,7 @@ class Nutrition
         foreach (self::FIELDS as $field) {
             $v = $values[$field] ?? null;
             if (! is_numeric($v) || $v < 0 || $v > self::MAX[$field]) {
-                throw new AiUnavailable('The AI gave an unrealistic nutrition estimate. Please try again.');
+                throw new AiUnavailable(__('The AI gave an unrealistic nutrition estimate. Please try again.'));
             }
             $clean[$field] = round((float) $v, 1);
         }

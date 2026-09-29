@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTamilName;
 use App\Support\Unit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,9 @@ use Illuminate\Support\Str;
 
 class Ingredient extends Model
 {
-    protected $fillable = ['name', 'ingredient_category_id', 'default_unit', 'icon'];
+    use HasTamilName;
+
+    protected $fillable = ['name', 'name_ta', 'ingredient_category_id', 'default_unit', 'icon'];
 
     protected $appends = ['display_icon'];
 

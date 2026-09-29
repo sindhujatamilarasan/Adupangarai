@@ -5,24 +5,26 @@ import { AiPantrySheet } from '../components/AiSheets'
 import PantryItemSheet, { StatusBadges } from '../components/PantryItemSheet'
 import { IconTile } from '../components/RecipeCover'
 import { Alert, EmptyState, ErrorState, Spinner } from '../components/ui'
+import { nm, tk, unitLabel, useI18n } from '../i18n'
 
 const views: { key: PantryView; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'low_stock', label: 'Low stock' },
-  { key: 'expiring_soon', label: 'Use soon' },
-  { key: 'expired', label: 'Expired' },
+  { key: 'all', label: tk('All') },
+  { key: 'low_stock', label: tk('Low stock') },
+  { key: 'expiring_soon', label: tk('Use soon') },
+  { key: 'expired', label: tk('Expired') },
 ]
 
 const emptyText: Record<PantryView, [string, string, string]> = {
-  all: ['🧺', 'Your kitchen is empty', 'Add what you have at home to see what you can cook.'],
-  low_stock: ['👍', 'Nothing running low', 'Set a minimum stock on items to get reminders here.'],
-  expiring_soon: ['🌿', 'Nothing expiring soon', 'Items expiring in the next 3 days show up here.'],
-  expired: ['✨', 'No expired items', 'Nice — nothing has gone past its date.'],
+  all: ['🧺', tk('Your kitchen is empty'), tk('Add what you have at home to see what you can cook.')],
+  low_stock: ['👍', tk('Nothing running low'), tk('Set a minimum stock on items to get reminders here.')],
+  expiring_soon: ['🌿', tk('Nothing expiring soon'), tk('Items expiring in the next 3 days show up here.')],
+  expired: ['✨', tk('No expired items'), tk('Nice — nothing has gone past its date.')],
 }
 
 const locationIcon = { pantry: '🗄️', fridge: '🧊', freezer: '❄️' }
 
 export default function KitchenPage() {
+  const { t, lang } = useI18n()
   const [view, setView] = useState<PantryView>('all')
   const pantry = useApi<{ data: PantryItem[]; counts: Record<PantryView, number> }>(`/pantry?view=${view}`)
   const units = useApi<{ data: UnitInfo[] }>('/units').data?.data ?? []
@@ -33,13 +35,13 @@ export default function KitchenPage() {
 
   useEffect(() => {
     if (!flash) return
-    const t = setTimeout(() => setFlash(null), 3000)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setFlash(null), 3000)
+    return () => clearTimeout(timer)
   }, [flash])
 
   const [writingOff, setWritingOff] = useState(false)
   async function writeOffExpired() {
-    if (!confirm('Write off all expired stock? This records it as expired and sets those items to zero.')) return
+    if (!confirm(t('Write off all expired stock? This records it as expired and sets those items to zero.'))) return
     setWritingOff(true)
     try {
       changed((await api<{ message: string }>('/pantry/discard-expired', { method: 'POST' })).message)
@@ -57,14 +59,14 @@ export default function KitchenPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Kitchen</h1>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{t('Kitchen')}</h1>
         <div className="flex gap-2">
-          <button onClick={() => setSpeaking(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand" aria-label="Add by voice">
-            🎙️ Speak
+          <button onClick={() => setSpeaking(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand whitespace-nowrap" aria-label={t('Add by voice')}>
+            🎙️ {t('Speak')}
           </button>
-          <button onClick={() => setAdding(true)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
-            + Add
+          <button onClick={() => setAdding(true)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white whitespace-nowrap">
+            + {t('Add')}
           </button>
         </div>
       </div>
@@ -76,7 +78,7 @@ export default function KitchenPage() {
             onClick={() => setView(v.key)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${view === v.key ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`}
           >
-            {v.label}
+            {t(v.label)}
             {pantry.data && <span className="ml-1 opacity-70">{pantry.data.counts[v.key]}</span>}
           </button>
         ))}
@@ -86,14 +88,14 @@ export default function KitchenPage() {
         {flash && <Alert kind={flash.kind}>{flash.text}</Alert>}
         {view === 'expired' && pantry.data?.data.some((i) => i.quantity > 0) && (
           <button onClick={writeOffExpired} disabled={writingOff} className="w-full rounded-2xl border border-red-200 bg-white py-3 text-sm font-bold text-red-700 disabled:opacity-60">
-            {writingOff ? 'Writing off…' : 'Write off all expired stock'}
+            {writingOff ? t('Writing off…') : t('Write off all expired stock')}
           </button>
         )}
-        {pantry.loading && !pantry.data && <Spinner label="Checking your shelves…" />}
+        {pantry.loading && !pantry.data && <Spinner label={t('Checking your shelves…')} />}
         {pantry.error && <ErrorState message={pantry.error} onRetry={pantry.reload} />}
         {pantry.data && pantry.data.data.length === 0 && (
-          <EmptyState emoji={emptyText[view][0]} title={emptyText[view][1]}>
-            {emptyText[view][2]}
+          <EmptyState emoji={emptyText[view][0]} title={t(emptyText[view][1])}>
+            {t(emptyText[view][2])}
           </EmptyState>
         )}
         {pantry.data?.data.map((item) => (
@@ -104,18 +106,18 @@ export default function KitchenPage() {
           >
             <IconTile icon={item.ingredient.display_icon} className="size-12 text-2xl" />
             <div className="min-w-0 flex-1">
-              <p className="truncate font-bold">{item.ingredient.name}</p>
+              <p className="truncate font-semibold">{nm(item.ingredient)}</p>
               <div className="mt-0.5 flex flex-wrap gap-1.5">
                 <StatusBadges item={item} />
                 {!item.expiry_status && !item.is_low_stock && (
                   <span className="text-xs text-muted">
-                    {item.storage_location ? `${locationIcon[item.storage_location]} ${item.storage_location}` : item.ingredient.category.name}
+                    {item.storage_location ? `${locationIcon[item.storage_location]} ${t(item.storage_location)}` : nm(item.ingredient.category)}
                   </span>
                 )}
               </div>
             </div>
             <p className={`shrink-0 text-lg font-semibold ${item.quantity === 0 ? 'text-muted' : ''}`}>
-              {fmtQty(item.quantity)} <span className="text-sm font-semibold text-muted">{item.unit}</span>
+              {fmtQty(item.quantity)} <span className="text-sm font-semibold text-muted">{unitLabel(lang, item.unit)}</span>
             </p>
           </button>
         ))}

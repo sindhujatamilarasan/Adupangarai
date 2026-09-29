@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTamilName;
 use App\Support\Nutrition;
 use App\Support\Quantities;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,16 +11,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Recipe extends Model
 {
+    use HasTamilName;
+
     public const MEAL_TYPES = ['breakfast', 'lunch', 'snack', 'dinner'];
 
     protected $fillable = [
         'household_id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg',
-        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at', 'image_path',
+        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at', 'image_path', 'name_ta', 'description_ta',
     ];
 
     protected $hidden = ['image_path'];
 
-    protected $appends = ['total_time', 'is_editable', 'health_tags', 'image_url'];
+    protected $appends = ['total_time', 'is_editable', 'health_tags', 'image_url', 'blurb'];
 
     protected function casts(): array
     {
@@ -60,6 +63,14 @@ class Recipe extends Model
     public function getImageUrlAttribute(): ?string
     {
         return $this->image_path ? '/storage/'.$this->image_path : null;
+    }
+
+    /** Description in the request's language when available. */
+    public function getBlurbAttribute(): ?string
+    {
+        return app()->getLocale() === 'ta' && ! empty($this->attributes['description_ta'] ?? null)
+            ? $this->attributes['description_ta']
+            : ($this->attributes['description'] ?? null);
     }
 
     public function getIsEditableAttribute(): bool

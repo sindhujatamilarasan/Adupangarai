@@ -82,7 +82,7 @@ class PantryController extends Controller
             }
         });
 
-        return response()->json(['message' => count($data['items']).' item(s) added to your kitchen.']);
+        return response()->json(['message' => __(':count item(s) added to your kitchen.', ['count' => count($data['items'])])]);
     }
 
     public function show(Request $request, PantryItem $item): JsonResponse
@@ -149,7 +149,7 @@ class PantryController extends Controller
             }
         });
 
-        return response()->json(['message' => $items->count().' expired item(s) written off.', 'count' => $items->count()]);
+        return response()->json(['message' => __(':count expired item(s) written off.', ['count' => $items->count()]), 'count' => $items->count()]);
     }
 
     public function destroy(PantryItem $item): JsonResponse
@@ -157,6 +157,6 @@ class PantryController extends Controller
         $this->ensureOwned($item);
         $item->delete();
 
-        return response()->json(['message' => 'Removed from pantry.']);
+        return response()->json(['message' => __('Removed from your kitchen.')]);
     }
 }

@@ -32,7 +32,10 @@ class RecipeController extends Controller
 
         $recipes = Recipe::visibleTo($request->user()->household_id)
             ->withCount('ingredients')
-            ->when($filters['search'] ?? null, fn ($q, $s) => $q->where('name', 'ilike', '%'.addcslashes($s, '%_\\').'%'))
+            ->when($filters['search'] ?? null, function ($q, $s) {
+                $like = '%'.addcslashes($s, '%_\\').'%';
+                $q->where(fn ($w) => $w->where('name', 'ilike', $like)->orWhere('name_ta', 'ilike', $like));
+            })
             ->when($filters['meal_type'] ?? null, fn ($q, $t) => $q->where('meal_type', $t))
             ->when(isset($filters['veg']), fn ($q) => $q->where('is_veg', $request->boolean('veg')))
             ->when($filters['max_time'] ?? null, fn ($q, $t) => $q->whereRaw('prep_time + cook_time <= ?', [$t]))
@@ -53,7 +56,7 @@ class RecipeController extends Controller
 
         return response()->json([
             'data' => [
-                ...$recipe->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg', 'total_time', 'is_editable', 'health_tags', 'image_url', ...Nutrition::FIELDS]),
+                ...$recipe->only(['id', 'name', 'label', 'blurb', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg', 'total_time', 'is_editable', 'health_tags', 'image_url', ...Nutrition::FIELDS]),
                 'requested_servings' => $servings,
                 'ingredients' => $recipe->scaledIngredients($servings),
                 'steps' => $recipe->steps->pluck('text'),
@@ -125,7 +128,7 @@ class RecipeController extends Controller
 
         $rows = CookDeduction::apply($recipe->load('ingredients.ingredient'), $user->household_id, $data['servings'], $user->id, $plan);
 
-        return response()->json(['data' => $rows, 'message' => "Enjoy your {$recipe->name}! Kitchen updated."]);
+        return response()->json(['data' => $rows, 'message' => __('Enjoy your :name! Kitchen updated.', ['name' => $recipe->label])]);
     }
 
     public function store(Request $request): JsonResponse
@@ -168,7 +171,7 @@ class RecipeController extends Controller
         }
         $recipe->delete();
 
-        return response()->json(['message' => 'Recipe deleted.']);
+        return response()->json(['message' => __('Recipe deleted.')]);
     }
 
     private function ensureVisible(Recipe $recipe): void
@@ -209,7 +212,7 @@ class RecipeController extends Controller
             $ingredient = $ingredients[$row['ingredient_id']];
             if (! $ingredient->acceptsUnit(Unit::from($row['unit']))) {
                 throw ValidationException::withMessages([
-                    "ingredients.$i.unit" => "{$ingredient->name} is measured in {$ingredient->default_unit->value}; {$row['unit']} can't be converted.",
+                    "ingredients.$i.unit" => __(':name is measured in :default; :unit can\'t be converted.', ['name' => $ingredient->label, 'default' => $ingredient->default_unit->value, 'unit' => $row['unit']]),
                 ]);
             }
         }

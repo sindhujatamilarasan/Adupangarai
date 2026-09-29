@@ -5,11 +5,13 @@ import CookSheet from '../components/CookSheet'
 import { HealthBadges, NutritionCard } from '../components/Health'
 import RecipeCover, { IconTile } from '../components/RecipeCover'
 import { Alert, Button, ErrorState, Spinner } from '../components/ui'
+import { nm, unitLabel, useI18n } from '../i18n'
 import { MatchBar } from './CookPage'
 import { VegDot } from './RecipesPage'
 
 export default function RecipeDetailPage() {
   const { id } = useParams()
+  const { t, lang } = useI18n()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const planId = params.get('plan')
@@ -41,7 +43,7 @@ export default function RecipeDetailPage() {
   const [error, setError] = useState('')
 
   async function remove() {
-    if (!recipe || !confirm(`Delete ${recipe.name}?`)) return
+    if (!recipe || !confirm(t('Delete {name}?', { name: nm(recipe) }))) return
     try {
       await api(`/recipes/${id}`, { method: 'DELETE' })
       navigate('/cook', { replace: true })
@@ -50,8 +52,8 @@ export default function RecipeDetailPage() {
     }
   }
 
-  if (!recipe && res.loading) return <Spinner label="Opening recipe…" />
-  if (!recipe) return <ErrorState message={res.error ?? 'Recipe not found.'} onRetry={res.reload} />
+  if (!recipe && res.loading) return <Spinner label={t('Opening recipe…')} />
+  if (!recipe) return <ErrorState message={res.error ?? t('Recipe not found.')} onRetry={res.reload} />
 
   const current = recipe.requested_servings
   const m = recipe.match
@@ -59,7 +61,7 @@ export default function RecipeDetailPage() {
   return (
     <div className="space-y-5">
       <button onClick={() => navigate(-1)} className="text-sm font-bold text-muted">
-        ← Back
+        ← {t('Back')}
       </button>
 
       <div className="relative -mx-4 -mt-2 overflow-hidden sm:mx-0 sm:rounded-3xl">
@@ -67,11 +69,11 @@ export default function RecipeDetailPage() {
         {recipe.is_editable && (
           <div className="absolute right-3 bottom-3 flex gap-2">
             <label className={`cursor-pointer rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-ink shadow backdrop-blur ${uploading ? 'opacity-60' : ''}`}>
-              📷 {uploading ? 'Uploading…' : recipe.image_url ? 'Change photo' : 'Add photo'}
+              📷 {uploading ? t('Uploading…') : recipe.image_url ? t('Change photo') : t('Add photo')}
               <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="hidden" disabled={uploading} onChange={(e) => e.target.files?.[0] && setPhoto(e.target.files[0])} />
             </label>
             {recipe.image_url && (
-              <button onClick={() => setPhoto(null)} disabled={uploading} className="rounded-full bg-white/90 px-3 py-2 text-sm font-bold text-red-700 shadow backdrop-blur" aria-label="Remove photo">
+              <button onClick={() => setPhoto(null)} disabled={uploading} className="rounded-full bg-white/90 px-3 py-2 text-sm font-bold text-red-700 shadow backdrop-blur" aria-label={t('Remove photo')}>
                 ✕
               </button>
             )}
@@ -83,15 +85,15 @@ export default function RecipeDetailPage() {
         <div className="flex items-center gap-2">
           <VegDot veg={recipe.is_veg} />
           <span className="text-xs font-bold uppercase tracking-wide text-brand">
-            {recipe.meal_type}
+            {t(recipe.meal_type)}
             {recipe.cuisine && ` · ${recipe.cuisine}`}
           </span>
         </div>
-        <h1 className="mt-1 font-display text-[2rem] leading-tight font-semibold tracking-tight">{recipe.name}</h1>
-        {recipe.description && <p className="mt-1 text-muted">{recipe.description}</p>}
+        <h1 className="mt-1 font-display text-[2rem] leading-tight font-semibold tracking-tight">{nm(recipe)}</h1>
+        {(recipe.blurb ?? recipe.description) && <p className="mt-1 text-muted">{recipe.blurb ?? recipe.description}</p>}
         <div className="mt-3 flex flex-wrap gap-2 text-sm">
-          <span className="rounded-full border border-line bg-white px-3 py-1 font-medium">Prep {recipe.prep_time} min</span>
-          <span className="rounded-full border border-line bg-white px-3 py-1 font-medium">Cook {recipe.cook_time} min</span>
+          <span className="rounded-full border border-line bg-white px-3 py-1 font-medium">{t('Prep {n} min', { n: recipe.prep_time })}</span>
+          <span className="rounded-full border border-line bg-white px-3 py-1 font-medium">{t('Cook {n} min', { n: recipe.cook_time })}</span>
           <HealthBadges tags={recipe.health_tags} />
         </div>
       </header>
@@ -102,19 +104,19 @@ export default function RecipeDetailPage() {
 
       <section className="card p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold">Ingredients</h2>
+          <h2 className="font-display text-lg font-semibold">{t('Ingredients')}</h2>
           <div className="flex items-center gap-2 rounded-full bg-cream p-1">
             <button
-              aria-label="Fewer servings"
+              aria-label={t('Fewer servings')}
               disabled={current <= 1 || res.loading}
               onClick={() => setServings(current - 1)}
               className="grid size-8 place-items-center rounded-full bg-white text-lg font-bold disabled:opacity-40"
             >
               −
             </button>
-            <span className="min-w-16 text-center text-sm font-bold">Serves {current}</span>
+            <span className="min-w-16 text-center text-sm font-bold">{t('Serves {n}', { n: current })}</span>
             <button
-              aria-label="More servings"
+              aria-label={t('More servings')}
               disabled={current >= 100 || res.loading}
               onClick={() => setServings(current + 1)}
               className="grid size-8 place-items-center rounded-full bg-white text-lg font-bold disabled:opacity-40"
@@ -127,7 +129,7 @@ export default function RecipeDetailPage() {
         <div className="mb-2">
           <MatchBar percent={m.match_percent} status={m.status} />
           <p className="mt-1 text-xs text-muted">
-            {m.status === 'available' ? 'You have everything for this.' : 'Compared with what’s in your kitchen (expired items excluded).'}
+            {m.status === 'available' ? t('You have everything for this.') : t('Compared with what’s in your kitchen (expired items excluded).')}
           </p>
         </div>
         <ul className={`divide-y divide-line ${res.loading ? 'opacity-50' : ''}`}>
@@ -141,17 +143,17 @@ export default function RecipeDetailPage() {
                     {short ? '○' : '✓'}
                   </span>
                   <span>
-                    {i.ingredient.name}
-                    {i.optional && <span className="ml-1 text-xs text-muted">(optional)</span>}
+                    {nm(i.ingredient)}
+                    {i.optional && <span className="ml-1 text-xs text-muted">({t('optional')})</span>}
                     {short && (
                       <span className={`block text-xs ${short.optional ? 'text-muted' : 'text-red-700'}`}>
-                        {short.have > 0 ? `Have ${fmtQty(short.have)} · need ${fmtQty(short.short ?? 0)} more` : 'Not in kitchen'}
+                        {short.have > 0 ? t('Have {have} · need {more} more', { have: fmtQty(short.have), more: fmtQty(short.short ?? 0) }) : t('Not in kitchen')}
                       </span>
                     )}
                   </span>
                 </span>
                 <span className="shrink-0 font-bold">
-                  {fmtQty(i.quantity)} {i.unit}
+                  {fmtQty(i.quantity)} {unitLabel(lang, i.unit)}
                 </span>
               </li>
             )
@@ -161,7 +163,7 @@ export default function RecipeDetailPage() {
 
       {recipe.steps.length > 0 && (
         <section className="card p-5">
-          <h2 className="mb-3 font-display text-lg font-semibold">Method</h2>
+          <h2 className="mb-3 font-display text-lg font-semibold">{t('Method')}</h2>
           <ol className="space-y-3">
             {recipe.steps.map((s, i) => (
               <li key={i} className="flex gap-3">
@@ -174,7 +176,7 @@ export default function RecipeDetailPage() {
       )}
 
       {cooked && <Alert kind="success">{cooked}</Alert>}
-      <Button onClick={() => setCooking(true)}>🍳 Cook this · serves {current}</Button>
+      <Button onClick={() => setCooking(true)}>🍳 {t('Cook this · serves {n}', { n: current })}</Button>
       {cooking && (
         <CookSheet
           recipeId={recipe.id}
@@ -192,10 +194,10 @@ export default function RecipeDetailPage() {
       {recipe.is_editable && (
         <div className="flex gap-3">
           <Link to={`/recipes/${id}/edit`} className="flex-1 rounded-2xl border border-brand bg-white py-3 text-center font-bold text-brand">
-            Edit
+            {t('Edit')}
           </Link>
           <button onClick={remove} className="flex-1 rounded-2xl border border-line bg-white py-3 font-bold text-red-700">
-            Delete
+            {t('Delete')}
           </button>
         </div>
       )}

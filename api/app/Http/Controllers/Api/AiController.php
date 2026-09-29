@@ -48,7 +48,7 @@ class AiController extends Controller
         ));
 
         $plan = AiDrafts::mealPlan($candidates, Carbon::parse($data['start']), $data['days'], $data['meals'], $data['goal'], $data['servings']);
-        $names = $candidates->pluck('recipe.name', 'recipe.id');
+        $names = $candidates->pluck('recipe.label', 'recipe.id');
 
         return response()->json([
             'data' => array_map(fn ($p) => [...$p, 'recipe_name' => $names[$p['recipe_id']]], $plan),

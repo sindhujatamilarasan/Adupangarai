@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../i18n'
 
 // Minimal typing for the browser Web Speech API (Chrome, Edge, Android, Safari).
 type Recognition = {
@@ -22,7 +23,8 @@ const LANGS = [
 
 /** Text box with a mic button: speak (free, in-browser speech-to-text) or type. */
 export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: { value: string; onChange: (v: string) => void; placeholder: string; rows?: number }) {
-  const [lang, setLang] = useState('en-IN')
+  const { t, lang: uiLang } = useI18n()
+  const [lang, setLang] = useState(uiLang === 'ta' ? 'ta-IN' : 'en-IN')
   const [listening, setListening] = useState(false)
   const [error, setError] = useState('')
   const rec = useRef<Recognition | null>(null)
@@ -46,7 +48,7 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
       for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript
       onChange(base.current + text)
     }
-    r.onerror = (e) => setError(e.error === 'not-allowed' ? 'Microphone permission was denied.' : `Voice input stopped (${e.error}).`)
+    r.onerror = (e) => setError(e.error === 'not-allowed' ? t('Microphone permission was denied.') : t('Voice input stopped ({error}).', { error: e.error }))
     r.onend = () => setListening(false)
     setError('')
     rec.current = r
@@ -68,7 +70,7 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
           <button
             type="button"
             onClick={toggle}
-            aria-label={listening ? 'Stop listening' : 'Speak'}
+            aria-label={listening ? t('Stop listening') : t('Speak')}
             className={`absolute right-2 bottom-3 grid size-12 place-items-center rounded-full text-xl text-white shadow-md ${listening ? 'animate-pulse bg-red-600' : 'bg-brand'}`}
           >
             {listening ? '■' : '🎙️'}
@@ -78,7 +80,7 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
       <div className="flex items-center justify-between text-xs text-muted">
         {SpeechRecognitionImpl ? (
           <>
-            <span>{listening ? 'Listening… tap ■ when done' : 'Tap 🎙️ and speak, or type'}</span>
+            <span>{listening ? t('Listening… tap ■ when done') : t('Tap 🎙️ and speak, or type')}</span>
             <span className="flex gap-1">
               {LANGS.map((l) => (
                 <button
@@ -94,7 +96,7 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
             </span>
           </>
         ) : (
-          <span>Voice input isn’t supported in this browser — type instead (Chrome or Edge support voice).</span>
+          <span>{t('Voice input isn’t supported in this browser — type instead (Chrome or Edge support voice).')}</span>
         )}
       </div>
       {error && <p className="text-sm text-red-700">{error}</p>}

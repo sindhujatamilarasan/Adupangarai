@@ -30,8 +30,8 @@ class Ai
                     continue; // busy or rate-limited: try the fallback model
                 }
                 throw new AiUnavailable($response->status() === 429
-                    ? 'The AI assistant is busy (free limit reached). Please try again in a minute.'
-                    : 'The AI assistant returned an error ('.$response->status().'). Please try again.');
+                    ? __('The AI assistant is busy (free limit reached). Please try again in a minute.')
+                    : __('The AI assistant returned an error (:status). Please try again.', ['status' => $response->status()]));
             }
 
             $data = self::decode((string) $response->json('choices.0.message.content'));
@@ -41,7 +41,7 @@ class Ai
             // Unreadable (e.g. cut off): the fallback model may do better.
         }
 
-        throw new AiUnavailable('The AI assistant gave an unreadable answer. Please try again.');
+        throw new AiUnavailable(__('The AI assistant gave an unreadable answer. Please try again.'));
     }
 
     private static function decode(string $content): ?array
@@ -69,7 +69,7 @@ class Ai
                     ],
                 ]);
         } catch (ConnectionException) {
-            throw new AiUnavailable('The AI assistant is not reachable. Is the AI service running?');
+            throw new AiUnavailable(__('The AI assistant is not reachable. Is the AI service running?'));
         }
     }
 }

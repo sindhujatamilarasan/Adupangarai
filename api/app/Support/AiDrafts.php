@@ -159,7 +159,7 @@ class AiDrafts
         return [
             'heard' => $name,
             'ingredient_id' => $ingredient?->id,
-            'name' => $ingredient?->name ?? $name,
+            'name' => $ingredient?->label ?? $name,
             'quantity' => $quantity ? round($quantity, 3) : null,
             // Fall back to the ingredient's own unit so the user only has to fix the number.
             'unit' => ($unit && $ingredient?->acceptsUnit($unit)) ? $unit->value : $ingredient?->default_unit->value,

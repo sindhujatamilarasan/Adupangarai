@@ -16,26 +16,29 @@ import {
   type UnitInfo,
 } from '../api'
 import VoiceInput from './VoiceInput'
+import { nm, tk, unitLabel, useI18n } from '../i18n'
 import { Alert, Button, Sheet, Spinner } from './ui'
 
 const problemText: Record<NonNullable<AiItem['problem']>, string> = {
-  unknown_ingredient: 'Not in your ingredient list — pick one',
-  no_quantity: 'How much?',
-  unit_mismatch: 'Check the unit',
-  guessed: 'Best guess — check it',
+  unknown_ingredient: tk('Not in your ingredient list — pick one'),
+  no_quantity: tk('How much?'),
+  unit_mismatch: tk('Check the unit'),
+  guessed: tk('Best guess — check it'),
 }
 
 function Thinking({ label }: { label: string }) {
+  const { t } = useI18n()
   return (
     <div className="rounded-2xl border border-line bg-white p-2 text-center">
       <Spinner label={label} />
-      <p className="-mt-8 pb-4 text-xs text-muted">{AI_WAIT}</p>
+      <p className="-mt-8 pb-4 text-xs text-muted">{t(AI_WAIT)}</p>
     </div>
   )
 }
 
 /** Speak what you bought -> review rows -> add to kitchen (one transaction). */
 export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone: (message: string) => void }) {
+  const { t, lang } = useI18n()
   const ingredients = useApi<{ data: Ingredient[] }>('/ingredients')
   const units = useApi<{ data: UnitInfo[] }>('/units')
   const [text, setText] = useState('')
@@ -83,18 +86,18 @@ export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone
   }
 
   return (
-    <Sheet open onClose={onClose} title="🎙️ Say what you bought">
+    <Sheet open onClose={onClose} title={`🎙️ ${t('Say what you bought')}`}>
       <div className="space-y-4">
         {error && <Alert kind="error">{error}</Alert>}
         {!rows ? (
           <>
-            <VoiceInput value={text} onChange={setText} placeholder="e.g. I bought 1 kg chicken, a dozen eggs and 2 litres of milk" />
-            {busy ? <Thinking label="Understanding…" /> : <Button onClick={understand} disabled={!text.trim()}>Understand</Button>}
+            <VoiceInput value={text} onChange={setText} placeholder={t('e.g. I bought 1 kg chicken, a dozen eggs and 2 litres of milk')} />
+            {busy ? <Thinking label={t('Understanding…')} /> : <Button onClick={understand} disabled={!text.trim()}>{t('Understand')}</Button>}
           </>
         ) : (
           <>
             <p className="text-sm text-muted">
-              Check and fix before adding. {source === 'rules' ? 'Read instantly (no AI needed).' : '✨ Understood by AI.'}
+              {t('Check and fix before adding.')} {source === 'rules' ? t('Read instantly (no AI needed).') : `✨ ${t('Understood by AI.')}`}
             </p>
             <ul className="space-y-2">
               {rows.map((r, i) => (
@@ -104,18 +107,18 @@ export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone
                       value={r.ingredient_id ?? ''}
                       onChange={(e) => {
                         const ing = byId.get(Number(e.target.value))
-                        setRow(i, { ingredient_id: ing?.id ?? null, name: ing?.name ?? r.name, unit: ing?.default_unit ?? null })
+                        setRow(i, { ingredient_id: ing?.id ?? null, name: ing ? nm(ing) : r.name, unit: ing?.default_unit ?? null })
                       }}
                       className="min-w-0 flex-1 rounded-xl border border-line bg-white px-2 py-2 font-semibold"
                     >
-                      <option value="">Choose ingredient…</option>
+                      <option value="">{t('Choose ingredient…')}</option>
                       {(ingredients.data?.data ?? []).map((ing) => (
                         <option key={ing.id} value={ing.id}>
-                          {ing.name}
+                          {nm(ing)}
                         </option>
                       ))}
                     </select>
-                    <button onClick={() => setRows(rows.filter((_, j) => j !== i))} aria-label="Remove" className="px-2 text-xl text-muted">
+                    <button onClick={() => setRows(rows.filter((_, j) => j !== i))} aria-label={t('Remove')} className="px-2 text-xl text-muted">
                       ×
                     </button>
                   </div>
@@ -128,33 +131,33 @@ export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone
                       value={r.quantity ?? ''}
                       onChange={(e) => setRow(i, { quantity: e.target.value === '' ? null : Number(e.target.value) })}
                       className="rounded-xl border border-line px-3 py-2"
-                      aria-label="Quantity"
+                      aria-label={t('Quantity')}
                     />
-                    <select value={r.unit ?? ''} onChange={(e) => setRow(i, { unit: e.target.value as AiItem['unit'] })} className="rounded-xl border border-line bg-white px-2 py-2" aria-label="Unit">
+                    <select value={r.unit ?? ''} onChange={(e) => setRow(i, { unit: e.target.value as AiItem['unit'] })} className="rounded-xl border border-line bg-white px-2 py-2" aria-label={t('Unit')}>
                       {unitsFor(r.ingredient_id).map((u) => (
-                        <option key={u.value}>{u.value}</option>
+                        <option key={u.value} value={u.value}>{unitLabel(lang, u.value)}</option>
                       ))}
                     </select>
-                    <input type="date" value={r.expiry_date} onChange={(e) => setRow(i, { expiry_date: e.target.value })} className="rounded-xl border border-line px-2 py-2 text-sm" aria-label="Expiry date" />
+                    <input type="date" value={r.expiry_date} onChange={(e) => setRow(i, { expiry_date: e.target.value })} className="rounded-xl border border-line px-2 py-2 text-sm" aria-label={t('Expiry date')} />
                   </div>
                   <p className="text-xs text-muted">
-                    Heard “{r.heard}”{r.problem && <span className="font-bold text-amber-700"> · {problemText[r.problem]}</span>}
+                    {t('Heard “{heard}”', { heard: r.heard })}{r.problem && <span className="font-bold text-amber-700"> · {t(problemText[r.problem])}</span>}
                   </p>
                 </li>
               ))}
             </ul>
             <div className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-white p-1">
-              {(['PURCHASE', 'ADD'] as const).map((t) => (
-                <button key={t} onClick={() => setType(t)} className={`rounded-xl py-2 text-sm font-bold ${type === t ? 'bg-ink text-white' : 'text-muted'}`}>
-                  {t === 'PURCHASE' ? 'I bought these' : 'Just add to stock'}
+              {(['PURCHASE', 'ADD'] as const).map((kind) => (
+                <button key={kind} onClick={() => setType(kind)} className={`rounded-xl py-2 text-sm font-bold ${type === kind ? 'bg-ink text-white' : 'text-muted'}`}>
+                  {kind === 'PURCHASE' ? t('I bought these') : t('Just add to stock')}
                 </button>
               ))}
             </div>
             <Button onClick={confirm} loading={busy} disabled={!ready}>
-              Add {rows.length} item{rows.length === 1 ? '' : 's'} to kitchen
+              {t('Add {n} item(s) to kitchen', { n: rows.length })}
             </Button>
             <button onClick={() => setRows(null)} className="w-full py-1 text-sm font-bold text-muted">
-              ← Say it again
+              ← {t('Say it again')}
             </button>
           </>
         )}
@@ -165,6 +168,7 @@ export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone
 
 /** Dictate a recipe -> AI draft -> opens the recipe form to review and save. */
 export function AiRecipeSheet({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
@@ -183,30 +187,31 @@ export function AiRecipeSheet({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Sheet open onClose={onClose} title="🎙️ Say a recipe">
+    <Sheet open onClose={onClose} title={`🎙️ ${t('Say a recipe')}`}>
       <div className="space-y-4">
         {error && <Alert kind="error">{error}</Alert>}
         <VoiceInput
           rows={7}
           value={text}
           onChange={setText}
-          placeholder="e.g. Egg curry for 4. Boil 6 eggs. Fry 2 onions and 2 tomatoes in 2 tablespoons oil with 1 teaspoon chilli powder…"
+          placeholder={t('e.g. Egg curry for 4. Boil 6 eggs. Fry 2 onions and 2 tomatoes in 2 tablespoons oil with 1 teaspoon chilli powder…')}
         />
-        <p className="text-xs text-muted">Say the name, how many it serves, ingredients with amounts, and the steps. You’ll review everything before saving.</p>
-        {busy ? <Thinking label="Writing your recipe…" /> : <Button onClick={draft} disabled={text.trim().length < 20}>✨ Create recipe draft</Button>}
+        <p className="text-xs text-muted">{t('Say the name, how many it serves, ingredients with amounts, and the steps. You’ll review everything before saving.')}</p>
+        {busy ? <Thinking label={t('Writing your recipe…')} /> : <Button onClick={draft} disabled={text.trim().length < 20}>✨ {t('Create recipe draft')}</Button>}
       </div>
     </Sheet>
   )
 }
 
 const goals = [
-  { key: 'balanced', label: '⚖️ Balanced' },
-  { key: 'high_protein', label: '💪 High protein' },
-  { key: 'low_calorie', label: '🥗 Lighter' },
+  { key: 'balanced', label: tk('⚖️ Balanced') },
+  { key: 'high_protein', label: tk('💪 High protein') },
+  { key: 'low_calorie', label: tk('🥗 Lighter') },
 ] as const
 
 /** AI picks recipes for the coming days -> preview -> add to planner. */
 export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: string; onClose: () => void; onDone: (message: string) => void }) {
+  const { t, fmtDate } = useI18n()
   const [start, setStart] = useState(initialStart ?? isoDate(new Date()))
   const [days, setDays] = useState(3)
   const [meals, setMeals] = useState<MealType[]>(['breakfast', 'lunch', 'dinner'])
@@ -231,7 +236,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
   const generate = () =>
     run(async () => {
       const r = await api<{ data: AiPlanEntry[] }>('/ai/meal-plan', { method: 'POST', body: { start, days, meals: MEAL_TYPES.filter((m) => meals.includes(m)), goal, servings } })
-      if (r.data.length === 0) throw new ApiError(0, 'The AI couldn’t make a plan this time. Please try again.')
+      if (r.data.length === 0) throw new ApiError(0, t('The AI couldn’t make a plan this time. Please try again.'))
       setPlan(r.data)
     })
 
@@ -246,18 +251,18 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
   const chip = (active: boolean) => `rounded-full px-3 py-1.5 text-sm font-bold ${active ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`
 
   return (
-    <Sheet open onClose={onClose} title="✨ AI meal plan">
+    <Sheet open onClose={onClose} title={`✨ ${t('AI meal plan')}`}>
       <div className="space-y-4">
         {error && <Alert kind="error">{error}</Alert>}
         {!plan ? (
           <>
             <div className="grid grid-cols-2 gap-3">
               <label className="text-sm font-semibold text-muted">
-                Starting
+                {t('Starting')}
                 <input type="date" value={start} onChange={(e) => setStart(e.target.value)} className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink" />
               </label>
               <label className="text-sm font-semibold text-muted">
-                Days
+                {t('Days')}
                 <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-ink">
                   {[1, 2, 3, 4, 5, 6, 7].map((d) => (
                     <option key={d}>{d}</option>
@@ -266,58 +271,58 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
               </label>
             </div>
             <div>
-              <p className="mb-1 text-sm font-semibold text-muted">Meals</p>
+              <p className="mb-1 text-sm font-semibold text-muted">{t('Meals')}</p>
               <div className="flex flex-wrap gap-2">
                 {MEAL_TYPES.map((m) => (
-                  <button key={m} onClick={() => setMeals(meals.includes(m) ? meals.filter((x) => x !== m) : [...meals, m])} className={`${chip(meals.includes(m))} capitalize`}>
-                    {m}
+                  <button key={m} onClick={() => setMeals(meals.includes(m) ? meals.filter((x) => x !== m) : [...meals, m])} className={chip(meals.includes(m))}>
+                    {t(m)}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <p className="mb-1 text-sm font-semibold text-muted">Goal</p>
+              <p className="mb-1 text-sm font-semibold text-muted">{t('Goal')}</p>
               <div className="flex flex-wrap gap-2">
                 {goals.map((g) => (
                   <button key={g.key} onClick={() => setGoal(g.key)} className={chip(goal === g.key)}>
-                    {g.label}
+                    {t(g.label)}
                   </button>
                 ))}
               </div>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-3">
-              <span className="font-semibold">People</span>
+              <span className="font-semibold">{t('People')}</span>
               <div className="flex items-center gap-3">
-                <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label="Fewer">
+                <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label={t('Fewer')}>
                   −
                 </button>
                 <span className="w-5 text-center font-semibold">{servings}</span>
-                <button onClick={() => setServings(Math.min(20, servings + 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label="More">
+                <button onClick={() => setServings(Math.min(20, servings + 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label={t('More')}>
                   +
                 </button>
               </div>
             </div>
-            {busy ? <Thinking label="Planning your meals…" /> : <Button onClick={generate} disabled={meals.length === 0}>✨ Suggest a plan</Button>}
+            {busy ? <Thinking label={t('Planning your meals…')} /> : <Button onClick={generate} disabled={meals.length === 0}>✨ {t('Suggest a plan')}</Button>}
           </>
         ) : (
           <>
-            <p className="text-sm text-muted">Chosen from your recipes, favouring what’s in your kitchen and items expiring soon. Nothing is saved until you add it.</p>
+            <p className="text-sm text-muted">{t('Chosen from your recipes, favouring what’s in your kitchen and items expiring soon. Nothing is saved until you add it.')}</p>
             {[...byDate].map(([date, entries]) => (
               <section key={date} className="rounded-2xl border border-line bg-white p-3">
-                <p className="mb-1 font-semibold">{new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+                <p className="mb-1 font-semibold">{fmtDate(date, { weekday: 'long', day: 'numeric', month: 'short' })}</p>
                 {entries.map((e) => (
                   <p key={e.meal_type} className="flex justify-between py-1 text-sm">
-                    <span className="font-bold uppercase text-muted">{e.meal_type}</span>
+                    <span className="font-semibold tracking-wide text-muted uppercase">{t(e.meal_type)}</span>
                     <span className="font-semibold">{e.recipe_name}</span>
                   </p>
                 ))}
               </section>
             ))}
             <Button onClick={apply} loading={busy}>
-              Add {plan.length} meals to planner
+              {t('Add {n} meals to planner', { n: plan.length })}
             </Button>
             <button onClick={() => setPlan(null)} className="w-full py-1 text-sm font-bold text-muted">
-              ← Try different options
+              ← {t('Try different options')}
             </button>
           </>
         )}

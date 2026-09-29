@@ -4,13 +4,14 @@ import { addDays, api, ApiError, isoDate, MEAL_TYPES, useApi, type DayNutrition,
 import { AiPlanSheet } from '../components/AiSheets'
 import { ProteinWeekChart } from '../components/Health'
 import { Alert, Button, ErrorState, Sheet, Spinner } from '../components/ui'
+import { nm, useI18n } from '../i18n'
 import { VegDot } from './RecipesPage'
 
-const mealLabel: Record<MealType, string> = { breakfast: 'Breakfast', lunch: 'Lunch', snack: 'Snack', dinner: 'Dinner' }
 
 type Editing = { mode: 'add'; date: string; meal_type: MealType } | { mode: 'edit'; entry: MealPlanEntry }
 
 export default function PlannerPage() {
+  const { t, fmtDate: fmt } = useI18n()
   const [start, setStart] = useState<string | null>(null)
   const res = useApi<{ data: MealPlanEntry[]; start: string; end: string; nutrition: Record<string, DayNutrition> }>(`/meal-plans${start ? `?start=${start}` : ''}`)
   const [editing, setEditing] = useState<Editing | null>(null)
@@ -25,14 +26,13 @@ export default function PlannerPage() {
     return map
   }, [res.data])
 
-  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, opts)
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Meal planner</h1>
-        <button onClick={() => setAiOpen(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand">
-          ✦ AI plan
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{t('Meal planner')}</h1>
+        <button onClick={() => setAiOpen(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand whitespace-nowrap">
+          ✦ {t('AI plan')}
         </button>
       </div>
       {flash && (
@@ -43,13 +43,13 @@ export default function PlannerPage() {
 
       {weekStart && (
         <div className="mt-4 flex items-center justify-between rounded-2xl border border-line bg-white p-2">
-          <button onClick={() => setStart(addDays(weekStart, -7))} className="rounded-xl px-3 py-2 font-bold text-muted" aria-label="Previous week">
+          <button onClick={() => setStart(addDays(weekStart, -7))} className="rounded-xl px-3 py-2 font-bold text-muted" aria-label={t('Previous week')}>
             ←
           </button>
           <button onClick={() => setStart(null)} className="text-sm font-bold">
             {fmt(weekStart, { day: 'numeric', month: 'short' })} – {fmt(res.data!.end, { day: 'numeric', month: 'short' })}
           </button>
-          <button onClick={() => setStart(addDays(weekStart, 7))} className="rounded-xl px-3 py-2 font-bold text-muted" aria-label="Next week">
+          <button onClick={() => setStart(addDays(weekStart, 7))} className="rounded-xl px-3 py-2 font-bold text-muted" aria-label={t('Next week')}>
             →
           </button>
         </div>
@@ -57,19 +57,19 @@ export default function PlannerPage() {
 
       <div className="mt-4 space-y-4">
         {weekStart && <ProteinWeekChart days={Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))} nutrition={res.data!.nutrition} />}
-        {res.loading && !res.data && <Spinner label="Loading your week…" />}
+        {res.loading && !res.data && <Spinner label={t('Loading your week…')} />}
         {res.error && <ErrorState message={res.error} onRetry={res.reload} />}
         {weekStart &&
           Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).map((date) => (
             <section key={date} className={`card p-5 ${date === today ? 'ring-2 ring-brand' : ''}`}>
               <h2 className="mb-2 font-display text-lg font-semibold">
                 {fmt(date, { weekday: 'long' })} <span className="font-semibold text-muted">{fmt(date, { day: 'numeric', month: 'short' })}</span>
-                {date === today && <span className="ml-2 text-xs font-bold text-brand">TODAY</span>}
+                {date === today && <span className="ml-2 text-xs font-semibold tracking-wide text-brand uppercase">{t('Today')}</span>}
               </h2>
               <div className="divide-y divide-line">
                 {MEAL_TYPES.map((meal) => (
                   <div key={meal} className="flex items-start gap-3 py-2">
-                    <span className="w-20 shrink-0 pt-1.5 text-xs font-bold uppercase text-muted">{mealLabel[meal]}</span>
+                    <span className="w-20 shrink-0 pt-1.5 text-xs font-bold uppercase text-muted">{t(meal)}</span>
                     <div className="flex flex-1 flex-wrap gap-1.5">
                       {(byDay.get(`${date}|${meal}`) ?? []).map((p) => (
                         <button
@@ -78,15 +78,15 @@ export default function PlannerPage() {
                           className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${p.cooked_at ? 'bg-green-50 text-leaf' : 'bg-cream'}`}
                         >
                           <VegDot veg={p.recipe.is_veg} />
-                          {p.recipe.name}
+                          {nm(p.recipe)}
                           <span className="text-xs text-muted">×{p.servings}</span>
-                          {p.cooked_at && <span aria-label="cooked">✓</span>}
+                          {p.cooked_at && <span aria-label={t('Cooked')}>✓</span>}
                         </button>
                       ))}
                       <button
                         onClick={() => setEditing({ mode: 'add', date, meal_type: meal })}
                         className="rounded-full border border-dashed border-line px-3 py-1.5 text-sm font-bold text-muted"
-                        aria-label={`Add ${meal} on ${date}`}
+                        aria-label={t('Add {meal} on {date}', { meal: t(meal), date })}
                       >
                         +
                       </button>
@@ -115,6 +115,7 @@ export default function PlannerPage() {
 }
 
 function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: () => void; onSaved: () => void }) {
+  const { t, fmtDate } = useI18n()
   const entry = editing.mode === 'edit' ? editing.entry : null
   const recipes = useApi<{ data: RecipeSummary[] }>('/recipes')
   const [search, setSearch] = useState('')
@@ -129,7 +130,7 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
   const meal = entry?.meal_type ?? (editing.mode === 'add' ? editing.meal_type : 'lunch')
   const chosen = list.find((r) => r.id === recipeId) ?? (entry ? { ...entry.recipe } : null)
   const matches = list
-    .filter((r) => r.name.toLowerCase().includes(search.trim().toLowerCase()))
+    .filter((r) => `${r.name} ${nm(r)}`.toLowerCase().includes(search.trim().toLowerCase()))
     .sort((a, b) => Number(b.meal_type === meal) - Number(a.meal_type === meal))
 
   async function save() {
@@ -159,10 +160,10 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
     }
   }
 
-  const when = `${mealLabel[meal]} · ${new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}`
+  const when = `${t(meal)} · ${fmtDate(date, { weekday: 'short', day: 'numeric', month: 'short' })}`
 
   return (
-    <Sheet open onClose={onClose} title={entry ? 'Planned meal' : 'Plan a meal'}>
+    <Sheet open onClose={onClose} title={entry ? t('Planned meal') : t('Plan a meal')}>
       <p className="-mt-2 mb-4 text-sm font-semibold text-brand">{when}</p>
       {error && (
         <div className="mb-3">
@@ -173,7 +174,7 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
         <div className="space-y-3">
           <input
             type="search"
-            placeholder="Search recipes…"
+            placeholder={t('Search recipes…')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-brand"
@@ -193,12 +194,12 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
                   className="flex w-full items-center gap-2 px-4 py-3 text-left"
                 >
                   <VegDot veg={r.is_veg} />
-                  <span className="flex-1 font-semibold">{r.name}</span>
-                  <span className="text-xs capitalize text-muted">{r.meal_type}</span>
+                  <span className="flex-1 font-semibold">{nm(r)}</span>
+                  <span className="text-xs text-muted">{t(r.meal_type)}</span>
                 </button>
               </li>
             ))}
-            {recipes.data && matches.length === 0 && <li className="px-4 py-6 text-center text-sm text-muted">No recipes match.</li>}
+            {recipes.data && matches.length === 0 && <li className="px-4 py-6 text-center text-sm text-muted">{t('No recipes match.')}</li>}
           </ul>
         </div>
       ) : (
@@ -206,26 +207,26 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
           <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-4">
             <div className="flex items-center gap-2">
               {chosen && <VegDot veg={chosen.is_veg} />}
-              <span className="font-bold">{chosen?.name}</span>
+              <span className="font-bold">{chosen ? nm(chosen) : ''}</span>
             </div>
             <button onClick={() => setPicking(true)} className="text-sm font-bold text-brand">
-              Change
+              {t('Change')}
             </button>
           </div>
           <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-4">
-            <span className="font-semibold">Servings</span>
+            <span className="font-semibold">{t('Servings')}</span>
             <div className="flex items-center gap-3">
-              <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold" aria-label="Fewer">
+              <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold" aria-label={t('Fewer')}>
                 −
               </button>
               <span className="w-6 text-center text-lg font-semibold">{servings}</span>
-              <button onClick={() => setServings(Math.min(100, servings + 1))} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold" aria-label="More">
+              <button onClick={() => setServings(Math.min(100, servings + 1))} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold" aria-label={t('More')}>
                 +
               </button>
             </div>
           </div>
           <Button onClick={save} loading={busy}>
-            {entry ? 'Save changes' : 'Add to plan'}
+            {entry ? t('Save changes') : t('Add to plan')}
           </Button>
           {entry && (
             <div className="flex gap-3">
@@ -233,10 +234,10 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
                 to={`/recipes/${entry.recipe_id}?servings=${entry.servings}&plan=${entry.id}`}
                 className="flex-1 rounded-2xl border border-brand bg-white py-3 text-center font-bold text-brand"
               >
-                {entry.cooked_at ? 'View recipe' : 'Open & cook'}
+                {entry.cooked_at ? t('View recipe') : t('Open & cook')}
               </Link>
               <button onClick={remove} disabled={busy} className="flex-1 rounded-2xl border border-line bg-white py-3 font-bold text-red-700">
-                Remove
+                {t('Remove')}
               </button>
             </div>
           )}

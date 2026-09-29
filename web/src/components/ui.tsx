@@ -1,22 +1,26 @@
+import { useI18n } from '../i18n'
+import Kolam from './Kolam'
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
 
-export function Spinner({ label = 'Loading…' }: { label?: string }) {
+export function Spinner({ label }: { label?: string }) {
+  const { t } = useI18n()
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted" role="status">
-      <div className="size-8 animate-spin rounded-full border-4 border-line border-t-brand" />
-      <span className="text-sm">{label}</span>
+      <Kolam m={2} n={3} animate className="size-14 text-brand" strokeWidth={0.09} />
+      <span className="text-sm">{label ?? t('Loading…')}</span>
     </div>
   )
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const { t } = useI18n()
   return (
     <div className="mx-auto max-w-sm rounded-2xl bg-red-50 p-5 text-center text-red-800">
-      <p className="font-semibold">Something went wrong</p>
+      <p className="font-semibold">{t('Something went wrong')}</p>
       <p className="mt-1 text-sm">{message}</p>
       {onRetry && (
         <button onClick={onRetry} className="mt-3 text-sm font-bold underline">
-          Try again
+          {t('Try again')}
         </button>
       )}
     </div>
@@ -43,13 +47,14 @@ export function Alert({ kind, children }: { kind: 'error' | 'success'; children:
 }
 
 export function Button({ loading, children, className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) {
+  const { t } = useI18n()
   return (
     <button
       {...props}
       disabled={loading || props.disabled}
       className={`w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white transition hover:bg-brand-dark active:scale-[.99] disabled:opacity-50 ${className}`}
     >
-      {loading ? 'Please wait…' : children}
+      {loading ? t('Please wait…') : children}
     </button>
   )
 }
@@ -68,6 +73,7 @@ export function Field({ label, error, ...props }: InputHTMLAttributes<HTMLInputE
 }
 
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+  const { t } = useI18n()
   if (!open) return null
   return (
     <div className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 sm:items-center" onClick={onClose}>
@@ -80,7 +86,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       >
         <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
           <h2 className="font-display text-xl font-semibold">{title}</h2>
-          <button onClick={onClose} aria-label="Close" className="grid size-9 place-items-center rounded-full bg-white text-xl text-muted">
+          <button onClick={onClose} aria-label={t('Close')} className="grid size-9 place-items-center rounded-full bg-white text-xl text-muted">
             ×
           </button>
         </div>

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { currentLang, tk, translate } from './i18n'
+
 const TOKEN_KEY = 'adupangarai.token'
 
 export const token = {
@@ -20,7 +22,7 @@ export class ApiError extends Error {
 }
 
 export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
-  const headers: Record<string, string> = { Accept: 'application/json' }
+  const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': currentLang() }
   const isForm = options.body instanceof FormData
   if (options.body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
   const t = token.get()
@@ -34,7 +36,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
       body: isForm ? (options.body as FormData) : options.body !== undefined ? JSON.stringify(options.body) : undefined,
     })
   } catch {
-    throw new ApiError(0, 'Could not reach the server. Check your connection.')
+    throw new ApiError(0, translate(currentLang(), 'Could not reach the server. Check your connection.'))
   }
 
   const data = res.status === 204 ? null : await res.json().catch(() => null)
@@ -43,18 +45,18 @@ export async function api<T>(path: string, options: { method?: string; body?: un
       token.clear()
       window.dispatchEvent(new Event('auth:expired'))
     }
-    throw new ApiError(res.status, data?.message ?? 'Something went wrong.', data?.errors)
+    throw new ApiError(res.status, data?.message ?? translate(currentLang(), 'Something went wrong.'), data?.errors)
   }
   return data as T
 }
 
 export type Household = { id: number; name: string }
-export type User = { id: number; name: string; email: string; household_id: number; household: Household }
+export type User = { id: number; name: string; email: string; locale: 'en' | 'ta'; household_id: number; household: Household }
 
 export type UnitValue = 'g' | 'kg' | 'ml' | 'L' | 'cup' | 'tbsp' | 'tsp' | 'piece' | 'packet'
 export type UnitInfo = { value: UnitValue; dimension: string }
-export type Category = { id: number; name: string; icon: string | null }
-export type Ingredient = { id: number; name: string; default_unit: UnitValue; ingredient_category_id: number; category: Category; display_icon: string }
+export type Category = { id: number; name: string; label?: string; icon: string | null }
+export type Ingredient = { id: number; name: string; label?: string; default_unit: UnitValue; ingredient_category_id: number; category: Category; display_icon: string }
 export type ExpiryStatus = 'fresh' | 'expiring_soon' | 'expired' | null
 export type PantryView = 'all' | 'low_stock' | 'expiring_soon' | 'expired'
 export type PantryItem = {
@@ -109,6 +111,8 @@ export const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'snack', 'dinner']
 export type RecipeSummary = {
   id: number
   name: string
+  label?: string
+  blurb?: string | null
   description: string | null
   meal_type: MealType
   cuisine: string | null
@@ -146,7 +150,7 @@ export type RecipeMatch = {
   uses_expiring: { ingredient_id: number; name: string; days_to_expiry: number }[]
 }
 export type CookResult = {
-  recipe: Pick<RecipeSummary, 'id' | 'name' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg' | 'calories' | 'protein_g' | 'health_tags' | 'image_url'>
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'label' | 'blurb' | 'description' | 'meal_type' | 'cuisine' | 'servings' | 'total_time' | 'is_veg' | 'calories' | 'protein_g' | 'health_tags' | 'image_url'>
   match: RecipeMatch
 }
 
@@ -157,7 +161,7 @@ export type MealPlanEntry = {
   recipe_id: number
   servings: number
   cooked_at: string | null
-  recipe: Pick<RecipeSummary, 'id' | 'name' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g' | 'fiber_g' | 'image_url'>
+  recipe: Pick<RecipeSummary, 'id' | 'name' | 'label' | 'meal_type' | 'servings' | 'prep_time' | 'cook_time' | 'is_veg' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g' | 'fiber_g' | 'image_url'>
 }
 export type DayNutrition = { calories: number; protein_g: number; carbs_g: number; fat_g: number; fiber_g: number; missing: number }
 
@@ -181,6 +185,7 @@ export type GroceryItem = {
   actual_quantity: number | null
   price: number | null
   added_to_pantry_at: string | null
+  label: string
   ingredient: { display_icon: string } | null
 }
 export type GroceryResponse = {
@@ -203,13 +208,13 @@ export type CookRow = {
 }
 
 export type Dashboard = {
-  today_meals: { id: number; meal_type: MealType; servings: number; cooked_at: string | null; recipe: { id: number; name: string; is_veg: boolean; meal_type: MealType; image_url: string | null }; can_cook_now: boolean }[]
+  today_meals: { id: number; meal_type: MealType; servings: number; cooked_at: string | null; recipe: { id: number; name: string; label?: string; is_veg: boolean; meal_type: MealType; image_url: string | null }; can_cook_now: boolean }[]
   cook_now: CookResult[]
   almost_count: number
   use_soon: CookResult[]
-  expiring: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'days_to_expiry'> & { ingredient: { id: number; name: string; display_icon: string } })[]
+  expiring: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'days_to_expiry'> & { ingredient: { id: number; name: string; label?: string; display_icon: string } })[]
   expired_count: number
-  low_stock: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'minimum_stock'> & { ingredient: { id: number; name: string; display_icon: string } })[]
+  low_stock: (Pick<PantryItem, 'id' | 'quantity' | 'unit' | 'minimum_stock'> & { ingredient: { id: number; name: string; label?: string; display_icon: string } })[]
   grocery_remaining: number
   pantry_count: number
   recipe_count: number
@@ -229,4 +234,4 @@ export type RecipeDraft = Omit<RecipeDetail, 'id' | 'ingredients' | 'match' | 'r
   ingredients: AiItem[]
 }
 export type AiPlanEntry = { date: string; meal_type: MealType; recipe_id: number; servings: number; recipe_name: string }
-export const AI_WAIT = 'On a home computer the free AI can take 1–2 minutes — please keep this open.'
+export const AI_WAIT = tk('This can take a few seconds — please keep this open.')

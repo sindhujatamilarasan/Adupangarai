@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
+import { useI18n } from '../i18n'
 
 const tabs = [
   { to: '/', label: 'Home', icon: 'M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z' },
@@ -10,6 +11,7 @@ const tabs = [
 
 export default function BottomNav() {
   const { pathname } = useLocation()
+  const { t: tr } = useI18n()
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
       <ul className="mx-auto flex max-w-lg justify-around">
@@ -25,7 +27,7 @@ export default function BottomNav() {
               <svg viewBox="0 0 24 24" className="size-[22px]" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d={t.icon} />
               </svg>
-              {t.label}
+              {tr(t.label)}
               {(pathname === t.to || (t.to !== '/' && pathname.startsWith(t.to)) || (t.to === '/cook' && pathname.startsWith('/recipes'))) && (
                 <span className="absolute bottom-0.5 size-1 rounded-full bg-brand" aria-hidden />
               )}

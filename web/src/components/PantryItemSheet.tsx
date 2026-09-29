@@ -1,32 +1,34 @@
 import { useState, type FormEvent } from 'react'
 import { api, ApiError, fmtQty, useApi, type PantryItem, type PantryTransaction, type UnitInfo } from '../api'
+import { nm, tk, unitLabel, useI18n } from '../i18n'
 import { Alert, Badge, Button, ErrorState, Field, Select, Sheet, Spinner } from './ui'
 
 const actions = [
-  { type: 'ADD', label: 'Add' },
-  { type: 'DISCARDED', label: 'Discard' },
-  { type: 'EXPIRED', label: 'Expired' },
-  { type: 'ADJUSTMENT', label: 'Set count' },
+  { type: 'ADD', label: tk('Add') },
+  { type: 'DISCARDED', label: tk('Discard') },
+  { type: 'EXPIRED', label: tk('Expired') },
+  { type: 'ADJUSTMENT', label: tk('Set count') },
 ] as const
 
 const txLabels: Record<PantryTransaction['type'], string> = {
-  PURCHASE: 'Bought',
-  ADD: 'Added',
-  COOKED: 'Cooked',
-  ADJUSTMENT: 'Stock count',
-  EXPIRED: 'Expired',
-  DISCARDED: 'Discarded',
+  PURCHASE: tk('Bought'),
+  ADD: tk('Added'),
+  COOKED: tk('Cooked'),
+  ADJUSTMENT: tk('Stock count'),
+  EXPIRED: tk('Expired'),
+  DISCARDED: tk('Discarded'),
 }
 
 export function StatusBadges({ item }: { item: PantryItem }) {
+  const { t } = useI18n()
   const d = item.days_to_expiry
   return (
     <>
-      {item.expiry_status === 'expired' && <Badge color="red">Expired</Badge>}
+      {item.expiry_status === 'expired' && <Badge color="red">{t('Expired')}</Badge>}
       {item.expiry_status === 'expiring_soon' && (
-        <Badge color="amber">{d === 0 ? 'Expires today' : d === 1 ? 'Expires tomorrow' : `${d} days left`}</Badge>
+        <Badge color="amber">{d === 0 ? t('Expires today') : d === 1 ? t('Expires tomorrow') : t('{n} days left', { n: d ?? 0 })}</Badge>
       )}
-      {item.is_low_stock && <Badge color="gray">Low stock</Badge>}
+      {item.is_low_stock && <Badge color="gray">{t('Low stock')}</Badge>}
     </>
   )
 }
@@ -36,9 +38,10 @@ type Props = { itemId: number | null; onClose: () => void; onChanged: (message: 
 export default function PantryItemSheet(props: Props) {
   const res = useApi<{ data: PantryItem; transactions: PantryTransaction[] }>(props.itemId ? `/pantry/${props.itemId}` : null)
   const item = res.data?.data?.id === props.itemId ? res.data.data : undefined
+  const { t } = useI18n()
 
   return (
-    <Sheet open={props.itemId !== null} onClose={props.onClose} title={item?.ingredient.name ?? 'Item'}>
+    <Sheet open={props.itemId !== null} onClose={props.onClose} title={item ? nm(item.ingredient) : t('Item')}>
       {!item && res.loading && <Spinner />}
       {!item && res.error && <ErrorState message={res.error} onRetry={res.reload} />}
       {item && <ItemBody key={item.id} {...props} item={item} transactions={res.data!.transactions} reload={res.reload} />}
@@ -49,6 +52,7 @@ export default function PantryItemSheet(props: Props) {
 type BodyProps = Props & { item: PantryItem; transactions: PantryTransaction[]; reload: () => void }
 
 function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reload }: BodyProps) {
+  const { t, lang } = useI18n()
   const [action, setAction] = useState<(typeof actions)[number]['type']>('ADD')
   const [move, setMove] = useState({ quantity: '', unit: item.unit as string, note: '' })
   const [details, setDetails] = useState({
@@ -89,7 +93,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
           method: 'POST',
           body: { type: action, quantity: Number(move.quantity), unit: move.unit, note: move.note || null },
         }),
-      'Stock updated.',
+      t('Stock updated.'),
     ).then(() => setMove((m) => ({ ...m, quantity: '', note: '' })))
   }
 
@@ -105,16 +109,16 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
             storage_location: details.storage_location || null,
           },
         }),
-      'Details saved.',
+      t('Details saved.'),
     )
   }
 
   async function remove() {
-    if (!confirm(`Remove ${item.ingredient.name} from your kitchen?`)) return
+    if (!confirm(t('Remove {name} from your kitchen?', { name: nm(item.ingredient) }))) return
     setBusy(true)
     try {
       await api(`/pantry/${itemId}`, { method: 'DELETE' })
-      onChanged(`${item.ingredient.name} removed.`)
+      onChanged(t('{name} removed.', { name: nm(item.ingredient) }))
       onClose()
     } catch (e) {
       setStatus({ kind: 'error', text: (e as ApiError).message })
@@ -127,7 +131,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
     <div className="space-y-5">
       <div className="card p-5 text-center">
         <p className="text-4xl font-semibold">
-          {fmtQty(item.quantity)} <span className="text-xl text-muted">{item.unit}</span>
+          {fmtQty(item.quantity)} <span className="text-xl text-muted">{unitLabel(lang, item.unit)}</span>
         </p>
         <div className="mt-2 flex flex-wrap justify-center gap-1.5">
           <StatusBadges item={item} />
@@ -145,13 +149,13 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
               onClick={() => setAction(a.type)}
               className={`rounded-xl py-2 text-xs font-bold ${action === a.type ? 'bg-brand text-white' : 'text-muted'}`}
             >
-              {a.label}
+              {t(a.label)}
             </button>
           ))}
         </div>
         <div className="grid grid-cols-[1fr_6rem] gap-3">
           <Field
-            label={action === 'ADJUSTMENT' ? 'Actual amount now' : 'Quantity'}
+            label={action === 'ADJUSTMENT' ? t('Actual amount now') : t('Quantity')}
             type="number"
             inputMode="decimal"
             min="0"
@@ -160,22 +164,22 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
             onChange={(e) => setMove({ ...move, quantity: e.target.value })}
             error={errors.quantity?.[0]}
           />
-          <Select label="Unit" value={move.unit} onChange={(e) => setMove({ ...move, unit: e.target.value })} error={errors.unit?.[0]}>
+          <Select label={t('Unit')} value={move.unit} onChange={(e) => setMove({ ...move, unit: e.target.value })} error={errors.unit?.[0]}>
             {unitOptions.map((u) => (
-              <option key={u.value}>{u.value}</option>
+              <option key={u.value} value={u.value}>{unitLabel(lang, u.value)}</option>
             ))}
           </Select>
         </div>
-        <Field label="Note (optional)" value={move.note} onChange={(e) => setMove({ ...move, note: e.target.value })} />
+        <Field label={t('Note (optional)')} value={move.note} onChange={(e) => setMove({ ...move, note: e.target.value })} />
         <Button type="submit" loading={busy} disabled={move.quantity === ''}>
-          Update stock
+          {t('Update stock')}
         </Button>
       </form>
 
       <form onSubmit={submitDetails} className="space-y-3 card p-5" noValidate>
-        <p className="font-bold">Details</p>
+        <p className="font-display text-lg font-semibold">{t('Details')}</p>
         <Field
-          label="Expiry date"
+          label={t('Expiry date')}
           type="date"
           value={details.expiry_date}
           onChange={(e) => setDetails({ ...details, expiry_date: e.target.value })}
@@ -183,7 +187,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
         />
         <div className="grid grid-cols-2 gap-3">
           <Field
-            label={`Min. stock (${item.unit})`}
+            label={t('Min. stock ({unit})', { unit: unitLabel(lang, item.unit) })}
             type="number"
             inputMode="decimal"
             min="0"
@@ -192,40 +196,40 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
             onChange={(e) => setDetails({ ...details, minimum_stock: e.target.value })}
             error={errors.minimum_stock?.[0]}
           />
-          <Select label="Stored in" value={details.storage_location} onChange={(e) => setDetails({ ...details, storage_location: e.target.value })}>
+          <Select label={t('Stored in')} value={details.storage_location} onChange={(e) => setDetails({ ...details, storage_location: e.target.value })}>
             <option value="">—</option>
-            <option value="pantry">Pantry</option>
-            <option value="fridge">Fridge</option>
-            <option value="freezer">Freezer</option>
+            <option value="pantry">{t('pantry')}</option>
+            <option value="fridge">{t('fridge')}</option>
+            <option value="freezer">{t('freezer')}</option>
           </Select>
         </div>
         <button type="submit" disabled={busy} className="w-full rounded-2xl border border-brand py-3 font-bold text-brand disabled:opacity-60">
-          Save details
+          {t('Save details')}
         </button>
       </form>
 
       <div className="card p-5">
-        <p className="mb-2 font-bold">History</p>
+        <p className="mb-2 font-display text-lg font-semibold">{t('History')}</p>
         {transactions.length === 0 ? (
-          <p className="text-sm text-muted">No stock changes yet.</p>
+          <p className="text-sm text-muted">{t('No stock changes yet.')}</p>
         ) : (
           <ul className="divide-y divide-line text-sm">
-            {transactions.map((t) => (
-              <li key={t.id} className="flex items-center justify-between py-2">
+            {transactions.map((tx) => (
+              <li key={tx.id} className="flex items-center justify-between py-2">
                 <div>
-                  <p className="font-semibold">{txLabels[t.type]}</p>
+                  <p className="font-semibold">{t(txLabels[tx.type])}</p>
                   <p className="text-xs text-muted">
-                    {new Date(t.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-                    {t.note && ` · ${t.note}`}
+                    {new Date(tx.created_at).toLocaleString(lang === 'ta' ? 'ta-IN' : 'en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                    {tx.note && ` · ${tx.note}`}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className={`font-bold ${t.quantity_change < 0 ? 'text-red-700' : 'text-leaf'}`}>
-                    {t.quantity_change > 0 ? '+' : ''}
-                    {fmtQty(t.quantity_change)} {t.unit}
+                  <p className={`font-bold ${tx.quantity_change < 0 ? 'text-red-700' : 'text-leaf'}`}>
+                    {tx.quantity_change > 0 ? '+' : ''}
+                    {fmtQty(tx.quantity_change)} {unitLabel(lang, tx.unit)}
                   </p>
                   <p className="text-xs text-muted">
-                    → {fmtQty(t.balance_after)} {t.unit}
+                    → {fmtQty(tx.balance_after)} {unitLabel(lang, tx.unit)}
                   </p>
                 </div>
               </li>
@@ -235,7 +239,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
       </div>
 
       <button onClick={remove} disabled={busy} className="w-full py-2 text-sm font-bold text-red-700">
-        Remove from kitchen
+        {t('Remove from kitchen')}
       </button>
     </div>
   )

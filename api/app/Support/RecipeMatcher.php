@@ -40,7 +40,7 @@ class RecipeMatcher
             $have = self::usableQuantity($item, $ri->unit);
             $row = [
                 'ingredient_id' => $ri->ingredient_id,
-                'name' => $ri->ingredient->name,
+                'name' => $ri->ingredient->label,
                 'unit' => $ri->unit->value,
                 'need' => $need,
                 'have' => $have,
@@ -48,7 +48,7 @@ class RecipeMatcher
             ];
 
             if ($have > 0 && $item->expiry_status === ExpiryStatus::EXPIRING_SOON) {
-                $result['uses_expiring'][] = ['ingredient_id' => $ri->ingredient_id, 'name' => $ri->ingredient->name, 'days_to_expiry' => $item->days_to_expiry];
+                $result['uses_expiring'][] = ['ingredient_id' => $ri->ingredient_id, 'name' => $ri->ingredient->label, 'days_to_expiry' => $item->days_to_expiry];
             }
 
             if (! $ri->optional) {
@@ -105,7 +105,7 @@ class RecipeMatcher
     public static function matchAll(Collection $recipes, Collection $pantry): Collection
     {
         return $recipes->map(fn (Recipe $r) => [
-            'recipe' => $r->only(['id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'total_time', 'is_veg', 'calories', 'protein_g', 'health_tags', 'image_url']),
+            'recipe' => $r->only(['id', 'name', 'label', 'blurb', 'description', 'meal_type', 'cuisine', 'servings', 'total_time', 'is_veg', 'calories', 'protein_g', 'health_tags', 'image_url']),
             'match' => self::match($r, $pantry),
         ]);
     }

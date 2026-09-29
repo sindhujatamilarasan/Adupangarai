@@ -20,7 +20,9 @@ class IngredientController extends Controller
         ]);
 
         $ingredients = Ingredient::with('category')
-            ->when($request->search, fn ($q, $s) => $q->where('normalized_name', 'like', '%'.Ingredient::normalize($s).'%'))
+            ->when($request->search, fn ($q, $s) => $q->where(
+                fn ($w) => $w->where('normalized_name', 'like', '%'.Ingredient::normalize($s).'%')->orWhere('name_ta', 'like', '%'.trim($s).'%')
+            ))
             ->when($request->category, fn ($q, $c) => $q->where('ingredient_category_id', $c))
             ->orderBy('name')
             ->get();

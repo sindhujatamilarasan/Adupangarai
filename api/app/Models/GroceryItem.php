@@ -13,6 +13,8 @@ class GroceryItem extends Model
         'purchased', 'actual_quantity', 'price', 'added_to_pantry_at',
     ];
 
+    protected $appends = ['label'];
+
     protected function casts(): array
     {
         return [
@@ -33,6 +35,12 @@ class GroceryItem extends Model
     public function ingredient(): BelongsTo
     {
         return $this->belongsTo(Ingredient::class);
+    }
+
+    /** Linked ingredients show their localised name; free-text items as typed. */
+    public function getLabelAttribute(): string
+    {
+        return $this->relationLoaded('ingredient') && $this->ingredient ? $this->ingredient->label : $this->name;
     }
 
     /** What actually came home: the actual quantity if entered, else the listed one. */

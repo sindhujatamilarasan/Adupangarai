@@ -5,25 +5,27 @@ import { AiRecipeSheet } from '../components/AiSheets'
 import { HealthBadges } from '../components/Health'
 import RecipeCover from '../components/RecipeCover'
 import { EmptyState, ErrorState, Spinner } from '../components/ui'
+import { nm, tk, useI18n } from '../i18n'
 
 const filters = [
-  { key: '', label: 'All' },
-  { key: 'meal_type=breakfast', label: 'Breakfast' },
-  { key: 'meal_type=lunch', label: 'Lunch' },
-  { key: 'meal_type=dinner', label: 'Dinner' },
-  { key: 'meal_type=snack', label: 'Snack' },
-  { key: 'max_time=30', label: 'Under 30 min' },
-  { key: 'veg=1', label: 'Veg' },
-  { key: 'health=high_protein', label: '💪 High protein' },
-  { key: 'health=low_calorie', label: '🥗 Low calorie' },
-  { key: 'health=high_fiber', label: '🌾 High fiber' },
-  { key: 'mine=1', label: 'My recipes' },
+  { key: '', label: tk('All') },
+  { key: 'meal_type=breakfast', label: tk('Breakfast') },
+  { key: 'meal_type=lunch', label: tk('Lunch') },
+  { key: 'meal_type=dinner', label: tk('Dinner') },
+  { key: 'meal_type=snack', label: tk('Snack') },
+  { key: 'max_time=30', label: tk('Under 30 min') },
+  { key: 'veg=1', label: tk('Veg') },
+  { key: 'health=high_protein', label: tk('💪 High protein') },
+  { key: 'health=low_calorie', label: tk('🥗 Low calorie') },
+  { key: 'health=high_fiber', label: tk('🌾 High fiber') },
+  { key: 'mine=1', label: tk('My recipes') },
 ]
 
 export function VegDot({ veg }: { veg: boolean }) {
+  const { t } = useI18n()
   return (
     <span
-      title={veg ? 'Veg' : 'Non-veg'}
+      title={veg ? t('Veg') : t('Non-veg')}
       className={`inline-grid size-4 shrink-0 place-items-center rounded-sm border-2 ${veg ? 'border-leaf' : 'border-red-700'}`}
     >
       <span className={`size-1.5 rounded-full ${veg ? 'bg-leaf' : 'bg-red-700'}`} />
@@ -32,6 +34,7 @@ export function VegDot({ veg }: { veg: boolean }) {
 }
 
 export default function RecipesPage() {
+  const { t } = useI18n()
   const [filter, setFilter] = useState('')
   const [search, setSearch] = useState('')
   const [speaking, setSpeaking] = useState(false)
@@ -40,21 +43,21 @@ export default function RecipesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Recipes</h1>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{t('Recipes')}</h1>
         <div className="flex gap-2">
-          <button onClick={() => setSpeaking(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand">
-            🎙️ Say
+          <button onClick={() => setSpeaking(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand whitespace-nowrap">
+            🎙️ {t('Say')}
           </button>
-          <Link to="/recipes/new" className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
-            + New
+          <Link to="/recipes/new" className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white whitespace-nowrap">
+            + {t('New')}
           </Link>
         </div>
       </div>
 
       <input
         type="search"
-        placeholder="Search recipes…"
+        placeholder={t('Search recipes…')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="mt-4 w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-brand"
@@ -67,17 +70,17 @@ export default function RecipesPage() {
             onClick={() => setFilter(f.key)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${filter === f.key ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`}
           >
-            {f.label}
+            {t(f.label)}
           </button>
         ))}
       </div>
 
       <div className="mt-4 space-y-2">
-        {recipes.loading && !recipes.data && <Spinner label="Finding recipes…" />}
+        {recipes.loading && !recipes.data && <Spinner label={t('Finding recipes…')} />}
         {recipes.error && <ErrorState message={recipes.error} onRetry={recipes.reload} />}
         {recipes.data?.data.length === 0 && (
-          <EmptyState emoji="📖" title="No recipes found">
-            {filter === 'mine=1' ? 'Recipes you create will appear here.' : 'Try a different search or filter.'}
+          <EmptyState emoji="📖" title={t('No recipes found')}>
+            {filter === 'mine=1' ? t('Recipes you create will appear here.') : t('Try a different search or filter.')}
           </EmptyState>
         )}
         {recipes.data?.data.map((r) => (
@@ -86,13 +89,13 @@ export default function RecipesPage() {
             <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <VegDot veg={r.is_veg} />
-              <p className="flex-1 truncate font-bold">{r.name}</p>
-              <span className="text-xs font-semibold text-muted">{r.total_time} min</span>
+              <p className="flex-1 truncate font-semibold">{nm(r)}</p>
+              <span className="text-xs font-semibold text-muted">{t('{n} min', { n: r.total_time })}</span>
             </div>
-            {r.description && <p className="mt-1 line-clamp-1 text-sm text-muted">{r.description}</p>}
-            <p className="mt-1 text-xs font-semibold capitalize text-brand">
-              {r.meal_type} · serves {r.servings} · {r.ingredients_count} ingredients
-              {r.calories !== null && <span className="normal-case text-muted"> · {r.calories} kcal · {r.protein_g} g protein</span>}
+            {(r.blurb ?? r.description) && <p className="mt-1 line-clamp-1 text-sm text-muted">{r.blurb ?? r.description}</p>}
+            <p className="mt-1 text-xs font-semibold text-brand">
+              {t(r.meal_type)} · {t('serves {n}', { n: r.servings })} · {t('{n} ingredients', { n: r.ingredients_count })}
+              {r.calories !== null && <span className="text-muted"> · {r.calories} kcal · {t('{n} g protein', { n: r.protein_g ?? 0 })}</span>}
             </p>
             {r.health_tags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">

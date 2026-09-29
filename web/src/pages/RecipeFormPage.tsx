@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api, ApiError, MEAL_TYPES, fmtQty, useApi, type Ingredient, type RecipeDetail, type RecipeDraft, type UnitInfo } from '../api'
 import { Alert, Button, ErrorState, Field, Select, Spinner } from '../components/ui'
+import { nm, unitLabel, useI18n } from '../i18n'
 
 type Row = { ingredient_id: string; quantity: string; unit: string; optional: boolean; heard?: string }
 
@@ -10,13 +11,14 @@ export default function RecipeFormPage() {
   const existing = useApi<{ data: RecipeDetail }>(id ? `/recipes/${id}` : null)
   const ingredients = useApi<{ data: Ingredient[] }>('/ingredients')
   const units = useApi<{ data: UnitInfo[] }>('/units')
+  const { t } = useI18n()
   const state = useLocation().state as { draft?: RecipeDraft } | null
   const draft = id ? undefined : state?.draft
 
   const error = existing.error ?? ingredients.error ?? units.error
   if (error) return <ErrorState message={error} onRetry={() => [existing, ingredients, units].forEach((r) => r.reload())} />
   if ((id && !existing.data) || !ingredients.data || !units.data) return <Spinner />
-  if (existing.data && !existing.data.data.is_editable) return <ErrorState message="Built-in recipes can't be edited." />
+  if (existing.data && !existing.data.data.is_editable) return <ErrorState message={t("Built-in recipes can't be edited.")} />
 
   return <RecipeForm id={id} recipe={existing.data?.data} draft={draft} ingredients={ingredients.data.data} units={units.data.data} />
 }
@@ -25,6 +27,7 @@ type FormProps = { id?: string; recipe?: RecipeDetail; draft?: RecipeDraft; ingr
 
 function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
   const navigate = useNavigate()
+  const { t, lang } = useI18n()
   const src = recipe ?? draft
   const [form, setForm] = useState({
     name: src?.name ?? '',
@@ -54,7 +57,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
   const byId = useMemo(() => new Map(ingredients.map((i) => [String(i.id), i])), [ingredients])
   const grouped = useMemo(() => {
     const groups = new Map<string, Ingredient[]>()
-    ingredients.forEach((i) => groups.set(i.category.name, [...(groups.get(i.category.name) ?? []), i]))
+    ingredients.forEach((i) => groups.set(nm(i.category), [...(groups.get(nm(i.category)) ?? []), i]))
     return [...groups]
   }, [ingredients])
 
@@ -102,34 +105,34 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
   return (
     <form onSubmit={submit} className="space-y-5" noValidate>
       <button type="button" onClick={() => navigate(-1)} className="text-sm font-bold text-muted">
-        ← Cancel
+        ← {t('Cancel')}
       </button>
-      <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{id ? 'Edit recipe' : draft ? '✨ Check your recipe' : 'New recipe'}</h1>
+      <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{id ? t('Edit recipe') : draft ? `✨ ${t('Check your recipe')}` : t('New recipe')}</h1>
       {draft && (
         <div className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
-          Drafted by AI from what you said. Check the amounts, pick any highlighted ingredients, then save.
-          {draft.calories !== null && ` Estimated ${draft.calories} kcal and ${draft.protein_g} g protein per serving.`}
+          {t('Drafted by AI from what you said. Check the amounts, pick any highlighted ingredients, then save.')}
+          {draft.calories !== null && ` ${t('Estimated {kcal} kcal and {protein} g protein per serving.', { kcal: draft.calories, protein: draft.protein_g ?? 0 })}`}
         </div>
       )}
       {message && <Alert kind="error">{message}</Alert>}
 
       <section className="space-y-3 card p-5">
-        <Field label="Name" value={form.name} onChange={set('name')} error={errors.name?.[0]} />
-        <Field label="Short description" value={form.description} onChange={set('description')} error={errors.description?.[0]} />
+        <Field label={t('Name')} value={form.name} onChange={set('name')} error={errors.name?.[0]} />
+        <Field label={t('Short description')} value={form.description} onChange={set('description')} error={errors.description?.[0]} />
         <div className="grid grid-cols-2 gap-3">
-          <Select label="Meal" value={form.meal_type} onChange={set('meal_type')}>
+          <Select label={t('Meal')} value={form.meal_type} onChange={set('meal_type')}>
             {MEAL_TYPES.map((m) => (
-              <option key={m} value={m} className="capitalize">
-                {m[0].toUpperCase() + m.slice(1)}
+              <option key={m} value={m}>
+                {t(m)}
               </option>
             ))}
           </Select>
-          <Field label="Cuisine" value={form.cuisine} onChange={set('cuisine')} placeholder="e.g. South Indian" />
+          <Field label={t('Cuisine')} value={form.cuisine} onChange={set('cuisine')} placeholder={t('e.g. South Indian')} />
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <Field label="Serves" type="number" min="1" value={form.servings} onChange={set('servings')} error={errors.servings?.[0]} />
-          <Field label="Prep min" type="number" min="0" value={form.prep_time} onChange={set('prep_time')} error={errors.prep_time?.[0]} />
-          <Field label="Cook min" type="number" min="0" value={form.cook_time} onChange={set('cook_time')} error={errors.cook_time?.[0]} />
+          <Field label={t('Serves')} type="number" min="1" value={form.servings} onChange={set('servings')} error={errors.servings?.[0]} />
+          <Field label={t('Prep min')} type="number" min="0" value={form.prep_time} onChange={set('prep_time')} error={errors.prep_time?.[0]} />
+          <Field label={t('Cook min')} type="number" min="0" value={form.cook_time} onChange={set('cook_time')} error={errors.cook_time?.[0]} />
         </div>
         <div className="grid grid-cols-2 gap-1 rounded-2xl bg-cream p-1">
           {[true, false].map((veg) => (
@@ -139,34 +142,34 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
               onClick={() => setForm({ ...form, is_veg: veg })}
               className={`rounded-xl py-2 text-sm font-bold ${form.is_veg === veg ? (veg ? 'bg-leaf text-white' : 'bg-red-700 text-white') : 'text-muted'}`}
             >
-              {veg ? 'Veg' : 'Non-veg'}
+              {veg ? t('Veg') : t('Non-veg')}
             </button>
           ))}
         </div>
       </section>
 
       <section className="space-y-3 card p-5">
-        <h2 className="font-display text-lg font-semibold">Ingredients</h2>
+        <h2 className="font-display text-lg font-semibold">{t('Ingredients')}</h2>
         {errors.ingredients && <Alert kind="error">{errors.ingredients[0]}</Alert>}
         {rows.map((row, i) => (
           <div key={i} className={`space-y-2 rounded-2xl border p-3 ${row.heard ? 'border-amber-400 bg-amber-50' : 'border-line'}`}>
             {row.heard && (
               <p className="text-xs font-bold text-amber-800">
-                AI heard “{row.heard}” — {row.ingredient_id ? 'check this is the right ingredient and amount.' : 'pick the closest ingredient or remove this row.'}
+                {t('AI heard “{heard}”', { heard: row.heard })} — {row.ingredient_id ? t('check this is the right ingredient and amount.') : t('pick the closest ingredient or remove this row.')}
               </p>
             )}
             <Select
-              label={`Ingredient ${i + 1}`}
+              label={t('Ingredient {n}', { n: i + 1 })}
               value={row.ingredient_id}
               onChange={(e) => setRow(i, { ingredient_id: e.target.value, unit: byId.get(e.target.value)?.default_unit ?? '' })}
               error={errors[`ingredients.${i}.ingredient_id`]?.[0]}
             >
-              <option value="">Choose…</option>
+              <option value="">{t('Choose…')}</option>
               {grouped.map(([cat, list]) => (
                 <optgroup key={cat} label={cat}>
                   {list.map((ing) => (
                     <option key={ing.id} value={ing.id}>
-                      {ing.name}
+                      {nm(ing)}
                     </option>
                   ))}
                 </optgroup>
@@ -174,7 +177,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
             </Select>
             <div className="grid grid-cols-[1fr_6rem] gap-2">
               <Field
-                label="Quantity"
+                label={t('Quantity')}
                 type="number"
                 inputMode="decimal"
                 min="0"
@@ -183,20 +186,20 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
                 onChange={(e) => setRow(i, { quantity: e.target.value })}
                 error={errors[`ingredients.${i}.quantity`]?.[0]}
               />
-              <Select label="Unit" value={row.unit} onChange={(e) => setRow(i, { unit: e.target.value })} error={errors[`ingredients.${i}.unit`]?.[0]}>
+              <Select label={t('Unit')} value={row.unit} onChange={(e) => setRow(i, { unit: e.target.value })} error={errors[`ingredients.${i}.unit`]?.[0]}>
                 {unitsFor(row.ingredient_id).map((u) => (
-                  <option key={u.value}>{u.value}</option>
+                  <option key={u.value} value={u.value}>{unitLabel(lang, u.value)}</option>
                 ))}
               </Select>
             </div>
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm font-semibold text-muted">
                 <input type="checkbox" checked={row.optional} onChange={(e) => setRow(i, { optional: e.target.checked })} className="size-4 accent-brand" />
-                Optional
+                {t('Optional')}
               </label>
               {rows.length > 1 && (
                 <button type="button" onClick={() => setRows(rows.filter((_, j) => j !== i))} className="text-sm font-bold text-red-700">
-                  Remove
+                  {t('Remove')}
                 </button>
               )}
             </div>
@@ -207,14 +210,14 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
           onClick={() => setRows([...rows, { ingredient_id: '', quantity: '', unit: '', optional: false }])}
           className="w-full rounded-2xl border border-dashed border-brand py-3 font-bold text-brand"
         >
-          + Add ingredient
+          + {t('Add ingredient')}
         </button>
       </section>
 
       <section className="card p-5">
         <label className="block">
-          <span className="mb-1 block font-semibold">Method</span>
-          <span className="mb-2 block text-sm text-muted">One step per line.</span>
+          <span className="mb-1 block font-semibold">{t('Method')}</span>
+          <span className="mb-2 block text-sm text-muted">{t('One step per line.')}</span>
           <textarea
             rows={6}
             value={form.steps}
@@ -225,7 +228,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
       </section>
 
       <Button type="submit" loading={busy}>
-        {id ? 'Save recipe' : 'Create recipe'}
+        {id ? t('Save recipe') : t('Create recipe')}
       </Button>
     </form>
   )

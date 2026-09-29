@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth'
+import { I18nProvider, useI18n } from './i18n'
 import AiPage from './pages/AiPage'
 import BottomNav from './components/BottomNav'
 import TopBar from './components/TopBar'
@@ -17,7 +18,8 @@ import RecipesPage from './pages/RecipesPage'
 
 function AppShell() {
   const { user, loading } = useAuth()
-  if (loading) return <Spinner label="Opening your kitchen…" />
+  const { t } = useI18n()
+  if (loading) return <Spinner label={t('Opening your kitchen…')} />
   if (!user) return <Navigate to="/login" replace />
   return (
     <>
@@ -38,6 +40,7 @@ function GuestOnly() {
 
 export default function App() {
   return (
+    <I18nProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -62,5 +65,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </I18nProvider>
   )
 }

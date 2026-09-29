@@ -22,6 +22,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'household_id',
+        'locale',
         'name',
         'email',
         'password',

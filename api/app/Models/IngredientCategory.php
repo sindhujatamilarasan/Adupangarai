@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTamilName;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class IngredientCategory extends Model
 {
-    protected $fillable = ['name', 'sort_order', 'icon'];
+    use HasTamilName;
+
+    protected $fillable = ['name', 'name_ta', 'sort_order', 'icon'];
 
     public function ingredients(): HasMany
     {
