@@ -72,6 +72,8 @@ class MealPlanTest extends TestCase
         $this->travelTo('2026-10-08 10:00'); // Thursday
 
         $this->actingAs($this->user)->getJson('/api/meal-plans')->assertJsonPath('start', '2026-10-05');
+        // Tamil locale must not move the week to Sunday.
+        $this->getJson('/api/meal-plans', ['Accept-Language' => 'ta'])->assertJsonPath('start', '2026-10-05');
     }
 
     public function test_validation(): void

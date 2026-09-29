@@ -44,3 +44,19 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .kolam-draw { animation: none; stroke-dashoffset: 0; }
 }
+
+/* A4 landscape sheet for the printable meal plan. */
+.a4-sheet {
+  width: 297mm;
+  min-height: 210mm;
+  padding: 11mm 12mm;
+}
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+@media print {
+  html, body { background: #fff !important; }
+  .a4-sheet { width: 297mm; height: 210mm; min-height: 0; overflow: hidden; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

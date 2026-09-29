@@ -18,7 +18,7 @@ class MealPlanController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate(['start' => ['nullable', 'date_format:Y-m-d']]);
-        $start = $request->start ? Carbon::parse($request->start) : Carbon::today()->startOfWeek();
+        $start = $request->start ? Carbon::parse($request->start) : Carbon::today()->startOfWeek(Carbon::MONDAY);
         $end = $start->copy()->addDays(6);
 
         $plans = MealPlan::where('household_id', $request->user()->household_id)

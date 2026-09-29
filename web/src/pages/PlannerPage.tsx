@@ -31,9 +31,17 @@ export default function PlannerPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{t('Meal planner')}</h1>
+        <div className="flex gap-2">
+        <Link
+          to={`/planner/print${weekStart ? `?start=${weekStart}` : ''}`}
+          className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-ink"
+        >
+          🖨️ {t('Print / PDF')}
+        </Link>
         <button onClick={() => setAiOpen(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand whitespace-nowrap">
           ✦ {t('AI plan')}
         </button>
+        </div>
       </div>
       {flash && (
         <div className="mt-3">

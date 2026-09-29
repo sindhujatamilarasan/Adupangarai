@@ -70,7 +70,7 @@ class LocaleTest extends TestCase
 
     public function test_register_saves_the_chosen_language(): void
     {
-        $this->postJson('/api/register', ['name' => 'Meena', 'email' => 'm@x.com', 'password' => 'password123', 'locale' => 'ta'])
-            ->assertCreated()->assertJsonPath('user.locale', 'ta');
+        $this->postJson('/api/register', ['name' => 'Meena', 'email' => 'm@x.com', 'password' => 'password123', 'locale' => 'ta'], ['Accept-Language' => 'ta'])
+            ->assertCreated()->assertJsonPath('user.locale', 'ta')->assertJsonPath('user.household.name', 'எங்கள் சமையலறை');
     }
 }

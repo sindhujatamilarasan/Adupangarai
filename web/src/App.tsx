@@ -11,6 +11,7 @@ import GroceriesPage from './pages/GroceriesPage'
 import HomePage from './pages/HomePage'
 import KitchenPage from './pages/KitchenPage'
 import PlannerPage from './pages/PlannerPage'
+import PrintPlanPage from './pages/PrintPlanPage'
 import ProfilePage from './pages/ProfilePage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
 import RecipeFormPage from './pages/RecipeFormPage'
@@ -32,6 +33,13 @@ function AppShell() {
   )
 }
 
+/** Signed-in pages without the app bars (e.g. the printable plan). */
+function BareShell() {
+  const { user, loading } = useAuth()
+  if (loading) return <Spinner />
+  return user ? <Outlet /> : <Navigate to="/login" replace />
+}
+
 function GuestOnly() {
   const { user, loading } = useAuth()
   if (loading) return <Spinner />
@@ -47,6 +55,9 @@ export default function App() {
           <Route element={<GuestOnly />}>
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/register" element={<AuthPage mode="register" />} />
+          </Route>
+          <Route element={<BareShell />}>
+            <Route path="/planner/print" element={<PrintPlanPage />} />
           </Route>
           <Route element={<AppShell />}>
             <Route path="/" element={<HomePage />} />

@@ -363,6 +363,20 @@ const ta: Record<string, string> = {
   'Tap 🎙️ and speak, or type': '🎙️ தட்டிப் பேசுங்கள், அல்லது தட்டச்சு செய்யுங்கள்',
   'Voice input isn’t supported in this browser — type instead (Chrome or Edge support voice).': 'இந்த உலாவியில் குரல் உள்ளீடு இல்லை — தட்டச்சு செய்யுங்கள் (Chrome அல்லது Edge-இல் குரல் வேலை செய்யும்).',
 
+  // Printable plan
+  'Print / PDF': 'அச்சு / PDF',
+  'Preparing your plan…': 'உங்கள் திட்டத்தைத் தயாரிக்கிறது…',
+  'Could not load the plan.': 'திட்டத்தை ஏற்ற முடியவில்லை.',
+  'Back to planner': 'திட்டத்துக்குத் திரும்பு',
+  'A4 landscape · In the print window choose “Save as PDF” to download.': 'A4 கிடைமட்டம் · பதிவிறக்க, அச்சு சாளரத்தில் “Save as PDF” என்பதைத் தேர்ந்தெடுக்கவும்.',
+  'Print': 'அச்சிடு',
+  'Save as PDF': 'PDF ஆகச் சேமி',
+  'Weekly meal plan': 'வார உணவுத் திட்டம்',
+  'Calories per person': 'ஒருவருக்கான கலோரி',
+  '{n} kcal guide': '{n} கலோரி வழிகாட்டி',
+  '{n} meals planned · per-person values assume one serving of each dish · nutrition is estimated': '{n} உணவுகள் திட்டமிடப்பட்டன · ஒருவருக்கான மதிப்புகள் ஒவ்வொரு உணவும் ஒரு பரிமாறல் என்ற கணக்கில் · ஊட்டச்சத்து மதிப்பீடு',
+  'Printed from Adupangarai': 'அடுப்பங்கரையிலிருந்து அச்சிடப்பட்டது',
+
   // From a code comment example; harmless
   '{count} left': 'மீதம் {count}',
 }

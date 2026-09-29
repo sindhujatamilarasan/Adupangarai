@@ -27,7 +27,7 @@ class AuthController extends Controller
 
         $user = DB::transaction(function () use ($data) {
             $household = Household::create([
-                'name' => $data['household_name'] ?? $data['name']."'s Kitchen",
+                'name' => $data['household_name'] ?? __(":name's Kitchen", ['name' => $data['name']]),
             ]);
 
             return User::create([
