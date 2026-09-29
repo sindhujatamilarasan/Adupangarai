@@ -41,8 +41,8 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold">Profile</h1>
-      <form onSubmit={submit} className="space-y-4 rounded-3xl bg-white p-5 shadow-sm" noValidate>
+      <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Profile</h1>
+      <form onSubmit={submit} className="space-y-4 card p-5" noValidate>
         {status && <Alert kind={status.kind}>{status.text}</Alert>}
         <Field label="Name" value={form.name} onChange={set('name')} error={errors.name?.[0]} />
         <Field label="Email" type="email" value={form.email} onChange={set('email')} error={errors.email?.[0]} />

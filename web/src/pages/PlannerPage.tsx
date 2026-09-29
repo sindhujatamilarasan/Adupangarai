@@ -30,9 +30,9 @@ export default function PlannerPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold">Meal planner</h1>
-        <button onClick={() => setAiOpen(true)} className="rounded-full bg-brand px-4 py-2 text-sm font-extrabold text-kolam shadow-sm">
-          ✨ AI plan
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Meal planner</h1>
+        <button onClick={() => setAiOpen(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand">
+          ✦ AI plan
         </button>
       </div>
       {flash && (
@@ -42,7 +42,7 @@ export default function PlannerPage() {
       )}
 
       {weekStart && (
-        <div className="mt-4 flex items-center justify-between rounded-2xl bg-white p-2">
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-line bg-white p-2">
           <button onClick={() => setStart(addDays(weekStart, -7))} className="rounded-xl px-3 py-2 font-bold text-muted" aria-label="Previous week">
             ←
           </button>
@@ -61,8 +61,8 @@ export default function PlannerPage() {
         {res.error && <ErrorState message={res.error} onRetry={res.reload} />}
         {weekStart &&
           Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).map((date) => (
-            <section key={date} className={`kolam-card rounded-3xl px-1.5 py-4 ${date === today ? 'ring-2 ring-brand' : ''}`}>
-              <h2 className="mb-2 font-extrabold">
+            <section key={date} className={`card p-5 ${date === today ? 'ring-2 ring-brand' : ''}`}>
+              <h2 className="mb-2 font-display text-lg font-semibold">
                 {fmt(date, { weekday: 'long' })} <span className="font-semibold text-muted">{fmt(date, { day: 'numeric', month: 'short' })}</span>
                 {date === today && <span className="ml-2 text-xs font-bold text-brand">TODAY</span>}
               </h2>
@@ -203,7 +203,7 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-between rounded-2xl bg-white p-4">
+          <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-4">
             <div className="flex items-center gap-2">
               {chosen && <VegDot veg={chosen.is_veg} />}
               <span className="font-bold">{chosen?.name}</span>
@@ -212,13 +212,13 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
               Change
             </button>
           </div>
-          <div className="flex items-center justify-between rounded-2xl bg-white p-4">
+          <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-4">
             <span className="font-semibold">Servings</span>
             <div className="flex items-center gap-3">
               <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold" aria-label="Fewer">
                 −
               </button>
-              <span className="w-6 text-center text-lg font-extrabold">{servings}</span>
+              <span className="w-6 text-center text-lg font-semibold">{servings}</span>
               <button onClick={() => setServings(Math.min(100, servings + 1))} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold" aria-label="More">
                 +
               </button>

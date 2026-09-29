@@ -55,7 +55,7 @@ export default function GroceriesPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold">Groceries</h1>
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Groceries</h1>
         {list.summary.total > 0 && (
           <span className="text-sm font-bold text-muted">
             {list.summary.remaining} left{list.summary.spent > 0 && ` · ₹${fmtQty(list.summary.spent)}`}
@@ -67,7 +67,7 @@ export default function GroceriesPage() {
         <button
           onClick={generate}
           disabled={!!busy}
-          className="w-full rounded-2xl bg-white p-4 text-left shadow-sm active:scale-[.99] disabled:opacity-60"
+          className="w-full card p-4 text-left active:scale-[.99] disabled:opacity-60"
         >
           <p className="font-bold text-brand">{busy === 'generate' ? 'Calculating…' : '🧮 Update from meal plan'}</p>
           <p className="text-sm text-muted">
@@ -109,7 +109,7 @@ export default function GroceriesPage() {
         )}
 
         {[...groups].map(([category, items]) => (
-          <section key={category} className="rounded-3xl bg-white p-2">
+          <section key={category} className="card p-2">
             <h2 className="px-3 pt-2 pb-1 text-xs font-bold uppercase tracking-wide text-muted">{category}</h2>
             <ul>
               {items.map((i) => (

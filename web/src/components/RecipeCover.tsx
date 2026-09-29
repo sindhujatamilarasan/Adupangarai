@@ -1,10 +1,10 @@
 import type { MealType } from '../api'
 
 const looks: Record<MealType, { emoji: string; bg: string }> = {
-  breakfast: { emoji: '🍳', bg: 'from-amber-50 via-orange-100 to-amber-200' },
-  lunch: { emoji: '🍛', bg: 'from-orange-100 via-amber-100 to-orange-200' },
-  snack: { emoji: '☕', bg: 'from-stone-100 via-amber-50 to-stone-200' },
-  dinner: { emoji: '🍲', bg: 'from-orange-200 via-amber-200 to-orange-300' },
+  breakfast: { emoji: '🍳', bg: 'from-[#fbf1e1] to-[#f5e2c4]' },
+  lunch: { emoji: '🍛', bg: 'from-[#f9ede3] to-[#f1d9c4]' },
+  snack: { emoji: '☕', bg: 'from-[#f5f1ea] to-[#e9e1d4]' },
+  dinner: { emoji: '🍲', bg: 'from-[#f6e9df] to-[#ead3c1]' },
 }
 
 /** Recipe photo, or a warm meal-type illustration when there is none. */
@@ -26,7 +26,7 @@ export default function RecipeCover({
   }
   return (
     <div className={`relative grid place-items-center bg-gradient-to-br ${look.bg} ${className}`} role="img" aria-label={recipe.name}>
-      {framed && <span className="kolam-band-brown absolute inset-x-0 bottom-1.5 opacity-40" aria-hidden />}
+      {framed && <img src="/kolam-mark.svg" alt="" className="absolute right-2 bottom-2 size-7 opacity-25" aria-hidden />}
       <span className={big ? 'text-7xl drop-shadow-sm' : 'text-3xl'}>{look.emoji}</span>
     </div>
   )

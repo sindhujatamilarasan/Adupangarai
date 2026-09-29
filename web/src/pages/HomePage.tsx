@@ -8,9 +8,9 @@ import { VegDot } from './RecipesPage'
 
 function Card({ title, link, linkLabel, children }: { title: string; link?: string; linkLabel?: string; children: ReactNode }) {
   return (
-    <section className="kolam-card rounded-3xl px-1.5 py-4 shadow-sm">
+    <section className="card p-5">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="font-extrabold">{title}</h2>
+        <h2 className="font-display text-lg font-semibold">{title}</h2>
         {link && (
           <Link to={link} className="text-sm font-bold text-brand">
             {linkLabel ?? 'See all'} →
@@ -34,18 +34,19 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4">
-      <header>
-        <p className="text-sm text-muted">{greeting},</p>
-        <h1 className="text-2xl font-extrabold">{user!.name} 👋</h1>
-        <p className="text-sm font-semibold text-brand">{user!.household.name}</p>
+      <header className="relative overflow-hidden pt-2 pb-1">
+        <img src="/kolam-mark.svg" alt="" className="pointer-events-none absolute top-1 -right-3 size-28 opacity-[.08]" aria-hidden />
+        <p className="text-sm text-muted">{greeting}</p>
+        <h1 className="font-display text-[2rem] leading-tight font-semibold tracking-tight">{user!.name}</h1>
+        <p className="mt-0.5 text-sm text-muted">{user!.household.name}</p>
       </header>
 
       {res.loading && !d && <Spinner label="Checking your kitchen…" />}
       {res.error && !d && <ErrorState message={res.error} onRetry={res.reload} />}
 
       {d && d.pantry_count === 0 && (
-        <Link to="/kitchen" className="block rounded-3xl bg-brand p-5 text-white shadow-sm">
-          <p className="text-lg font-extrabold">Start by stocking your kitchen 🧺</p>
+        <Link to="/kitchen" className="block rounded-[1.25rem] bg-brand p-5 text-white">
+          <p className="text-lg font-semibold">Start by stocking your kitchen 🧺</p>
           <p className="text-sm opacity-90">Add what you have at home and we’ll show what you can cook.</p>
         </Link>
       )}
@@ -131,13 +132,13 @@ export default function HomePage() {
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <Link to="/kitchen" className="kolam-card rounded-3xl px-1.5 py-4 shadow-sm">
-              <p className="text-3xl font-extrabold">{d.low_stock.length}</p>
+            <Link to="/kitchen" className="card p-5">
+              <p className="text-3xl font-semibold">{d.low_stock.length}</p>
               <p className="text-sm font-semibold text-muted">Low stock</p>
               {d.low_stock.length > 0 && <p className="mt-1 truncate text-xs text-muted">{d.low_stock.map((i) => i.ingredient.name).join(', ')}</p>}
             </Link>
-            <Link to="/groceries" className="kolam-card rounded-3xl px-1.5 py-4 shadow-sm">
-              <p className="text-3xl font-extrabold">{d.grocery_remaining}</p>
+            <Link to="/groceries" className="card p-5">
+              <p className="text-3xl font-semibold">{d.grocery_remaining}</p>
               <p className="text-sm font-semibold text-muted">Groceries to buy</p>
             </Link>
           </div>

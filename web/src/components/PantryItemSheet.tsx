@@ -125,8 +125,8 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
 
   return (
     <div className="space-y-5">
-      <div className="rounded-3xl bg-white p-5 text-center">
-        <p className="text-4xl font-extrabold">
+      <div className="card p-5 text-center">
+        <p className="text-4xl font-semibold">
           {fmtQty(item.quantity)} <span className="text-xl text-muted">{item.unit}</span>
         </p>
         <div className="mt-2 flex flex-wrap justify-center gap-1.5">
@@ -136,7 +136,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
 
       {status && <Alert kind={status.kind}>{status.text}</Alert>}
 
-      <form onSubmit={submitMove} className="space-y-3 kolam-card rounded-3xl px-1.5 py-4" noValidate>
+      <form onSubmit={submitMove} className="space-y-3 card p-5" noValidate>
         <div className="grid grid-cols-4 gap-1 rounded-2xl bg-cream p-1">
           {actions.map((a) => (
             <button
@@ -172,7 +172,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
         </Button>
       </form>
 
-      <form onSubmit={submitDetails} className="space-y-3 kolam-card rounded-3xl px-1.5 py-4" noValidate>
+      <form onSubmit={submitDetails} className="space-y-3 card p-5" noValidate>
         <p className="font-bold">Details</p>
         <Field
           label="Expiry date"
@@ -204,7 +204,7 @@ function ItemBody({ itemId, onClose, onChanged, units, item, transactions, reloa
         </button>
       </form>
 
-      <div className="kolam-card rounded-3xl px-1.5 py-4">
+      <div className="card p-5">
         <p className="mb-2 font-bold">History</p>
         {transactions.length === 0 ? (
           <p className="text-sm text-muted">No stock changes yet.</p>

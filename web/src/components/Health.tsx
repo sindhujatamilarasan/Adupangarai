@@ -58,9 +58,9 @@ export function NutritionCard({
   }
 
   return (
-    <section className="kolam-card rounded-3xl px-1.5 py-4">
+    <section className="card p-5">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-lg font-extrabold">Nutrition</h2>
+        <h2 className="font-display text-lg font-semibold">Nutrition</h2>
         <span className="text-xs text-muted">per serving · estimated</span>
       </div>
       {error && (
@@ -71,7 +71,7 @@ export function NutritionCard({
       {has ? (
         <div className="grid grid-cols-[auto_1fr] items-center gap-5">
           <div className="text-center">
-            <p className="text-4xl font-extrabold">{fmtQty(values.calories!)}</p>
+            <p className="text-4xl font-semibold">{fmtQty(values.calories!)}</p>
             <p className="text-xs font-semibold text-muted">kcal</p>
           </div>
           <ul className="space-y-2" aria-label="Macronutrients in grams per serving">
@@ -118,9 +118,9 @@ export function ProteinWeekChart({ days, nutrition }: { days: string[]; nutritio
   if (!values.some((v) => v > 0)) return null
 
   return (
-    <section className="kolam-card rounded-3xl px-1.5 py-4">
+    <section className="card p-5">
       <div className="mb-1 flex items-baseline justify-between">
-        <h2 className="font-extrabold">Protein per person</h2>
+        <h2 className="font-display text-lg font-semibold">Protein per person</h2>
         <button onClick={() => setTable(!table)} className="text-xs font-bold text-brand">
           {table ? 'Show chart' : 'Show table'}
         </button>

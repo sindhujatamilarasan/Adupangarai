@@ -11,8 +11,7 @@ const tabs = [
 export default function BottomNav() {
   const { pathname } = useLocation()
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 bg-brand-dark pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgb(0_0_0/0.12)]">
-      <div className="kolam-band-white" aria-hidden />
+    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
       <ul className="mx-auto flex max-w-lg justify-around">
         {tabs.map((t) => (
           <li key={t.to}>
@@ -20,13 +19,16 @@ export default function BottomNav() {
               to={t.to}
               end={t.to === '/'}
               className={({ isActive }) =>
-                `my-1 flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 text-xs font-bold transition ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'bg-kolam text-brand' : 'text-kolam-muted'}`
+                `relative flex flex-col items-center gap-1 px-3 pt-2.5 pb-2 text-[11px] font-semibold transition-colors ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'text-brand' : 'text-muted'}`
               }
             >
-              <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <svg viewBox="0 0 24 24" className="size-[22px]" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d={t.icon} />
               </svg>
               {t.label}
+              {(pathname === t.to || (t.to !== '/' && pathname.startsWith(t.to)) || (t.to === '/cook' && pathname.startsWith('/recipes'))) && (
+                <span className="absolute bottom-0.5 size-1 rounded-full bg-brand" aria-hidden />
+              )}
             </NavLink>
           </li>
         ))}

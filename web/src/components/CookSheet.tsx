@@ -33,7 +33,7 @@ export default function CookSheet({ recipeId, servings, mealPlanId, onClose, onC
           {error && <Alert kind="error">{error}</Alert>}
           <p className="text-sm text-muted">This will be taken out of your kitchen:</p>
           {deducted.length === 0 ? (
-            <p className="rounded-2xl bg-white p-4 text-sm">Nothing from your kitchen is used — none of these ingredients are in stock.</p>
+            <p className="rounded-2xl border border-line bg-white p-4 text-sm">Nothing from your kitchen is used — none of these ingredients are in stock.</p>
           ) : (
             <ul className="divide-y divide-line rounded-2xl bg-white px-4">
               {deducted.map((r) => (

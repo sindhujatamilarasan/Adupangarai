@@ -7,10 +7,11 @@ Track what's in your kitchen, see which recipes you can make right now, plan the
 list that subtracts what you already have, add purchases back to the pantry, and deduct ingredients
 when you cook.
 
-**Brand:** the design uses a kambi kolam theme: rice-flour white kolam lines on *kaavi* earth brown.
-- **Logo** (`web/public/logo.svg`): a clay *paanai* on the *adupu* (stove) with a kolam band and a *pulli* dot frame.
-- **Kolam band** (`web/public/kolam-*.svg`): one repeating kambi kolam tile used for the top and bottom bars, section cards, page titles and sheets.
-- **Colours:** brown `#7b3f1d` / `#5e2e14`, cream `#faf5ec`, kolam white `#fffaf2`. Tokens and the `kolam-*` utilities live in `web/src/index.css`, and every text colour pair is ≥ 5.7:1.
+**Brand:** a light, calm design with the kolam as a quiet signature.
+- **Logo** (`web/public/logo.svg`): a classic single-line kolam flower drawn around four *pulli* dots.
+- **Where the kolam appears:** only in the logo, as a faint watermark on Home and AI mode, and as the login ornament (`kolam-mark.svg`).
+- **Type:** Fraunces for headings, Plus Jakarta Sans for text, Noto Sans Tamil for Tamil.
+- **Colours:** warm brown `#7a4320`, used only for primary actions and active states, on a warm white `#fbf8f3`. Cards are white with a thin border (`card` utility in `web/src/index.css`). Every text colour pair is ≥ 5:1.
 
 ## Run it
 

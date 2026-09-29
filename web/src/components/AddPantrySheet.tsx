@@ -116,7 +116,7 @@ export default function AddPantrySheet({ open, onClose, onSaved, units }: Props)
             ))}
           </ul>
           {search.trim() && !ingredients.loading && matches.length === 0 && (
-            <div className="space-y-3 rounded-2xl bg-white p-4">
+            <div className="space-y-3 rounded-2xl border border-line bg-white p-4">
               <p className="text-sm">
                 No match. Add <b>{search.trim()}</b> as a new ingredient:
               </p>

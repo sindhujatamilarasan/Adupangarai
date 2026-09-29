@@ -36,7 +36,7 @@ function Chips({ items, value, onChange }: { items: { key: string; label: string
         <button
           key={f.key}
           onClick={() => onChange(f.key)}
-          className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${value === f.key ? 'bg-ink text-white' : 'bg-white text-muted'}`}
+          className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${value === f.key ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`}
         >
           {f.label}
         </button>
@@ -57,6 +57,13 @@ export function MatchBar({ percent, status }: { percent: number; status: CookRes
   )
 }
 
+/** One calm line instead of a pill per item: "Use soon: Coriander Leaves (today) +2". */
+function expiringLabel(items: CookResult['match']['uses_expiring']) {
+  const [first, ...rest] = [...items].sort((a, b) => a.days_to_expiry - b.days_to_expiry)
+  const when = first.days_to_expiry === 0 ? 'today' : first.days_to_expiry === 1 ? 'tomorrow' : `${first.days_to_expiry}d`
+  return `Use soon: ${first.name} (${when})${rest.length ? ` +${rest.length}` : ''}`
+}
+
 function shortSummary(m: CookResult['match']) {
   const rows = [...m.insufficient, ...m.missing]
   if (rows.length === 0) return 'You have everything'
@@ -72,7 +79,7 @@ export default function CookPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold">What can I cook?</h1>
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">What can I cook?</h1>
         <Link to="/recipes" className="text-sm font-bold text-brand">
           All recipes →
         </Link>
@@ -100,7 +107,7 @@ export default function CookPage() {
           </EmptyState>
         )}
         {res.data?.data.map(({ recipe, match }) => (
-          <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="flex gap-3 rounded-3xl bg-white p-3 shadow-sm active:scale-[.99]">
+          <Link key={recipe.id} to={`/recipes/${recipe.id}`} className="flex gap-3 card p-3 active:scale-[.99]">
             <RecipeCover recipe={{ ...recipe, meal_type: recipe.meal_type }} className="size-20 shrink-0 rounded-2xl" />
             <div className="min-w-0 flex-1 space-y-2">
             <div className="flex items-center gap-2">
@@ -111,15 +118,11 @@ export default function CookPage() {
               </span>
             </div>
             <MatchBar percent={match.match_percent} status={match.status} />
-            <p className={`text-sm ${match.status === 'available' ? 'font-semibold text-leaf' : 'text-muted'}`}>{shortSummary(match)}</p>
+            <p className={`text-[13px] ${match.status === 'available' ? 'font-medium text-leaf' : 'text-muted'}`}>{shortSummary(match)}</p>
             {(match.uses_expiring.length > 0 || recipe.health_tags.length > 0) && (
               <div className="flex flex-wrap gap-1.5">
                 <HealthBadges tags={recipe.health_tags} />
-                {match.uses_expiring.map((e) => (
-                  <Badge key={e.ingredient_id} color="amber">
-                    Uses {e.name} · {e.days_to_expiry === 0 ? 'today' : e.days_to_expiry === 1 ? 'tomorrow' : `${e.days_to_expiry}d`}
-                  </Badge>
-                ))}
+                {match.uses_expiring.length > 0 && <Badge color="amber">{expiringLabel(match.uses_expiring)}</Badge>}
               </div>
             )}
             </div>

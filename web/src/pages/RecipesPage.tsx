@@ -41,12 +41,12 @@ export default function RecipesPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold">Recipes</h1>
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Recipes</h1>
         <div className="flex gap-2">
-          <button onClick={() => setSpeaking(true)} className="rounded-full bg-white px-4 py-2 font-bold text-brand shadow-sm">
+          <button onClick={() => setSpeaking(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand">
             🎙️ Say
           </button>
-          <Link to="/recipes/new" className="rounded-full bg-brand px-4 py-2 font-bold text-white shadow-sm">
+          <Link to="/recipes/new" className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
             + New
           </Link>
         </div>
@@ -65,7 +65,7 @@ export default function RecipesPage() {
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${filter === f.key ? 'bg-ink text-white' : 'bg-white text-muted'}`}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${filter === f.key ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`}
           >
             {f.label}
           </button>
@@ -81,7 +81,7 @@ export default function RecipesPage() {
           </EmptyState>
         )}
         {recipes.data?.data.map((r) => (
-          <Link key={r.id} to={`/recipes/${r.id}`} className="flex gap-3 rounded-3xl bg-white p-3 shadow-sm active:scale-[.99]">
+          <Link key={r.id} to={`/recipes/${r.id}`} className="flex gap-3 card p-3 active:scale-[.99]">
             <RecipeCover recipe={r} className="size-24 shrink-0 rounded-2xl" />
             <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">

@@ -58,12 +58,12 @@ export default function KitchenPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold">Kitchen</h1>
+        <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">Kitchen</h1>
         <div className="flex gap-2">
-          <button onClick={() => setSpeaking(true)} className="rounded-full bg-white px-4 py-2 font-bold text-brand shadow-sm" aria-label="Add by voice">
+          <button onClick={() => setSpeaking(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand" aria-label="Add by voice">
             🎙️ Speak
           </button>
-          <button onClick={() => setAdding(true)} className="rounded-full bg-brand px-4 py-2 font-bold text-white shadow-sm">
+          <button onClick={() => setAdding(true)} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
             + Add
           </button>
         </div>
@@ -74,7 +74,7 @@ export default function KitchenPage() {
           <button
             key={v.key}
             onClick={() => setView(v.key)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${view === v.key ? 'bg-ink text-white' : 'bg-white text-muted'}`}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${view === v.key ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`}
           >
             {v.label}
             {pantry.data && <span className="ml-1 opacity-70">{pantry.data.counts[v.key]}</span>}
@@ -100,7 +100,7 @@ export default function KitchenPage() {
           <button
             key={item.id}
             onClick={() => setOpenId(item.id)}
-            className="flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-sm active:scale-[.99]"
+            className="flex w-full items-center gap-3 card p-4 text-left active:scale-[.99]"
           >
             <IconTile icon={item.ingredient.display_icon} className="size-12 text-2xl" />
             <div className="min-w-0 flex-1">
@@ -114,7 +114,7 @@ export default function KitchenPage() {
                 )}
               </div>
             </div>
-            <p className={`shrink-0 text-lg font-extrabold ${item.quantity === 0 ? 'text-muted' : ''}`}>
+            <p className={`shrink-0 text-lg font-semibold ${item.quantity === 0 ? 'text-muted' : ''}`}>
               {fmtQty(item.quantity)} <span className="text-sm font-semibold text-muted">{item.unit}</span>
             </p>
           </button>

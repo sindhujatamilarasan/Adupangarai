@@ -104,7 +104,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
       <button type="button" onClick={() => navigate(-1)} className="text-sm font-bold text-muted">
         ← Cancel
       </button>
-      <h1 className="text-2xl font-extrabold">{id ? 'Edit recipe' : draft ? '✨ Check your recipe' : 'New recipe'}</h1>
+      <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{id ? 'Edit recipe' : draft ? '✨ Check your recipe' : 'New recipe'}</h1>
       {draft && (
         <div className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
           Drafted by AI from what you said. Check the amounts, pick any highlighted ingredients, then save.
@@ -113,7 +113,7 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
       )}
       {message && <Alert kind="error">{message}</Alert>}
 
-      <section className="space-y-3 kolam-card rounded-3xl px-1.5 py-4">
+      <section className="space-y-3 card p-5">
         <Field label="Name" value={form.name} onChange={set('name')} error={errors.name?.[0]} />
         <Field label="Short description" value={form.description} onChange={set('description')} error={errors.description?.[0]} />
         <div className="grid grid-cols-2 gap-3">
@@ -145,8 +145,8 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
         </div>
       </section>
 
-      <section className="space-y-3 kolam-card rounded-3xl px-1.5 py-4">
-        <h2 className="font-extrabold">Ingredients</h2>
+      <section className="space-y-3 card p-5">
+        <h2 className="font-display text-lg font-semibold">Ingredients</h2>
         {errors.ingredients && <Alert kind="error">{errors.ingredients[0]}</Alert>}
         {rows.map((row, i) => (
           <div key={i} className={`space-y-2 rounded-2xl border p-3 ${row.heard ? 'border-amber-400 bg-amber-50' : 'border-line'}`}>
@@ -211,9 +211,9 @@ function RecipeForm({ id, recipe, draft, ingredients, units }: FormProps) {
         </button>
       </section>
 
-      <section className="kolam-card rounded-3xl px-1.5 py-4">
+      <section className="card p-5">
         <label className="block">
-          <span className="mb-1 block font-extrabold">Method</span>
+          <span className="mb-1 block font-semibold">Method</span>
           <span className="mb-2 block text-sm text-muted">One step per line.</span>
           <textarea
             rows={6}

@@ -47,7 +47,7 @@ export function Button({ loading, children, className = '', ...props }: ButtonHT
     <button
       {...props}
       disabled={loading || props.disabled}
-      className={`w-full rounded-2xl bg-brand px-4 py-3.5 font-bold text-white shadow-sm transition active:scale-[.98] disabled:opacity-60 ${className}`}
+      className={`w-full rounded-xl bg-brand px-4 py-3.5 font-semibold text-white transition hover:bg-brand-dark active:scale-[.99] disabled:opacity-50 ${className}`}
     >
       {loading ? 'Please wait…' : children}
     </button>
@@ -60,7 +60,7 @@ export function Field({ label, error, ...props }: InputHTMLAttributes<HTMLInputE
       <span className="mb-1 block text-sm font-semibold text-muted">{label}</span>
       <input
         {...props}
-        className={`w-full rounded-xl border bg-white px-4 py-3 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 ${error ? 'border-red-400' : 'border-line'}`}
+        className={`w-full rounded-xl border bg-white px-4 py-3 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10 ${error ? 'border-red-400' : 'border-line'}`}
       />
       {error && <span className="mt-1 block text-sm text-red-700">{error}</span>}
     </label>
@@ -76,15 +76,14 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90svh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-cream p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl"
+        className="max-h-[90svh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] bg-cream p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl"
       >
-        <div className="mb-1 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-brand">{title}</h2>
+        <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
+          <h2 className="font-display text-xl font-semibold">{title}</h2>
           <button onClick={onClose} aria-label="Close" className="grid size-9 place-items-center rounded-full bg-white text-xl text-muted">
             ×
           </button>
         </div>
-        <div className="kolam-band-brown mb-4 opacity-70" aria-hidden />
         {children}
       </div>
     </div>

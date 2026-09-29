@@ -27,7 +27,7 @@ const problemText: Record<NonNullable<AiItem['problem']>, string> = {
 
 function Thinking({ label }: { label: string }) {
   return (
-    <div className="rounded-2xl bg-white p-2 text-center">
+    <div className="rounded-2xl border border-line bg-white p-2 text-center">
       <Spinner label={label} />
       <p className="-mt-8 pb-4 text-xs text-muted">{AI_WAIT}</p>
     </div>
@@ -98,7 +98,7 @@ export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone
             </p>
             <ul className="space-y-2">
               {rows.map((r, i) => (
-                <li key={i} className={`space-y-2 rounded-2xl bg-white p-3 ${r.problem ? 'ring-2 ring-amber-400' : ''}`}>
+                <li key={i} className={`space-y-2 rounded-2xl border border-line bg-white p-3 ${r.problem ? 'ring-2 ring-amber-400' : ''}`}>
                   <div className="flex items-center gap-2">
                     <select
                       value={r.ingredient_id ?? ''}
@@ -143,7 +143,7 @@ export function AiPantrySheet({ onClose, onDone }: { onClose: () => void; onDone
                 </li>
               ))}
             </ul>
-            <div className="grid grid-cols-2 gap-1 rounded-2xl bg-white p-1">
+            <div className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-white p-1">
               {(['PURCHASE', 'ADD'] as const).map((t) => (
                 <button key={t} onClick={() => setType(t)} className={`rounded-xl py-2 text-sm font-bold ${type === t ? 'bg-ink text-white' : 'text-muted'}`}>
                   {t === 'PURCHASE' ? 'I bought these' : 'Just add to stock'}
@@ -243,7 +243,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
 
   const byDate = new Map<string, AiPlanEntry[]>()
   plan?.forEach((p) => byDate.set(p.date, [...(byDate.get(p.date) ?? []), p]))
-  const chip = (active: boolean) => `rounded-full px-3 py-1.5 text-sm font-bold ${active ? 'bg-ink text-white' : 'bg-white text-muted'}`
+  const chip = (active: boolean) => `rounded-full px-3 py-1.5 text-sm font-bold ${active ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`
 
   return (
     <Sheet open onClose={onClose} title="✨ AI meal plan">
@@ -285,13 +285,13 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-2xl bg-white p-3">
+            <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-3">
               <span className="font-semibold">People</span>
               <div className="flex items-center gap-3">
                 <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label="Fewer">
                   −
                 </button>
-                <span className="w-5 text-center font-extrabold">{servings}</span>
+                <span className="w-5 text-center font-semibold">{servings}</span>
                 <button onClick={() => setServings(Math.min(20, servings + 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label="More">
                   +
                 </button>
@@ -303,8 +303,8 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
           <>
             <p className="text-sm text-muted">Chosen from your recipes, favouring what’s in your kitchen and items expiring soon. Nothing is saved until you add it.</p>
             {[...byDate].map(([date, entries]) => (
-              <section key={date} className="rounded-2xl bg-white p-3">
-                <p className="mb-1 font-extrabold">{new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+              <section key={date} className="rounded-2xl border border-line bg-white p-3">
+                <p className="mb-1 font-semibold">{new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}</p>
                 {entries.map((e) => (
                   <p key={e.meal_type} className="flex justify-between py-1 text-sm">
                     <span className="font-bold uppercase text-muted">{e.meal_type}</span>

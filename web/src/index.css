@@ -1,58 +1,32 @@
 @import "tailwindcss";
 
-/* Adupangarai kambi kolam theme: rice-flour white lines on kaavi (earth) brown. All text pairs >= 5.7:1. */
+/*
+ * Adupangarai: light, calm and warm. Brown is used sparingly (primary action, active state);
+ * the kolam appears only as a signature (logo, a faint watermark, the login ornament).
+ * All text pairs >= 5:1.
+ */
 @theme {
-  --color-cream: #faf5ec;
-  --color-ink: #2d1a10;
-  --color-muted: #735c4b;
-  --color-line: #e3d3bd;
-  --color-brand: #7b3f1d;
-  --color-brand-dark: #5e2e14;
-  --color-accent: #e8a33a;
-  --color-kolam: #fffaf2;
-  --color-kolam-muted: #e8d3bd;
+  --color-cream: #fbf8f3;
+  --color-ink: #231a14;
+  --color-muted: #76675c;
+  --color-line: #ece4d8;
+  --color-brand: #7a4320;
+  --color-brand-dark: #5c3118;
+  --color-accent: #c8872e;
   --color-leaf: #4f8a3c;
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-tamil: "Noto Sans Tamil", ui-sans-serif, sans-serif;
 }
 
 body {
   @apply bg-cream text-ink antialiased;
-  /* faint pulli (dot) grid, like a kolam floor before drawing */
-  background-image: radial-gradient(rgb(123 63 29 / 0.09) 1.1px, transparent 1.3px);
-  background-size: 24px 24px;
-  background-attachment: fixed;
 }
 
-/* Kambi kolam border strips (tiles in /public). */
-@utility kolam-band-white {
-  height: 16px;
-  background: url(/kolam-white.svg) repeat-x center / 16px 16px;
-}
-@utility kolam-band-brown {
-  height: 14px;
-  background: url(/kolam-brown.svg) repeat-x center / 14px 14px;
-}
-
-/* Section card framed top and bottom by a soft kolam line. */
-@utility kolam-card {
-  /* white border keeps the kolam lines clear of the rounded corners */
-  border: 10px solid #fff;
-  background:
-    url(/kolam-soft.svg) repeat-x left top 0.1rem / 14px 14px,
-    url(/kolam-soft.svg) repeat-x left bottom 0.1rem / 14px 14px,
-    #fff;
-  background-clip: padding-box, padding-box, border-box;
-  background-origin: padding-box;
-}
-
-/* Page titles get a short kolam underline. */
-@layer base {
-  main h1::after {
-    content: '';
-    display: block;
-    width: 6.5rem;
-    height: 12px;
-    margin-top: 4px;
-    background: url(/kolam-brown.svg) repeat-x left center / 12px 12px;
-  }
+/* The one card style: white, hairline border, barely-there shadow. */
+@utility card {
+  border: 1px solid var(--color-line);
+  border-radius: 1.25rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(35 26 20 / 0.04);
 }

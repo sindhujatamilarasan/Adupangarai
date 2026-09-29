@@ -87,11 +87,11 @@ export default function RecipeDetailPage() {
             {recipe.cuisine && ` · ${recipe.cuisine}`}
           </span>
         </div>
-        <h1 className="mt-1 text-3xl font-extrabold">{recipe.name}</h1>
+        <h1 className="mt-1 font-display text-[2rem] leading-tight font-semibold tracking-tight">{recipe.name}</h1>
         {recipe.description && <p className="mt-1 text-muted">{recipe.description}</p>}
         <div className="mt-3 flex flex-wrap gap-2 text-sm">
-          <span className="rounded-full bg-white px-3 py-1 font-semibold">Prep {recipe.prep_time} min</span>
-          <span className="rounded-full bg-white px-3 py-1 font-semibold">Cook {recipe.cook_time} min</span>
+          <span className="rounded-full border border-line bg-white px-3 py-1 font-medium">Prep {recipe.prep_time} min</span>
+          <span className="rounded-full border border-line bg-white px-3 py-1 font-medium">Cook {recipe.cook_time} min</span>
           <HealthBadges tags={recipe.health_tags} />
         </div>
       </header>
@@ -100,9 +100,9 @@ export default function RecipeDetailPage() {
 
       {error && <Alert kind="error">{error}</Alert>}
 
-      <section className="kolam-card rounded-3xl px-1.5 py-4">
+      <section className="card p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-extrabold">Ingredients</h2>
+          <h2 className="font-display text-lg font-semibold">Ingredients</h2>
           <div className="flex items-center gap-2 rounded-full bg-cream p-1">
             <button
               aria-label="Fewer servings"
@@ -160,8 +160,8 @@ export default function RecipeDetailPage() {
       </section>
 
       {recipe.steps.length > 0 && (
-        <section className="kolam-card rounded-3xl px-1.5 py-4">
-          <h2 className="mb-3 text-lg font-extrabold">Method</h2>
+        <section className="card p-5">
+          <h2 className="mb-3 font-display text-lg font-semibold">Method</h2>
           <ol className="space-y-3">
             {recipe.steps.map((s, i) => (
               <li key={i} className="flex gap-3">
