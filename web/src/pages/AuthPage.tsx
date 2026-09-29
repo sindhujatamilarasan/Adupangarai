@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError } from '../api'
 import { useAuth } from '../auth'
 import { useI18n } from '../i18n'
+import GoogleButton from '../components/GoogleButton'
 import Kolam from '../components/Kolam'
 import { Alert, Button, Field } from '../components/ui'
 
 export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
-  const { login, register } = useAuth()
+  const { login, register, loginWithGoogle } = useAuth()
   const { t, lang, setLang } = useI18n()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', password: '', household_name: '' })
@@ -70,7 +71,9 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
 
       <form onSubmit={submit} className="space-y-4" noValidate>
         {message && !Object.keys(errors).length && <Alert kind="error">{message}</Alert>}
-        {isRegister && <Field label={t('Your name')} value={form.name} onChange={set('name')} error={errors.name?.[0]} autoComplete="name" required />}
+        {isRegister && (
+          <Field label={t('Your name')} value={form.name} onChange={set('name')} error={errors.name?.[0]} autoComplete="name" required />
+        )}
         <Field label={t('Email')} type="email" value={form.email} onChange={set('email')} error={errors.email?.[0]} autoComplete="email" required />
         <Field
           label={t('Password')}
@@ -82,12 +85,36 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           required
         />
         {isRegister && (
-          <Field label={t('Kitchen name (optional)')} placeholder={t("e.g. Amma's Kitchen")} value={form.household_name} onChange={set('household_name')} error={errors.household_name?.[0]} />
+          <Field
+            label={t('Kitchen name (optional)')}
+            placeholder={t("e.g. Amma's Kitchen")}
+            value={form.household_name}
+            onChange={set('household_name')}
+            error={errors.household_name?.[0]}
+          />
         )}
         <Button type="submit" loading={busy}>
           {isRegister ? t('Create account') : t('Log in')}
         </Button>
       </form>
+
+      <GoogleButton
+        lang={lang}
+        onCredential={async (credential) => {
+          setBusy(true)
+          setMessage('')
+          try {
+            await loginWithGoogle(credential)
+            navigate('/', { replace: true })
+          } catch (err) {
+            const e = err as ApiError
+            setErrors({})
+            setMessage(e.errors?.google?.[0] ?? e.message)
+          } finally {
+            setBusy(false)
+          }
+        }}
+      />
 
       <p className="mt-6 text-center text-sm text-muted">
         {isRegister ? t('Already have an account?') : t('New here?')}{' '}

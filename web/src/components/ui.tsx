@@ -1,6 +1,6 @@
 import { useI18n } from '../i18n'
 import Kolam from './Kolam'
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import { useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
 
 export function Spinner({ label }: { label?: string }) {
   const { t } = useI18n()
@@ -60,13 +60,34 @@ export function Button({ loading, children, className = '', ...props }: ButtonHT
 }
 
 export function Field({ label, error, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
+  const { t } = useI18n()
+  const [shown, setShown] = useState(false)
+  const isPassword = props.type === 'password'
   return (
     <label className="block">
       <span className="mb-1 block text-sm font-semibold text-muted">{label}</span>
-      <input
-        {...props}
-        className={`w-full rounded-xl border bg-white px-4 py-3 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10 ${error ? 'border-red-400' : 'border-line'}`}
-      />
+      <span className="relative block">
+        <input
+          {...props}
+          type={isPassword && shown ? 'text' : props.type}
+          className={`w-full rounded-xl border bg-white px-4 py-3 outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10 ${isPassword ? 'pr-12' : ''} ${error ? 'border-red-400' : 'border-line'}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShown(!shown)}
+            aria-label={shown ? t('Hide password') : t('Show password')}
+            aria-pressed={shown}
+            className="absolute inset-y-0 right-0 grid w-12 place-items-center text-muted hover:text-ink"
+          >
+            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+              <circle cx="12" cy="12" r="3" />
+              {shown && <path d="M4 4l16 16" />}
+            </svg>
+          </button>
+        )}
+      </span>
       {error && <span className="mt-1 block text-sm text-red-700">{error}</span>}
     </label>
   )

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Support\MealPlanner;
 use App\Support\Nutrition;
+use App\Support\RecipeMatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -41,6 +43,32 @@ class MealPlanController extends Controller
         $plan = MealPlan::create([...$data, 'household_id' => $request->user()->household_id]);
 
         return response()->json(['data' => $plan->load('recipe')], 201);
+    }
+
+    /** Suggested plan (not saved): rules-based, see MealPlanner. */
+    public function suggest(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'start' => ['required', 'date_format:Y-m-d'],
+            'days' => ['required', 'integer', 'min:1', 'max:7'],
+            'meals' => ['required', 'array', 'min:1'],
+            'meals.*' => ['distinct', Rule::in(Recipe::MEAL_TYPES)],
+            'goal' => ['required', Rule::in(MealPlanner::GOALS)],
+            'servings' => ['required', 'integer', 'min:1', 'max:20'],
+            'seed' => ['nullable', 'integer', 'min:0', 'max:1000000'],
+        ]);
+        $household = $request->user()->household_id;
+        $recipes = Recipe::visibleTo($household)->with('ingredients.ingredient.category')->get();
+        $matches = RecipeMatcher::matchAll($recipes, RecipeMatcher::pantryFor($household))->keyBy('recipe.id');
+        $meals = array_values(array_intersect(Recipe::MEAL_TYPES, $data['meals']));
+
+        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0);
+        $labels = $recipes->pluck('label', 'id');
+
+        return response()->json([
+            'data' => array_map(fn ($p) => [...$p, 'recipe_name' => $labels[$p['recipe_id']]], $plan),
+            'summary' => MealPlanner::summary($plan, $recipes),
+        ]);
     }
 
     /** Add several planned meals at once (e.g. an accepted AI plan). All or nothing. */

@@ -65,6 +65,26 @@ Running the API tests from the host needs PHP 8.2+ with `pdo_pgsql`, plus the `d
 
 `AI_FALLBACK_MODEL` is optional. It is tried once when the main model is busy, rate-limited or returns an unreadable answer, which happens often on free tiers.
 
+## Sign in with Google (optional)
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), go to **Create credentials → OAuth client ID → Web application**.
+2. Under **Authorized JavaScript origins**, add `http://localhost:5173` and, later, your real domain.
+3. Put the client ID in `api/.env`: `GOOGLE_CLIENT_ID=…apps.googleusercontent.com`. Then restart the API.
+
+How it works:
+- **The button:** "Continue with Google" appears on the login screen only when this is set.
+- **Verification:** the server checks every Google ID token with Google: the issuer, that it was issued for our client ID, that the email is verified, and that it hasn't expired.
+- **Accounts:** an existing account with the same email is linked, not duplicated.
+
+## Smart meal plan
+
+`Support/MealPlanner.php` suggests plans with plain rules; no AI is needed, so the rules below are always followed:
+- **Goal scoring:** *high protein* ranks by protein, *lighter* ranks by calories (very small portions don't count as a meal), and *balanced* favours health tags.
+- **Variety:** no two near-duplicate dishes on one day (more than half the main ingredients shared, e.g. two fried rices), and the same meat, fish or paneer isn't served twice in a day.
+- **Repeats:** a dish comes back only after 3 days, at most twice a week.
+- **Expiring items:** these earn a bonus only once per plan, so one expiring item can't take over.
+- **Shuffle:** gives a different, equally valid plan.
+
 ## Stack
 
 - **API:** Laravel 12 REST + Sanctum tokens, PostgreSQL 16

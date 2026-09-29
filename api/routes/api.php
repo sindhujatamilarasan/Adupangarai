@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::get('/auth/config', [AuthController::class, 'config']);
+Route::post('/auth/google', [AuthController::class, 'google'])->middleware('throttle:10,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -44,12 +46,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cook', [CookController::class, 'index']);
 
     Route::post('/meal-plans/bulk', [MealPlanController::class, 'bulk']);
+    Route::post('/meal-plans/suggest', [MealPlanController::class, 'suggest']);
     Route::apiResource('meal-plans', MealPlanController::class)->except('show');
 
     Route::middleware('throttle:20,1')->prefix('ai')->group(function () {
         Route::post('/pantry-parse', [AiController::class, 'pantryParse']);
         Route::post('/recipe-parse', [AiController::class, 'recipeParse']);
-        Route::post('/meal-plan', [AiController::class, 'mealPlan']);
     });
 
     Route::get('/grocery', [GroceryController::class, 'index']);

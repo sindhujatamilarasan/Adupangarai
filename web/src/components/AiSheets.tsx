@@ -14,7 +14,10 @@ import {
   type MealType,
   type RecipeDraft,
   type UnitInfo,
+  fmtQty,
 } from '../api'
+
+type PlanSummary = { per_day: Record<string, { calories: number; protein_g: number }>; avg_calories: number; avg_protein_g: number }
 import VoiceInput from './VoiceInput'
 import { nm, tk, unitLabel, useI18n } from '../i18n'
 import { Alert, Button, Sheet, Spinner } from './ui'
@@ -218,6 +221,8 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
   const [goal, setGoal] = useState<(typeof goals)[number]['key']>('balanced')
   const [servings, setServings] = useState(2)
   const [plan, setPlan] = useState<AiPlanEntry[] | null>(null)
+  const [summary, setSummary] = useState<PlanSummary | null>(null)
+  const [seed, setSeed] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -233,12 +238,18 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
     }
   }
 
-  const generate = () =>
+  const generate = (nextSeed = seed) =>
     run(async () => {
-      const r = await api<{ data: AiPlanEntry[] }>('/ai/meal-plan', { method: 'POST', body: { start, days, meals: MEAL_TYPES.filter((m) => meals.includes(m)), goal, servings } })
-      if (r.data.length === 0) throw new ApiError(0, t('The AI couldn’t make a plan this time. Please try again.'))
+      const r = await api<{ data: AiPlanEntry[]; summary: PlanSummary }>('/meal-plans/suggest', {
+        method: 'POST',
+        body: { start, days, meals: MEAL_TYPES.filter((m) => meals.includes(m)), goal, servings, seed: nextSeed },
+      })
+      if (r.data.length === 0) throw new ApiError(0, t('No recipes fit these meals yet. Add a few recipes and try again.'))
+      setSeed(nextSeed)
       setPlan(r.data)
+      setSummary(r.summary)
     })
+  const shuffle = () => generate(Math.floor(Math.random() * 1_000_000))
 
   const apply = () =>
     run(async () => {
@@ -251,7 +262,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
   const chip = (active: boolean) => `rounded-full px-3 py-1.5 text-sm font-bold ${active ? 'border border-ink bg-ink text-white' : 'border border-line bg-white text-muted'}`
 
   return (
-    <Sheet open onClose={onClose} title={`✨ ${t('AI meal plan')}`}>
+    <Sheet open onClose={onClose} title={t('Smart meal plan')}>
       <div className="space-y-4">
         {error && <Alert kind="error">{error}</Alert>}
         {!plan ? (
@@ -302,14 +313,35 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 </button>
               </div>
             </div>
-            {busy ? <Thinking label={t('Planning your meals…')} /> : <Button onClick={generate} disabled={meals.length === 0}>✨ {t('Suggest a plan')}</Button>}
+            <Button onClick={() => generate()} loading={busy} disabled={meals.length === 0}>
+              {t('Suggest a plan')}
+            </Button>
           </>
         ) : (
           <>
-            <p className="text-sm text-muted">{t('Chosen from your recipes, favouring what’s in your kitchen and items expiring soon. Nothing is saved until you add it.')}</p>
+            <p className="text-sm text-muted">{t('Picked from your recipes for your goal — no dish twice within 3 days, no two similar dishes on one day, favouring what’s in your kitchen. Nothing is saved until you add it.')}</p>
+            {summary && (
+              <div className="grid grid-cols-2 gap-2 text-center">
+                <div className="rounded-2xl border border-line bg-white p-3">
+                  <p className="text-xl font-semibold">{fmtQty(summary.avg_protein_g)} g</p>
+                  <p className="text-xs text-muted">{t('protein per person / day')}</p>
+                </div>
+                <div className="rounded-2xl border border-line bg-white p-3">
+                  <p className="text-xl font-semibold">{fmtQty(summary.avg_calories)}</p>
+                  <p className="text-xs text-muted">{t('kcal per person / day')}</p>
+                </div>
+              </div>
+            )}
             {[...byDate].map(([date, entries]) => (
               <section key={date} className="rounded-2xl border border-line bg-white p-3">
-                <p className="mb-1 font-semibold">{fmtDate(date, { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+                <p className="mb-1 flex items-baseline justify-between font-semibold">
+                  {fmtDate(date, { weekday: 'long', day: 'numeric', month: 'short' })}
+                  {summary?.per_day[date] && (
+                    <span className="text-xs font-medium text-muted">
+                      {fmtQty(Math.round(summary.per_day[date].protein_g))} g · {fmtQty(Math.round(summary.per_day[date].calories))} kcal
+                    </span>
+                  )}
+                </p>
                 {entries.map((e) => (
                   <p key={e.meal_type} className="flex justify-between py-1 text-sm">
                     <span className="font-semibold tracking-wide text-muted uppercase">{t(e.meal_type)}</span>
@@ -318,9 +350,14 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 ))}
               </section>
             ))}
-            <Button onClick={apply} loading={busy}>
-              {t('Add {n} meals to planner', { n: plan.length })}
-            </Button>
+            <div className="flex gap-2">
+              <button onClick={shuffle} disabled={busy} className="rounded-xl border border-line bg-white px-4 font-semibold whitespace-nowrap text-brand disabled:opacity-50">
+                🔀 {t('Shuffle')}
+              </button>
+              <Button onClick={apply} loading={busy}>
+                {t('Add {n} meals to planner', { n: plan.length })}
+              </Button>
+            </div>
             <button onClick={() => setPlan(null)} className="w-full py-1 text-sm font-bold text-muted">
               ← {t('Try different options')}
             </button>

@@ -152,29 +152,6 @@ class AiTest extends TestCase
         $this->assertSame(['low_calorie'], Recipe::find($id)->health_tags);
     }
 
-    public function test_meal_plan_keeps_only_valid_recipe_ids_and_saves_nothing(): void
-    {
-        $dal = Recipe::where('name', 'Dal')->value('id');
-        $upma = Recipe::where('name', 'Upma')->value('id');
-        $secret = Recipe::create(['household_id' => User::factory()->create()->household_id, 'name' => 'Secret', 'meal_type' => 'dinner', 'servings' => 1, 'is_veg' => true]);
-        $this->fakeAi(['days' => [
-            ['breakfast' => $upma, 'dinner' => $dal],
-            ['breakfast' => 999999, 'dinner' => $secret->id],
-            ['breakfast' => $upma, 'dinner' => $dal], // beyond requested days
-        ]]);
-
-        $plan = $this->actingAs($this->user)->postJson('/api/ai/meal-plan', [
-            'start' => '2026-10-05', 'days' => 2, 'meals' => ['breakfast', 'dinner'], 'goal' => 'high_protein', 'servings' => 3,
-        ])->assertOk()->json('data');
-
-        $this->assertSame([
-            ['date' => '2026-10-05', 'meal_type' => 'breakfast', 'recipe_id' => $upma, 'servings' => 3, 'recipe_name' => 'Upma'],
-            ['date' => '2026-10-05', 'meal_type' => 'dinner', 'recipe_id' => $dal, 'servings' => 3, 'recipe_name' => 'Dal'],
-        ], $plan);
-        $this->assertSame(0, MealPlan::count());
-        Http::assertSent(fn ($r) => str_contains($r['messages'][1]['content'], 'high protein') && ! str_contains($r['messages'][1]['content'], 'Secret'));
-    }
-
     public function test_bulk_meal_plan_is_atomic_and_scoped(): void
     {
         $dal = Recipe::where('name', 'Dal')->value('id');

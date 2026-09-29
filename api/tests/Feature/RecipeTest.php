@@ -83,7 +83,7 @@ class RecipeTest extends TestCase
         $this->assertTrue(collect($get('meal_type=breakfast'))->every(fn ($r) => $r['meal_type'] === 'breakfast'));
         $this->assertTrue(collect($get('max_time=30'))->every(fn ($r) => $r['total_time'] <= 30));
         $this->assertNotContains('Chicken Curry', array_column($get('veg=1'), 'name'));
-        $this->assertSame(['Chicken Curry', 'Chicken Fried Rice'], array_column($get('search=chicken'), 'name'));
+        $this->assertSame(['Chicken Curry', 'Chicken Fried Rice', 'Pepper Chicken'], array_column($get('search=chicken'), 'name'));
     }
 
     public function test_create_update_and_delete_own_recipe(): void

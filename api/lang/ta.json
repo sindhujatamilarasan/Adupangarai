@@ -20,5 +20,6 @@
   "The AI assistant is not reachable. Is the AI service running?": "AI உதவியாளரை அணுக முடியவில்லை. AI சேவை இயங்குகிறதா?",
   "The AI assistant returned an error (:status). Please try again.": "AI உதவியாளர் பிழை தந்தது (:status). மீண்டும் முயலவும்.",
   "The AI gave an unrealistic nutrition estimate. Please try again.": "AI தந்த ஊட்டச்சத்து மதிப்பீடு நம்பத்தகுந்ததாக இல்லை. மீண்டும் முயலவும்.",
-  ":name's Kitchen": "எங்கள் சமையலறை"
+  ":name's Kitchen": "எங்கள் சமையலறை",
+  "Google sign-in failed. Please try again.": "Google மூலம் உள்நுழைய முடியவில்லை. மீண்டும் முயலுங்கள்."
 }

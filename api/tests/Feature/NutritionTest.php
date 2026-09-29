@@ -121,7 +121,7 @@ class NutritionTest extends TestCase
         $highProtein = $get('/api/recipes?health=high_protein')->json('data.*.name');
         $this->assertContains('Chicken Curry', $highProtein);
         $this->assertNotContains('Masala Chai', $highProtein);
-        $this->assertSame(['Chapati', 'Dal'], $get('/api/recipes?health=high_fiber')->json('data.*.name'));
+        $this->assertSame(['Chana Sundal', 'Chapati', 'Dal', 'Keerai Kootu', 'Masala Oats', 'Moong Sprouts Salad', 'Ragi Dosa'], $get('/api/recipes?health=high_fiber')->json('data.*.name'));
 
         $cook = $get('/api/cook?health=low_calorie')->json('data.*.recipe');
         $this->assertTrue(collect($cook)->every(fn ($r) => $r['calories'] <= 350 && in_array('low_calorie', $r['health_tags'])));

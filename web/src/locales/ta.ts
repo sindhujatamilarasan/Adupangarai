@@ -363,6 +363,23 @@ const ta: Record<string, string> = {
   'Tap 🎙️ and speak, or type': '🎙️ தட்டிப் பேசுங்கள், அல்லது தட்டச்சு செய்யுங்கள்',
   'Voice input isn’t supported in this browser — type instead (Chrome or Edge support voice).': 'இந்த உலாவியில் குரல் உள்ளீடு இல்லை — தட்டச்சு செய்யுங்கள் (Chrome அல்லது Edge-இல் குரல் வேலை செய்யும்).',
 
+  // Smart plan
+  'Smart meal plan': 'ஸ்மார்ட் உணவுத் திட்டம்',
+  'Smart plan': 'ஸ்மார்ட் திட்டம்',
+  'Shuffle': 'மாற்றிப் பார்',
+  'No recipes fit these meals yet. Add a few recipes and try again.': 'இந்த உணவு நேரங்களுக்கு ஏற்ற குறிப்புகள் இன்னும் இல்லை. சில குறிப்புகளைச் சேர்த்து மீண்டும் முயலுங்கள்.',
+  'Picked from your recipes for your goal — no dish twice within 3 days, no two similar dishes on one day, favouring what’s in your kitchen. Nothing is saved until you add it.': 'உங்கள் இலக்குக்கேற்ப உங்கள் குறிப்புகளிலிருந்து தேர்ந்தெடுக்கப்பட்டது — 3 நாட்களுக்குள் ஒரே உணவு மீண்டும் வராது, ஒரே நாளில் ஒத்த உணவுகள் இல்லை, சமையலறையில் உள்ளவற்றுக்கு முன்னுரிமை. நீங்கள் சேர்க்கும் வரை எதுவும் சேமிக்கப்படாது.',
+  'protein per person / day': 'ஒருவருக்கு / நாளுக்கு புரதம்',
+  'kcal per person / day': 'ஒருவருக்கு / நாளுக்கு கலோரி',
+  'Balanced, high-protein or lighter days from your recipes — no look-alike dishes on one day.': 'சமச்சீரான, அதிக புரதம் அல்லது இலகுவான நாட்கள் — ஒரே நாளில் ஒத்த உணவுகள் இல்லை.',
+
+  // Google
+  or: 'அல்லது',
+
+  // Password field
+  'Show password': 'கடவுச்சொல்லைக் காட்டு',
+  'Hide password': 'கடவுச்சொல்லை மறை',
+
   // Printable plan
   'Print / PDF': 'அச்சு / PDF',
   'Preparing your plan…': 'உங்கள் திட்டத்தைத் தயாரிக்கிறது…',

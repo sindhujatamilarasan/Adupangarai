@@ -47,4 +47,9 @@ return [
         'timeout' => (int) env('AI_TIMEOUT', 300),
     ],
 
+    // "Sign in with Google": OAuth Web client ID from Google Cloud console. Empty = button hidden.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+    ],
+
 ];

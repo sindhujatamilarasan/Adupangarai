@@ -39,7 +39,7 @@ export default function PlannerPage() {
           🖨️ {t('Print / PDF')}
         </Link>
         <button onClick={() => setAiOpen(true)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand whitespace-nowrap">
-          ✦ {t('AI plan')}
+          ✦ {t('Smart plan')}
         </button>
         </div>
       </div>

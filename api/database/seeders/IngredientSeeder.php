@@ -15,7 +15,7 @@ class IngredientSeeder extends Seeder
         'Vegetables' => [
             'Onion' => ['piece', '🧅'], 'Tomato' => ['piece', '🍅'], 'Potato' => ['piece', '🥔'], 'Carrot' => ['piece', '🥕'],
             'Green Chilli' => ['piece', '🌶️'], 'Ginger' => ['g', '🫚'], 'Garlic' => ['g', '🧄'], 'Green Peas' => ['g', '🫛'],
-            'Capsicum' => ['piece', '🫑'], 'Curry Leaves' => ['g', '🌿'], 'Coriander Leaves' => ['g', '🌿'], 'Spring Onion' => ['g', '🌱'],
+            'Capsicum' => ['piece', '🫑'], 'Curry Leaves' => ['g', '🌿'], 'Coriander Leaves' => ['g', '🌿'], 'Spring Onion' => ['g', '🌱'], 'Spinach' => ['g', '🥬'], 'Cucumber' => ['piece', '🥒'],
         ],
         'Fruits' => ['Lemon' => ['piece', '🍋'], 'Banana' => ['piece', '🍌']],
         'Dairy & Eggs' => [
@@ -23,9 +23,9 @@ class IngredientSeeder extends Seeder
         ],
         'Meat & Seafood' => ['Chicken' => ['g', '🍗'], 'Mutton' => ['g', '🍖'], 'Fish' => ['g', '🐟']],
         'Grains & Flours' => [
-            'Rice' => ['g', '🍚'], 'Basmati Rice' => ['g', '🍚'], 'Wheat Flour' => ['g', '🌾'], 'Rava' => ['g', '🌾'], 'Bread' => ['packet', '🍞'],
+            'Rice' => ['g', '🍚'], 'Basmati Rice' => ['g', '🍚'], 'Wheat Flour' => ['g', '🌾'], 'Rava' => ['g', '🌾'], 'Bread' => ['packet', '🍞'], 'Oats' => ['g', '🥣'], 'Ragi Flour' => ['g', '🌾'],
         ],
-        'Pulses' => ['Toor Dal' => ['g', '🫘'], 'Moong Dal' => ['g', '🫘'], 'Urad Dal' => ['g', '🫘'], 'Chana Dal' => ['g', '🫘']],
+        'Pulses' => ['Toor Dal' => ['g', '🫘'], 'Moong Dal' => ['g', '🫘'], 'Urad Dal' => ['g', '🫘'], 'Chana Dal' => ['g', '🫘'], 'Chickpeas' => ['g', '🫘'], 'Green Gram' => ['g', '🫘']],
         'Spices' => [
             'Salt' => ['g', '🧂'], 'Turmeric Powder' => ['tsp', '🟡'], 'Red Chilli Powder' => ['tsp', '🌶️'], 'Coriander Powder' => ['tsp', '🌿'],
             'Garam Masala' => ['tsp', '🫙'], 'Cumin Seeds' => ['tsp', '🟤'], 'Mustard Seeds' => ['tsp', '🟤'], 'Black Pepper' => ['tsp', '⚫'],
@@ -87,6 +87,12 @@ class IngredientSeeder extends Seeder
         'Sugar' => 'சர்க்கரை',
         'Tea Powder' => 'டீத் தூள்',
         'Water' => 'தண்ணீர்',
+        'Spinach' => 'கீரை',
+        'Cucumber' => 'வெள்ளரிக்காய்',
+        'Oats' => 'ஓட்ஸ்',
+        'Ragi Flour' => 'கேழ்வரகு மாவு',
+        'Chickpeas' => 'கொண்டைக்கடலை',
+        'Green Gram' => 'பச்சைப் பயறு',
     ];
 
     private const CATEGORY_TAMIL = [

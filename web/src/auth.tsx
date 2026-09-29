@@ -7,6 +7,7 @@ type AuthState = {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (data: { name: string; email: string; password: string; household_name?: string }) => Promise<void>
+  loginWithGoogle: (credential: string) => Promise<void>
   logout: () => Promise<void>
   setUser: (u: User) => void
 }
@@ -50,6 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     handleAuth(await api('/register', { method: 'POST', body: { ...data, locale: currentLang() } }))
   }, [handleAuth])
 
+  const loginWithGoogle = useCallback(
+    async (credential: string) => {
+      handleAuth(await api('/auth/google', { method: 'POST', body: { credential } }))
+    },
+    [handleAuth],
+  )
+
   const logout = useCallback(async () => {
     await api('/logout', { method: 'POST' }).catch(() => {})
     token.clear()
@@ -57,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, setUser }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, login, register, loginWithGoogle, logout, setUser }}>{children}</AuthContext.Provider>
   )
 }
 

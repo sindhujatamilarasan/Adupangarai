@@ -10,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -56,6 +58,55 @@ class AuthController extends Controller
         }
 
         return $this->tokenResponse($user);
+    }
+
+    /** Public settings the login screen needs. */
+    public function config(): JsonResponse
+    {
+        return response()->json(['google_client_id' => config('services.google.client_id') ?: null]);
+    }
+
+    /**
+     * Sign in with a Google ID token. The token is checked with Google (issuer, audience = our client id,
+     * verified email, not expired). Existing accounts with the same email are linked.
+     */
+    public function google(Request $request): JsonResponse
+    {
+        $clientId = config('services.google.client_id');
+        abort_unless($clientId, 404);
+        $credential = $request->validate(['credential' => ['required', 'string', 'max:4096']])['credential'];
+
+        $info = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', ['id_token' => $credential]);
+        $claims = $info->successful() ? $info->json() : [];
+        $valid = ($claims['aud'] ?? null) === $clientId
+            && in_array($claims['iss'] ?? null, ['accounts.google.com', 'https://accounts.google.com'], true)
+            && in_array($claims['email_verified'] ?? null, [true, 'true'], true)
+            && (int) ($claims['exp'] ?? 0) > time()
+            && ! empty($claims['sub']) && ! empty($claims['email']);
+
+        if (! $valid) {
+            throw ValidationException::withMessages(['google' => __('Google sign-in failed. Please try again.')]);
+        }
+
+        $email = strtolower($claims['email']);
+        $user = User::where('google_id', $claims['sub'])->first() ?? User::where('email', $email)->first();
+
+        if ($user) {
+            $user->google_id ??= $claims['sub'];
+            $user->save();
+        } else {
+            $name = $claims['name'] ?? Str::before($email, '@');
+            $user = DB::transaction(fn () => User::create([
+                'household_id' => Household::create(['name' => __(":name's Kitchen", ['name' => $name])])->id,
+                'name' => $name,
+                'email' => $email,
+                'google_id' => $claims['sub'],
+                'password' => Str::random(40), // never used; they sign in with Google
+                'locale' => app()->getLocale(),
+            ]));
+        }
+
+        return $this->tokenResponse($user, $user->wasRecentlyCreated ? 201 : 200);
     }
 
     public function logout(Request $request): JsonResponse

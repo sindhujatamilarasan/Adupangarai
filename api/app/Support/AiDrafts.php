@@ -4,8 +4,6 @@ namespace App\Support;
 
 use App\Models\Ingredient;
 use App\Models\Recipe;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 /**
  * Turns free text into *drafts* via the AI, then checks every value in code.
@@ -79,50 +77,6 @@ class AiDrafts
             'steps' => array_values(array_filter(array_map(fn ($s) => mb_substr(trim((string) $s), 0, 1000), (array) ($a['steps'] ?? [])))),
             ...$nutrition,
         ];
-    }
-
-    /**
-     * Week plan chosen by the AI from the household's recipes only.
-     *
-     * @param  Collection<int, array{recipe: array, match: array}>  $candidates  matched recipes
-     * @return list<array{date: string, meal_type: string, recipe_id: int, servings: int}>
-     */
-    public static function mealPlan(Collection $candidates, Carbon $start, int $days, array $meals, string $goal, int $servings): array
-    {
-        $catalog = $candidates->map(fn ($c) => sprintf(
-            '%d | %s | %s | %s kcal | %s g protein | %d%% in pantry%s',
-            $c['recipe']['id'], $c['recipe']['name'], $c['recipe']['meal_type'],
-            $c['recipe']['calories'] ?? '?', $c['recipe']['protein_g'] ?? '?', $c['match']['match_percent'],
-            $c['match']['uses_expiring'] ? ' | uses items expiring soon' : '',
-        ))->implode("\n");
-
-        $goalText = [
-            'balanced' => 'a balanced, varied diet',
-            'high_protein' => 'high protein (prefer recipes with more protein)',
-            'low_calorie' => 'lower calories (prefer lighter recipes)',
-        ][$goal];
-
-        $answer = Ai::json(
-            'You are a home meal planner. You may ONLY use recipe ids from the catalog.',
-            "Catalog (id | name | usual meal | kcal/serving | protein/serving | pantry match):\n{$catalog}\n\n"
-            ."Plan {$days} day(s), meals: ".implode(', ', $meals).". Goal: {$goalText}. "
-            .'Prefer recipes whose meal type fits, that are mostly in the pantry or use items expiring soon, and avoid repeating a recipe on consecutive days. '
-            .'Return {"days": [{'.implode(', ', array_map(fn ($m) => "\"{$m}\": recipe_id", $meals)).'}]} with exactly '.$days.' entries.',
-            80 * $days + 100,
-        );
-
-        $valid = $candidates->pluck('recipe.id')->flip();
-        $plan = [];
-        foreach (array_slice((array) ($answer['days'] ?? []), 0, $days) as $i => $day) {
-            foreach ($meals as $meal) {
-                $id = $day[$meal] ?? null;
-                if (is_numeric($id) && $valid->has((int) $id)) {
-                    $plan[] = ['date' => $start->copy()->addDays($i)->toDateString(), 'meal_type' => $meal, 'recipe_id' => (int) $id, 'servings' => $servings];
-                }
-            }
-        }
-
-        return $plan;
     }
 
     /** Map an AI item to a known ingredient and a compatible unit; problems and guesses are flagged for the user. */

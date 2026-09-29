@@ -104,6 +104,54 @@ class RecipeSeeder extends Seeder
             'ingredients' => [['Milk', 250, 'ml'], ['Tea Powder', 8, 'g'], ['Sugar', 15, 'g'], ['Ginger', 5, 'g', true]],
             'steps' => ['Boil 150 ml water with crushed ginger and tea powder.', 'Add milk and sugar; simmer 3 minutes.', 'Strain and serve.'],
         ],
+        [
+            'name' => 'Moong Sprouts Salad', 'meal_type' => 'breakfast', 'cuisine' => 'South Indian', 'servings' => 2, 'prep_time' => 10, 'cook_time' => 0, 'is_veg' => true,
+            'description' => 'Crunchy sprouted green gram with cucumber, tomato and lemon.',
+            'ingredients' => [['Green Gram', 100, 'g'], ['Onion', 1, 'piece'], ['Tomato', 1, 'piece'], ['Cucumber', 1, 'piece'], ['Lemon', 1, 'piece'], ['Salt', 2, 'g'], ['Coriander Leaves', 10, 'g', true], ['Green Chilli', 1, 'piece', true]],
+            'steps' => ['Soak green gram overnight, drain and keep covered for a day to sprout.', 'Chop onion, tomato, cucumber, chilli and coriander.', 'Toss the sprouts with the vegetables, salt and lemon juice.'],
+        ],
+        [
+            'name' => 'Chana Sundal', 'meal_type' => 'snack', 'cuisine' => 'South Indian', 'servings' => 2, 'prep_time' => 5, 'cook_time' => 20, 'is_veg' => true,
+            'description' => 'Temple-style chickpea sundal with coconut and curry leaves.',
+            'ingredients' => [['Chickpeas', 150, 'g'], ['Mustard Seeds', 0.5, 'tsp'], ['Urad Dal', 5, 'g'], ['Green Chilli', 1, 'piece'], ['Salt', 3, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Coconut', 0.25, 'piece', true], ['Curry Leaves', 3, 'g', true], ['Hing', 0.25, 'tsp', true]],
+            'steps' => ['Soak chickpeas overnight and pressure cook with salt until soft.', 'Temper mustard, urad dal, chilli, curry leaves and hing in oil.', 'Add chickpeas and grated coconut; toss well.'],
+        ],
+        [
+            'name' => 'Ragi Dosa', 'meal_type' => 'breakfast', 'cuisine' => 'South Indian', 'servings' => 3, 'prep_time' => 10, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Instant finger-millet dosa, crisp and filling.',
+            'ingredients' => [['Ragi Flour', 150, 'g'], ['Rava', 30, 'g'], ['Curd', 50, 'g'], ['Onion', 1, 'piece'], ['Green Chilli', 1, 'piece'], ['Cumin Seeds', 0.5, 'tsp'], ['Salt', 3, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Curry Leaves', 3, 'g', true]],
+            'steps' => ['Mix ragi flour, rava, curd, salt and water into a thin batter; rest 10 minutes.', 'Stir in chopped onion, chilli, cumin and curry leaves.', 'Pour thin dosas on a hot tawa, drizzle oil and cook until crisp.'],
+        ],
+        [
+            'name' => 'Masala Oats', 'meal_type' => 'breakfast', 'cuisine' => 'Indian', 'servings' => 2, 'prep_time' => 5, 'cook_time' => 10, 'is_veg' => true,
+            'description' => 'Savoury oats with vegetables — quick and light.',
+            'ingredients' => [['Oats', 100, 'g'], ['Onion', 1, 'piece'], ['Tomato', 1, 'piece'], ['Carrot', 1, 'piece'], ['Turmeric Powder', 0.25, 'tsp'], ['Salt', 3, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Green Peas', 30, 'g', true]],
+            'steps' => ['Sauté onion, carrot and peas in oil.', 'Add tomato, turmeric and salt; cook 2 minutes.', 'Add oats and 400 ml water; simmer until creamy.'],
+        ],
+        [
+            'name' => 'Keerai Kootu', 'meal_type' => 'lunch', 'cuisine' => 'South Indian', 'servings' => 3, 'prep_time' => 10, 'cook_time' => 20, 'is_veg' => true,
+            'description' => 'Spinach and moong dal kootu, gently spiced.',
+            'ingredients' => [['Spinach', 250, 'g'], ['Moong Dal', 100, 'g'], ['Onion', 1, 'piece'], ['Green Chilli', 1, 'piece'], ['Cumin Seeds', 0.5, 'tsp'], ['Turmeric Powder', 0.25, 'tsp'], ['Salt', 4, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Coconut', 0.25, 'piece', true]],
+            'steps' => ['Cook moong dal with turmeric until soft.', 'Sauté onion and chilli, add chopped spinach and cook down.', 'Mix in dal, salt and ground coconut-cumin; simmer 5 minutes.'],
+        ],
+        [
+            'name' => 'Pepper Chicken', 'meal_type' => 'dinner', 'cuisine' => 'Chettinad', 'servings' => 4, 'prep_time' => 10, 'cook_time' => 25, 'is_veg' => false,
+            'description' => 'Dry chicken roast with crushed black pepper and curry leaves.',
+            'ingredients' => [['Chicken', 500, 'g'], ['Onion', 2, 'piece'], ['Black Pepper', 2, 'tsp'], ['Ginger', 10, 'g'], ['Garlic', 10, 'g'], ['Turmeric Powder', 0.25, 'tsp'], ['Salt', 6, 'g'], ['Cooking Oil', 2, 'tbsp'], ['Curry Leaves', 5, 'g', true]],
+            'steps' => ['Marinate chicken with turmeric, salt and ginger-garlic.', 'Sauté onions and curry leaves until golden.', 'Add chicken, cover and cook 15 minutes; finish with crushed pepper and roast dry.'],
+        ],
+        [
+            'name' => 'Paneer Tikka', 'meal_type' => 'dinner', 'cuisine' => 'North Indian', 'servings' => 3, 'prep_time' => 20, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Pan-grilled paneer and capsicum in spiced curd.',
+            'ingredients' => [['Paneer', 250, 'g'], ['Curd', 100, 'g'], ['Capsicum', 1, 'piece'], ['Onion', 1, 'piece'], ['Red Chilli Powder', 1, 'tsp'], ['Garam Masala', 0.5, 'tsp'], ['Salt', 3, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Lemon', 0.5, 'piece', true]],
+            'steps' => ['Mix curd, chilli, garam masala and salt; coat paneer, capsicum and onion.', 'Rest 15 minutes.', 'Grill on a hot pan with a little oil until charred at the edges.'],
+        ],
+        [
+            'name' => 'Fish Curry', 'meal_type' => 'dinner', 'cuisine' => 'South Indian', 'servings' => 4, 'prep_time' => 15, 'cook_time' => 25, 'is_veg' => false,
+            'description' => 'Tangy tomato-based fish kuzhambu.',
+            'ingredients' => [['Fish', 500, 'g'], ['Tomato', 3, 'piece'], ['Onion', 1, 'piece'], ['Red Chilli Powder', 2, 'tsp'], ['Coriander Powder', 2, 'tsp'], ['Turmeric Powder', 0.5, 'tsp'], ['Mustard Seeds', 1, 'tsp'], ['Salt', 6, 'g'], ['Cooking Oil', 2, 'tbsp'], ['Curry Leaves', 5, 'g', true]],
+            'steps' => ['Temper mustard and curry leaves; sauté onion.', 'Add tomatoes and spice powders with a cup of water; simmer 10 minutes.', 'Slide in the fish and cook gently for 8 minutes.'],
+        ],
     ];
 
     /** Estimated nutrition per serving: [kcal, protein g, carbs g, fat g, fiber g]. */
@@ -123,6 +171,14 @@ class RecipeSeeder extends Seeder
         'Lemon Rice' => [400, 7, 70, 11, 2],
         'Potato Poriyal' => [220, 3, 30, 10, 3],
         'Masala Chai' => [110, 4, 13, 4, 0],
+        'Moong Sprouts Salad' => [200, 13, 32, 2, 8],
+        'Chana Sundal' => [290, 15, 40, 9, 11],
+        'Ragi Dosa' => [260, 7, 45, 6, 7],
+        'Masala Oats' => [250, 9, 38, 8, 6],
+        'Keerai Kootu' => [190, 11, 24, 6, 7],
+        'Pepper Chicken' => [260, 30, 6, 13, 2],
+        'Paneer Tikka' => [290, 18, 9, 20, 2],
+        'Fish Curry' => [240, 26, 8, 11, 2],
     ];
 
     /** Tamil name and description per built-in recipe. */
@@ -142,6 +198,14 @@ class RecipeSeeder extends Seeder
         'Lemon Rice' => ['எலுமிச்சை சாதம்', 'பருப்புத் தாளிப்புடன் புளிப்பான எலுமிச்சை சாதம்.'],
         'Potato Poriyal' => ['உருளைக்கிழங்கு பொரியல்', 'சாம்பார் சாதத்துக்கு ஏற்ற மொறுமொறு உருளைக்கிழங்கு பொரியல்.'],
         'Masala Chai' => ['மசாலா டீ', 'இஞ்சி சேர்த்த திடமான பால் டீ.'],
+        'Moong Sprouts Salad' => ['பச்சைப் பயறு முளைகட்டிய சாலட்', 'வெள்ளரி, தக்காளி, எலுமிச்சையுடன் முளைகட்டிய பச்சைப் பயறு.'],
+        'Chana Sundal' => ['கொண்டைக்கடலை சுண்டல்', 'தேங்காய், கறிவேப்பிலையுடன் கோயில் முறை சுண்டல்.'],
+        'Ragi Dosa' => ['கேழ்வரகு தோசை', 'உடனடி கேழ்வரகு தோசை — மொறுமொறுப்பும் நிறைவும்.'],
+        'Masala Oats' => ['மசாலா ஓட்ஸ்', 'காய்கறிகளுடன் காரமான ஓட்ஸ் — விரைவானது, இலகுவானது.'],
+        'Keerai Kootu' => ['கீரைக் கூட்டு', 'கீரையும் பாசிப் பருப்பும் சேர்த்த மிதமான கூட்டு.'],
+        'Pepper Chicken' => ['மிளகுக் கோழி', 'மிளகு, கறிவேப்பிலையுடன் வறுத்த செட்டிநாடு கோழி.'],
+        'Paneer Tikka' => ['பன்னீர் டிக்கா', 'மசாலா தயிரில் ஊறிய பன்னீர், குடைமிளகாய் — கடாயில் வாட்டியது.'],
+        'Fish Curry' => ['மீன் குழம்பு', 'தக்காளி அடிப்படையிலான புளிப்பான மீன் குழம்பு.'],
     ];
 
     public function run(): void

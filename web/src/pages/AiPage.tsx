@@ -8,7 +8,7 @@ import { tk, useI18n } from '../i18n'
 const actions = [
   { key: 'pantry', emoji: '🛍️', title: tk('Say what you bought'), text: tk('“1 kg chicken, a dozen eggs and 2 litres milk” → added to your kitchen after you check it.') },
   { key: 'recipe', emoji: '📝', title: tk('Say a recipe'), text: tk('Dictate a recipe in English or Tamil → a ready-to-save recipe with estimated nutrition.') },
-  { key: 'plan', emoji: '📅', title: tk('Plan my meals'), text: tk('Balanced, high-protein or lighter days, picked from your recipes and what’s in your kitchen.') },
+  { key: 'plan', emoji: '📅', title: tk('Plan my meals'), text: tk('Balanced, high-protein or lighter days from your recipes — no look-alike dishes on one day.') },
 ] as const
 
 export default function AiPage() {
