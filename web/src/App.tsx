@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom
 import { AuthProvider, useAuth } from './auth'
 import AiPage from './pages/AiPage'
 import BottomNav from './components/BottomNav'
+import TopBar from './components/TopBar'
 import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
 import CookPage from './pages/CookPage'
@@ -20,7 +21,8 @@ function AppShell() {
   if (!user) return <Navigate to="/login" replace />
   return (
     <>
-      <main className="mx-auto max-w-lg px-4 pt-6 pb-28">
+      <TopBar />
+      <main className="mx-auto max-w-lg px-4 pt-4 pb-28">
         <Outlet />
       </main>
       <BottomNav />

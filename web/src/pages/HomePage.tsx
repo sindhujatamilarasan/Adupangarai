@@ -34,20 +34,10 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted">{greeting},</p>
-          <h1 className="text-2xl font-extrabold">{user!.name} 👋</h1>
-          <p className="text-sm font-semibold text-brand">{user!.household.name}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link to="/ai" className="rounded-full bg-gradient-to-br from-brand to-amber-500 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm">
-            ✨ AI
-          </Link>
-          <Link to="/profile" aria-label="Profile" className="grid size-11 place-items-center rounded-full bg-brand text-lg font-bold text-white">
-            {user!.name[0]?.toUpperCase()}
-          </Link>
-        </div>
+      <header>
+        <p className="text-sm text-muted">{greeting},</p>
+        <h1 className="text-2xl font-extrabold">{user!.name} 👋</h1>
+        <p className="text-sm font-semibold text-brand">{user!.household.name}</p>
       </header>
 
       {res.loading && !d && <Spinner label="Checking your kitchen…" />}
