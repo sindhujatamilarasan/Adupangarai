@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\SetLocale;
 use App\Models\Household;
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -146,6 +148,35 @@ class AuthController extends Controller
         });
 
         return response()->json(['user' => $user->fresh('household')]);
+    }
+
+    /**
+     * Delete the account and everything in it, for good (required by app stores).
+     * Typing the account's email confirms it, which works for password and Google accounts alike.
+     */
+    public function destroyAccount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $request->validate(['confirm' => ['required', 'string']]);
+        if (strtolower(trim($request->confirm)) !== $user->email) {
+            throw ValidationException::withMessages(['confirm' => __('Type your email exactly to confirm.')]);
+        }
+
+        $household = $user->household;
+        $photos = $household->users()->count() === 1
+            ? Recipe::where('household_id', $household->id)->whereNotNull('image_path')->pluck('image_path')->all()
+            : [];
+
+        DB::transaction(function () use ($user, $household) {
+            $user->tokens()->delete();
+            $user->delete(); // coach logs go with the user
+            if ($household->users()->doesntExist()) {
+                $household->delete(); // kitchen, recipes, plans and lists go with the household
+            }
+        });
+        Storage::disk('public')->delete($photos);
+
+        return response()->json(['message' => __('Your account and data have been deleted.')]);
     }
 
     private function tokenResponse(User $user, int $status = 200): JsonResponse

@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::delete('/profile', [AuthController::class, 'destroyAccount'])->middleware('throttle:5,1');
 
     Route::get('/dashboard', DashboardController::class);
 

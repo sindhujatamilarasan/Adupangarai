@@ -534,6 +534,12 @@ const ta: Record<string, string> = {
   'Keep going — tap to close': 'இப்படியே தொடருங்க — மூட டேப் பண்ணுங்க',
   'Set a calorie goal, take the 10k steps challenge and earn badges.': 'கலோரி கோல் செட் பண்ணுங்க, 10k ஸ்டெப்ஸ் சேலஞ்ச் எடுங்க, பேட்ஜ் ஜெயிங்க.',
   Open: 'திற',
+  // Account deletion & privacy
+  'Delete account': 'அக்கவுன்ட் டெலீட்',
+  'This permanently deletes your account, kitchen, recipes, photos, plans, grocery lists and coach data. It cannot be undone.': 'இது உங்க அக்கவுன்ட், கிச்சன், ரெசிபி, போட்டோ, பிளான், மளிகை லிஸ்ட், கோச் டேட்டா எல்லாத்தையும் நிரந்தரமா அழிச்சிடும். திரும்ப கொண்டு வர முடியாது.',
+  'Type {email} to confirm': 'உறுதிப்படுத்த {email}-ஐ டைப் பண்ணுங்க',
+  'Delete forever': 'நிரந்தரமா டெலீட் பண்ணு',
+  'Privacy policy': 'பிரைவசி பாலிசி',
   // From a code comment example; harmless
   '{count} left': 'மீதி {count}',
 }

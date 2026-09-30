@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    /* Shown on the privacy policy and account deletion pages. */
+    'contact_email' => env('CONTACT_EMAIL', 'sindhujatamilarasan@gmail.com'),
+    'developer_name' => env('DEVELOPER_NAME', 'Sindhuja Tamilarasan'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
