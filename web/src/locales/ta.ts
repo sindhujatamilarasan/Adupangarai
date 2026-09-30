@@ -373,6 +373,11 @@ const ta: Record<string, string> = {
   'kcal per person / day': 'ஒருவருக்கு / நாளுக்கு கலோரி',
   'Balanced, high-protein or lighter days from your recipes — no look-alike dishes on one day.': 'சமச்சீரான, அதிக புரதம் அல்லது இலகுவான நாட்கள் — ஒரே நாளில் ஒத்த உணவுகள் இல்லை.',
 
+  // Clear week
+  'Clear this week': 'இந்த வாரத்தை அழி',
+  'Clearing…': 'அழிக்கிறது…',
+  'Remove all {n} planned meals from this week? Meals already cooked are kept.': 'இந்த வாரத்தின் {n} திட்டமிட்ட உணவுகளையும் நீக்கவா? ஏற்கனவே சமைத்தவை அப்படியே இருக்கும்.',
+
   // Diet
   'Food preference': 'உணவு விருப்பம்',
   Any: 'எதுவும்',

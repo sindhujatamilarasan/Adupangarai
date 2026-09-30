@@ -93,6 +93,23 @@ class MealPlanTest extends TestCase
         ])->assertJsonValidationErrors('recipe_id');
     }
 
+    public function test_clear_week_removes_uncooked_meals_only_in_range_and_household(): void
+    {
+        $this->plan(['date' => '2026-10-05']);
+        $this->plan(['date' => '2026-10-11']);
+        $this->plan(['date' => '2026-10-12']); // next week
+        $cooked = MealPlan::create(['household_id' => $this->user->household_id, 'date' => '2026-10-06', 'meal_type' => 'lunch', 'recipe_id' => $this->recipeId('Dal'), 'servings' => 2, 'cooked_at' => now()]);
+        $other = User::factory()->create();
+        $theirs = MealPlan::create(['household_id' => $other->household_id, 'date' => '2026-10-06', 'meal_type' => 'lunch', 'recipe_id' => $this->recipeId('Dal'), 'servings' => 2]);
+
+        $this->actingAs($this->user)->postJson('/api/meal-plans/clear', ['start' => '2026-10-05', 'end' => '2026-10-11'])
+            ->assertOk()->assertJsonPath('count', 2);
+
+        $this->assertNotNull($cooked->fresh());
+        $this->assertNotNull($theirs->fresh());
+        $this->assertSame(1, MealPlan::where('household_id', $this->user->household_id)->whereDate('date', '2026-10-12')->count());
+    }
+
     public function test_users_cannot_access_another_households_plan(): void
     {
         $plan = $this->plan();

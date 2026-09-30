@@ -17,6 +17,22 @@ export default function PlannerPage() {
   const [editing, setEditing] = useState<Editing | null>(null)
   const [aiOpen, setAiOpen] = useState(false)
   const [flash, setFlash] = useState<string>((useLocation().state as { flash?: string } | null)?.flash ?? '')
+  const [clearing, setClearing] = useState(false)
+  const uncooked = res.data?.data.filter((p) => !p.cooked_at).length ?? 0
+
+  async function clearWeek() {
+    if (!res.data || !confirm(t('Remove all {n} planned meals from this week? Meals already cooked are kept.', { n: uncooked }))) return
+    setClearing(true)
+    try {
+      const r = await api<{ message: string }>('/meal-plans/clear', { method: 'POST', body: { start: res.data.start, end: res.data.end } })
+      setFlash(r.message)
+      res.reload()
+    } catch (e) {
+      setFlash((e as ApiError).message)
+    } finally {
+      setClearing(false)
+    }
+  }
   const weekStart = res.data?.start
   const today = isoDate(new Date())
 
@@ -59,6 +75,13 @@ export default function PlannerPage() {
           </button>
           <button onClick={() => setStart(addDays(weekStart, 7))} className="rounded-xl px-3 py-2 font-bold text-muted" aria-label={t('Next week')}>
             →
+          </button>
+        </div>
+      )}
+      {uncooked > 0 && (
+        <div className="mt-2 flex justify-end">
+          <button onClick={clearWeek} disabled={clearing} className="px-2 py-1 text-sm font-semibold text-red-700 disabled:opacity-50">
+            🗑 {clearing ? t('Clearing…') : t('Clear this week')}
           </button>
         </div>
       )}

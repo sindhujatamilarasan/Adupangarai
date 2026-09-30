@@ -72,6 +72,22 @@ class MealPlanController extends Controller
         ]);
     }
 
+    /** Start fresh: remove every not-yet-cooked meal between start and end (cooked meals stay as history). */
+    public function clear(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'start' => ['required', 'date_format:Y-m-d'],
+            'end' => ['required', 'date_format:Y-m-d', 'after_or_equal:start'],
+        ]);
+
+        $count = MealPlan::where('household_id', $request->user()->household_id)
+            ->whereBetween('date', [$data['start'], $data['end']])
+            ->whereNull('cooked_at')
+            ->delete();
+
+        return response()->json(['message' => __(':count planned meal(s) removed.', ['count' => $count]), 'count' => $count]);
+    }
+
     /** Add several planned meals at once (e.g. an accepted AI plan). All or nothing. */
     public function bulk(Request $request): JsonResponse
     {

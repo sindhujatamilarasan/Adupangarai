@@ -47,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/meal-plans/bulk', [MealPlanController::class, 'bulk']);
     Route::post('/meal-plans/suggest', [MealPlanController::class, 'suggest']);
+    Route::post('/meal-plans/clear', [MealPlanController::class, 'clear']);
     Route::apiResource('meal-plans', MealPlanController::class)->except('show');
 
     Route::middleware('throttle:20,1')->prefix('ai')->group(function () {
