@@ -19,14 +19,15 @@ import RecipesPage from './pages/RecipesPage'
 
 function AppShell() {
   const { user, loading } = useAuth()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   if (loading) return <Spinner label={t('Opening your kitchen…')} />
   if (!user) return <Navigate to="/login" replace />
   return (
     <>
       <TopBar />
       <main className="mx-auto max-w-lg px-4 pt-4 pb-28">
-        <Outlet />
+        {/* Remount the page on language change so server data (dish names, messages) reloads in that language. */}
+        <Outlet key={lang} />
       </main>
       <BottomNav />
     </>
@@ -36,8 +37,9 @@ function AppShell() {
 /** Signed-in pages without the app bars (e.g. the printable plan). */
 function BareShell() {
   const { user, loading } = useAuth()
+  const { lang } = useI18n()
   if (loading) return <Spinner />
-  return user ? <Outlet /> : <Navigate to="/login" replace />
+  return user ? <Outlet key={lang} /> : <Navigate to="/login" replace />
 }
 
 function GuestOnly() {

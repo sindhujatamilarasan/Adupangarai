@@ -14,6 +14,16 @@ export function currentLang(): Lang {
   }
 }
 
+/** Whether this device has an explicit language choice (the latest tap wins over the account's saved one). */
+// oxlint-disable-next-line react/only-export-components
+export function hasStoredLang(): boolean {
+  try {
+    return localStorage.getItem(KEY) !== null
+  } catch {
+    return false
+  }
+}
+
 /**
  * English text is the key: t('Kitchen') -> 'சமையலறை' in Tamil, 'Kitchen' in English.
  * Placeholders: t('{count} left', { count: 3 }). Missing Tamil falls back to English.

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api, token, type User } from './api'
-import { currentLang, useI18n } from './i18n'
+import { currentLang, hasStoredLang, useI18n, type Lang } from './i18n'
 
 type AuthState = {
   user: User | null
@@ -19,12 +19,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(!!token.get())
 
+  /**
+   * The language last chosen on this device wins; the account is quietly updated to match.
+   * Only a device with no choice yet takes the account's saved language.
+   */
+  const syncLang = useCallback(
+    (u: User) => {
+      if (!hasStoredLang()) {
+        setLang(u.locale)
+      } else if (u.locale !== currentLang()) {
+        const locale: Lang = currentLang()
+        api<{ user: User }>('/profile', { method: 'PUT', body: { locale } }).then((r) => setUser(r.user), () => {})
+      }
+    },
+    [setLang],
+  )
+
   useEffect(() => {
     if (token.get()) {
       api<{ user: User }>('/profile')
         .then((r) => {
           setUser(r.user)
-          if (r.user.locale) setLang(r.user.locale)
+          syncLang(r.user)
         })
         .catch(() => token.clear())
         .finally(() => setLoading(false))
@@ -32,15 +48,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const onExpired = () => setUser(null)
     window.addEventListener('auth:expired', onExpired)
     return () => window.removeEventListener('auth:expired', onExpired)
-  }, [setLang])
+  }, [syncLang])
 
   const handleAuth = useCallback(
     (r: { token: string; user: User }) => {
       token.set(r.token)
       setUser(r.user)
-      if (r.user.locale) setLang(r.user.locale)
+      syncLang(r.user)
     },
-    [setLang],
+    [syncLang],
   )
 
   const login = useCallback(async (email: string, password: string) => {
