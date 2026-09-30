@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\HealthProfile;
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Support\CalorieTarget;
+use App\Support\Coach;
 use App\Support\MealPlanner;
 use App\Support\Nutrition;
 use App\Support\RecipeMatcher;
@@ -13,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class MealPlanController extends Controller
 {
@@ -59,16 +63,22 @@ class MealPlanController extends Controller
             'diet' => ['nullable', Rule::in(MealPlanner::DIETS)],
         ]);
         $household = $request->user()->household_id;
+        $target = null;
+        if ($data['goal'] === 'my_target') {
+            $profile = HealthProfile::where('user_id', $request->user()->id)->first()
+                ?? throw ValidationException::withMessages(['goal' => __('Set your goal in Coach first, then I can plan to your calorie target.')]);
+            $target = CalorieTarget::for($profile, Coach::currentWeight($request->user(), $profile), now()->year)['calories'];
+        }
         $recipes = Recipe::visibleTo($household)->with('ingredients.ingredient.category')->get();
         $matches = RecipeMatcher::matchAll($recipes, RecipeMatcher::pantryFor($household))->keyBy('recipe.id');
         $meals = array_values(array_intersect(Recipe::MEAL_TYPES, $data['meals']));
 
-        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0, $data['diet'] ?? 'any');
+        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0, $data['diet'] ?? 'any', $target);
         $labels = $recipes->pluck('label', 'id');
 
         return response()->json([
             'data' => array_map(fn ($p) => [...$p, 'recipe_name' => $labels[$p['recipe_id']]], $plan),
-            'summary' => MealPlanner::summary($plan, $recipes),
+            'summary' => [...MealPlanner::summary($plan, $recipes), 'target_calories' => $target],
         ]);
     }
 

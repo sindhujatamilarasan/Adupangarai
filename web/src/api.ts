@@ -236,3 +236,44 @@ export type RecipeDraft = Omit<RecipeDetail, 'id' | 'ingredients' | 'match' | 'r
 }
 export type AiPlanEntry = { date: string; meal_type: MealType; recipe_id: number; servings: number; recipe_name: string }
 export const AI_WAIT = tk('This can take a few seconds — please keep this open.')
+
+export type CoachGoal = 'lose' | 'maintain' | 'gain'
+export type Activity = 'sedentary' | 'light' | 'moderate' | 'active'
+export type HealthProfile = {
+  sex: 'male' | 'female'
+  birth_year: number
+  height_cm: number
+  start_weight_kg: number
+  target_weight_kg: number
+  activity: Activity
+  goal: CoachGoal
+  pace_kg: number
+  step_goal: number
+  started_on: string
+}
+export type FoodLog = { id: number; date: string; meal_plan_id: number | null; name: string; portion: number; calories: number; protein_g: number; source: 'plan' | 'quick' | 'ai' | 'manual' }
+export type QuickFood = { name: string; label: string; calories: number; protein_g: number }
+export type CoachData = {
+  profile: HealthProfile
+  current_weight: number
+  bmi: number
+  healthy_weight: [number, number]
+  target: { calories: number; protein_g: number; bmr: number; maintenance: number; floored: boolean }
+  today: {
+    date: string
+    calories: number
+    protein_g: number
+    planned_calories: number
+    steps: number
+    planned: { id: number; meal_type: MealType; recipe: Pick<RecipeSummary, 'id' | 'name' | 'label' | 'is_veg' | 'calories' | 'protein_g' | 'image_url' | 'meal_type'>; log: FoodLog | null }[]
+    extras: FoodLog[]
+  }
+  week: { date: string; calories: number; steps: number; on_target: boolean; logged: boolean }[]
+  streaks: { on_target: number; steps: number; plan: number }
+  badges: { key: string; earned_on: string | null }[]
+  tips: string[]
+  weights: { date: string; weight_kg: number }[]
+  progress: { start: number; current: number; target: number; done_kg: number; percent: number; weeks_left: number } | null
+  quick_foods: QuickFood[]
+}
+export type CoachResponse = CoachData | { profile: null }

@@ -113,6 +113,17 @@ How it works:
 - **Expiring items:** these earn a bonus only once per plan, so one expiring item can't take over.
 - **Shuffle:** gives a different, equally valid plan.
 
+## Health coach
+
+A personal calorie coach at **Coach** (`Support/CalorieTarget.php`, `Support/Coach.php`). It uses plain rules only; the AI just estimates calories for free-text extras.
+
+- **Target:** Mifflin-St Jeor BMR × activity factor, then a deficit or surplus for the chosen pace (1 kg ≈ 7700 kcal). Weight loss never goes below 1200 kcal (women) or 1500 kcal (men), and a target weight below a healthy BMI (18.5) is refused. Protein is 1.6 g/kg while changing weight and 1.2 g/kg otherwise. Adults (18+) only.
+- **Daily log:** tick ✓ on planned meals (with a portion of ½ / 1 / 1½ / 2), add extras (one-tap common items, spoken with an AI estimate, or typed), and enter steps. Logs are per person; plans are shared per kitchen.
+- **On target:** a range, not an exact number (lose 80–105 %, stay fit 90–110 %, gain 95–120 %). Today counts as "in progress" until it clearly goes over, so an unfinished day never breaks a streak.
+- **Badges and streaks:** worked out from the logs on every request, so they can't drift. Examples: on target 3/7/21 days, step goal, 100K steps, plan follower, protein pro, "honest eater" for logging extras, first kg, halfway, goal reached.
+- **Tips:** short and always positive. If you go over, it suggests how many steps would balance it; if you're short on protein, it suggests curd, eggs or sundal.
+- **Smart plan → 🎯 My target:** fits each day to your calorie target, giving each meal its share of what's left.
+
 ## Stack
 
 - **API:** Laravel 12 REST + Sanctum tokens, PostgreSQL 16
@@ -171,6 +182,7 @@ POST recipes/{id}/nutrition (AI)   POST/DELETE recipes/{id}/photo   POST pantry/
 POST ai/pantry-parse | ai/recipe-parse | ai/meal-plan   (drafts only)
 GET cook?filter=all|available|almost|use_soon&meal_type=&max_time=
 GET/POST meal-plans?start=   PATCH/DELETE meal-plans/{id}
+GET coach   PUT coach/profile | coach/steps   POST coach/weight | coach/food | coach/food/estimate   DELETE coach/food/{id}
 GET grocery   POST grocery/generate | grocery/items | grocery/clear-purchased | grocery/add-to-pantry
 PATCH/DELETE grocery/items/{id}
 ```

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AiController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CoachController;
 use App\Http\Controllers\Api\CookController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\GroceryController;
@@ -54,6 +55,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/pantry-parse', [AiController::class, 'pantryParse']);
         Route::post('/recipe-parse', [AiController::class, 'recipeParse']);
     });
+
+    Route::get('/coach', [CoachController::class, 'show']);
+    Route::put('/coach/profile', [CoachController::class, 'saveProfile']);
+    Route::post('/coach/weight', [CoachController::class, 'logWeight']);
+    Route::put('/coach/steps', [CoachController::class, 'setSteps']);
+    Route::post('/coach/food', [CoachController::class, 'addFood']);
+    Route::delete('/coach/food/{log}', [CoachController::class, 'deleteFood']);
+    Route::post('/coach/food/estimate', [CoachController::class, 'estimateFood'])->middleware('throttle:20,1');
 
     Route::get('/grocery', [GroceryController::class, 'index']);
     Route::post('/grocery/generate', [GroceryController::class, 'generate']);

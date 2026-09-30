@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Ingredient;
 use App\Models\PantryItem;
 use App\Models\User;
+use App\Support\Coach;
 use Database\Seeders\IngredientSeeder;
 use Database\Seeders\RecipeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -72,5 +73,24 @@ class LocaleTest extends TestCase
     {
         $this->postJson('/api/register', ['name' => 'Meena', 'email' => 'm@x.com', 'password' => 'password123', 'locale' => 'ta'], ['Accept-Language' => 'ta'])
             ->assertCreated()->assertJsonPath('user.locale', 'ta')->assertJsonPath('user.household.name', 'எங்க வீட்டு கிச்சன்');
+    }
+
+    public function test_every_server_message_has_tamil(): void
+    {
+        $ta = json_decode(file_get_contents(lang_path('ta.json')), true);
+        $keys = array_column(Coach::QUICK_FOODS, 'name');
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(app_path())) as $file) {
+            if ($file->getExtension() !== 'php') {
+                continue;
+            }
+            $code = file_get_contents($file->getPathname());
+            $str = "'((?:[^'\\\\]|\\\\.)+)'";
+            preg_match_all("/__\\($str/", $code, $plain);
+            preg_match_all("/__\\([^'()]+\\?\\s*$str\\s*:\\s*$str/", $code, $ternary);
+            $keys = [...$keys, ...array_map('stripslashes', [...$plain[1], ...$ternary[1], ...$ternary[2]])];
+        }
+
+        $missing = array_values(array_diff(array_unique($keys), array_keys($ta)));
+        $this->assertSame([], $missing, 'Missing in lang/ta.json');
     }
 }

@@ -15,7 +15,10 @@ use Illuminate\Support\Collection;
  */
 class MealPlanner
 {
-    public const GOALS = ['balanced', 'high_protein', 'low_calorie'];
+    public const GOALS = ['balanced', 'high_protein', 'low_calorie', 'my_target'];
+
+    /** Share of the day's calories each meal usually takes (used by the "my target" goal). */
+    public const MEAL_SHARE = ['breakfast' => 0.25, 'lunch' => 0.35, 'snack' => 0.1, 'dinner' => 0.3];
 
     /** any = everything; veg = vegetarian only; nonveg = everything, leaning to meat/fish/egg dishes. */
     public const DIETS = ['any', 'veg', 'nonveg'];
@@ -42,7 +45,7 @@ class MealPlanner
      * @param  Collection<int, array{recipe: array, match: array}>  $matches  keyed by recipe id
      * @return list<array{date: string, meal_type: string, recipe_id: int, servings: int}>
      */
-    public static function suggest(Collection $recipes, Collection $matches, Carbon $start, int $days, array $meals, string $goal, int $servings, int $seed = 0, string $diet = 'any'): array
+    public static function suggest(Collection $recipes, Collection $matches, Carbon $start, int $days, array $meals, string $goal, int $servings, int $seed = 0, string $diet = 'any', ?int $targetKcal = null): array
     {
         if ($diet === 'veg') {
             $recipes = $recipes->where('is_veg', true)->values();
@@ -59,7 +62,11 @@ class MealPlanner
 
         for ($d = 0; $d < $days; $d++) {
             $today = [];
-            foreach ($meals as $meal) {
+            $eaten = 0.0;
+            foreach ($meals as $k => $meal) {
+                // "My target": each meal gets its share of whatever is left of the day's calories.
+                $shareLeft = array_sum(array_map(fn ($m) => self::MEAL_SHARE[$m], array_slice($meals, $k)));
+                $budget = $targetKcal ? ($targetKcal - $eaten) * self::MEAL_SHARE[$meal] / $shareLeft : null;
                 $best = null;
                 $bestScore = -INF;
                 foreach ($recipes as $r) {
@@ -86,7 +93,7 @@ class MealPlanner
 
                     $score = $fit
                         - ($sameHero ? 3 : 0)
-                        + self::goalScore($goal, $r)
+                        + ($budget !== null ? self::budgetScore($r, $budget) : self::goalScore($goal, $r))
                         + $match['match_percent'] / 50
                         + ($freshExpiring ? 1.5 : 0)
                         + $jitter[$r->id]
@@ -102,6 +109,7 @@ class MealPlanner
                 }
 
                 $today[] = $best->id;
+                $eaten += (float) $best->calories;
                 $used[$best->id][] = $d;
                 $expiringUsed = array_merge($expiringUsed, array_column($matches[$best->id]['match']['uses_expiring'] ?? [], 'ingredient_id'));
                 $plan[] = ['date' => $start->copy()->addDays($d)->toDateString(), 'meal_type' => $meal, 'recipe_id' => $best->id, 'servings' => $servings];
@@ -137,6 +145,17 @@ class MealPlanner
             'low_calorie' => $r->calories < self::MIN_MEAL_KCAL ? -2 : max(-3, min(5, (600 - $r->calories) / 80)),
             default => count($r->health_tags) * 0.8 + ($r->calories >= 250 && $r->calories <= 550 ? 1 : 0),
         };
+    }
+
+    /** Closest to the meal's calorie budget wins (one serving per person); protein is a small bonus. */
+    public static function budgetScore(Recipe $r, float $budget): float
+    {
+        if ($r->calories === null) {
+            return -3;
+        }
+        $off = abs($r->calories - $budget) / max($budget, 1);
+
+        return max(-6, 4 - 8 * $off) + $r->protein_g / 15;
     }
 
     /** @return list<int> non-optional, non-staple ingredient ids */

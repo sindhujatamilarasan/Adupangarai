@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { fmtQty, useApi, type Dashboard } from '../api'
+import { fmtQty, useApi, type CoachResponse, type Dashboard } from '../api'
 import { useAuth } from '../auth'
 import { nm, unitLabel, useI18n } from '../i18n'
 import { Badge, ErrorState, Spinner } from '../components/ui'
@@ -32,6 +32,7 @@ export default function HomePage() {
   const { t, lang } = useI18n()
   const days = (n: number | null) => (n === 0 ? t('Expires today') : n === 1 ? t('Expires tomorrow') : t('Expires in {n} days', { n: n ?? 0 }))
   const res = useApi<Dashboard>('/dashboard')
+  const coach = useApi<CoachResponse>('/coach')
   const d = res.data
   const hour = new Date().getHours()
   const greeting = t(hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening')
@@ -54,6 +55,8 @@ export default function HomePage() {
           <p className="text-sm opacity-90">{t('Add what you have at home and we’ll show what you can cook.')}</p>
         </Link>
       )}
+
+      {coach.data && <CoachCard c={coach.data} />}
 
       {d && (
         <>
@@ -149,5 +152,37 @@ export default function HomePage() {
         </>
       )}
     </div>
+  )
+}
+
+/** Today's calories and steps at a glance, or an invite to set a goal. */
+function CoachCard({ c }: { c: CoachResponse }) {
+  const { t } = useI18n()
+  if (!c.profile) {
+    return (
+      <Link to="/coach" className="card flex items-center gap-4 p-5">
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-50 text-2xl">🏅</span>
+        <span>
+          <span className="block font-display text-lg font-semibold">{t('Your health coach')}</span>
+          <span className="block text-sm text-muted">{t('Set a calorie goal, take the 10k steps challenge and earn badges.')}</span>
+        </span>
+      </Link>
+    )
+  }
+  const share = Math.min(c.today.calories / c.target.calories, 1)
+  return (
+    <Link to="/coach" className="card block p-5">
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-display text-lg font-semibold">{t('Coach')}</h2>
+        <span className="text-sm font-bold text-brand">{c.streaks.on_target > 0 ? `🔥 ${t('{n}-day streak', { n: c.streaks.on_target })}` : `${t('Open')} →`}</span>
+      </div>
+      <p className="mt-1 text-sm">
+        <span className="text-xl font-semibold">{Math.round(c.today.calories).toLocaleString('en-IN')}</span>
+        <span className="text-muted"> / {c.target.calories.toLocaleString('en-IN')} kcal · 👟 {c.today.steps.toLocaleString('en-IN')}</span>
+      </p>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-line">
+        <div className="h-full rounded-full bg-leaf" style={{ width: `${share * 100}%` }} />
+      </div>
+    </Link>
   )
 }

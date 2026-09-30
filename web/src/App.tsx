@@ -6,6 +6,7 @@ import BottomNav from './components/BottomNav'
 import TopBar from './components/TopBar'
 import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
+import CoachPage from './pages/CoachPage'
 import CookPage from './pages/CookPage'
 import GroceriesPage from './pages/GroceriesPage'
 import HomePage from './pages/HomePage'
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
             <Route path="/planner" element={<PlannerPage />} />
             <Route path="/groceries" element={<GroceriesPage />} />
+            <Route path="/coach" element={<CoachPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

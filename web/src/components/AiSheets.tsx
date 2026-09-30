@@ -17,7 +17,7 @@ import {
   fmtQty,
 } from '../api'
 
-type PlanSummary = { per_day: Record<string, { calories: number; protein_g: number }>; avg_calories: number; avg_protein_g: number }
+type PlanSummary = { per_day: Record<string, { calories: number; protein_g: number }>; avg_calories: number; avg_protein_g: number; target_calories: number | null }
 import VoiceInput from './VoiceInput'
 import { nm, tk, unitLabel, useI18n } from '../i18n'
 import { Alert, Button, Sheet, Spinner } from './ui'
@@ -210,6 +210,7 @@ const goals = [
   { key: 'balanced', label: tk('⚖️ Balanced') },
   { key: 'high_protein', label: tk('💪 High protein') },
   { key: 'low_calorie', label: tk('🥗 Lighter') },
+  { key: 'my_target', label: tk('🎯 My target') },
 ] as const
 
 const diets = [
@@ -339,6 +340,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 ))}
               </div>
             </div>
+            {goal === 'my_target' && <p className="-mt-2 text-xs text-muted">{t('Fits each day to your Coach calorie target (one serving per person).')}</p>}
             <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-3">
               <span className="font-semibold">{t('People')}</span>
               <div className="flex items-center gap-3">
@@ -366,7 +368,9 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 </div>
                 <div className="rounded-2xl border border-line bg-white p-3">
                   <p className="text-xl font-semibold">{fmtQty(summary.avg_calories)}</p>
-                  <p className="text-xs text-muted">{t('kcal per person / day')}</p>
+                  <p className="text-xs text-muted">
+                    {summary.target_calories ? t('kcal per person / day (target {n})', { n: summary.target_calories }) : t('kcal per person / day')}
+                  </p>
                 </div>
               </div>
             )}

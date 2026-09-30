@@ -6,6 +6,7 @@ const tabs = [
   { to: '/kitchen', label: 'Kitchen', icon: 'M5 3h14v6H5zM5 9h14v12H5zM9 6h1M9 13v4' },
   { to: '/cook', label: 'Cook', icon: 'M4 12h16a0 0 0 010 0 8 8 0 01-16 0zM12 4v3M8 5v2M16 5v2M2 12h2M20 12h2' },
   { to: '/planner', label: 'Planner', icon: 'M4 5h16v16H4zM4 10h16M9 3v4M15 3v4' },
+  { to: '/coach', label: 'Coach', icon: 'M3 12h4l2.5-6 4 12 2.5-6H21' },
   { to: '/groceries', label: 'Groceries', icon: 'M3 4h2l2.5 11h11L21 7H6.5M9 20a1 1 0 100-2 1 1 0 000 2zM18 20a1 1 0 100-2 1 1 0 000 2z' },
 ]
 
@@ -21,7 +22,7 @@ export default function BottomNav() {
               to={t.to}
               end={t.to === '/'}
               className={({ isActive }) =>
-                `relative flex flex-col items-center gap-1 px-3 pt-2.5 pb-2 text-[11px] font-semibold transition-colors ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'text-brand' : 'text-muted'}`
+                `relative flex flex-col items-center gap-1 px-2 pt-2.5 pb-2 text-[11px] font-semibold transition-colors ${isActive || (t.to === '/cook' && pathname.startsWith('/recipes')) ? 'text-brand' : 'text-muted'}`
               }
             >
               <svg viewBox="0 0 24 24" className="size-[22px]" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
