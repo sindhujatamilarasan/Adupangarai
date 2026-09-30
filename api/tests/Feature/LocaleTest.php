@@ -38,15 +38,15 @@ class LocaleTest extends TestCase
     public function test_messages_and_validation_are_translated(): void
     {
         $this->postJson('/api/login', ['email' => 'x@y.com', 'password' => 'nope'], ['Accept-Language' => 'ta'])
-            ->assertJsonPath('errors.email.0', 'மின்னஞ்சல் அல்லது கடவுச்சொல் தவறு.');
+            ->assertJsonPath('errors.email.0', 'இமெயில் இல்லன்னா பாஸ்வேர்ட் தப்பு.');
 
         $this->postJson('/api/register', [], ['Accept-Language' => 'ta'])
-            ->assertJsonPath('errors.email.0', 'மின்னஞ்சல் தேவை.');
+            ->assertJsonPath('errors.email.0', 'இமெயில் போடுங்க.');
 
         $user = User::factory()->create();
         $item = PantryItem::create(['household_id' => $user->household_id, 'ingredient_id' => Ingredient::where('name', 'Egg')->value('id'), 'quantity' => 2, 'unit' => 'piece']);
         $this->actingAs($user)->postJson("/api/pantry/{$item->id}/adjust", ['type' => 'DISCARDED', 'quantity' => 5], ['Accept-Language' => 'ta'])
-            ->assertJsonPath('errors.quantity.0', 'போதுமான முட்டை இல்லை: சமையலறையில் 2 piece மட்டுமே உள்ளது.');
+            ->assertJsonPath('errors.quantity.0', 'முட்டை போதாது: கிச்சன்ல 2 piece தான் இருக்கு.');
     }
 
     public function test_saved_language_is_used_when_the_app_does_not_say(): void
@@ -71,6 +71,6 @@ class LocaleTest extends TestCase
     public function test_register_saves_the_chosen_language(): void
     {
         $this->postJson('/api/register', ['name' => 'Meena', 'email' => 'm@x.com', 'password' => 'password123', 'locale' => 'ta'], ['Accept-Language' => 'ta'])
-            ->assertCreated()->assertJsonPath('user.locale', 'ta')->assertJsonPath('user.household.name', 'எங்கள் சமையலறை');
+            ->assertCreated()->assertJsonPath('user.locale', 'ta')->assertJsonPath('user.household.name', 'எங்க வீட்டு கிச்சன்');
     }
 }
