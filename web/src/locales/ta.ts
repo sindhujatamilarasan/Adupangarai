@@ -381,6 +381,8 @@ const ta: Record<string, string> = {
 
   // Google
   or: 'அல்லது',
+  'Continue with Google': 'Google மூலம் தொடரவும்',
+  'A4 landscape · Choose a printer, or “Save as PDF”.': 'A4 கிடைமட்டம் · அச்சுப்பொறியைத் தேர்ந்தெடுக்கவும், அல்லது “Save as PDF”.',
 
   // Password field
   'Show password': 'கடவுச்சொல்லைக் காட்டு',

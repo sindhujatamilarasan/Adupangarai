@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { currentLang, tk, translate } from './i18n'
+import { API_BASE } from './lib/native'
 
 const TOKEN_KEY = 'adupangarai.token'
 
@@ -30,7 +31,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
 
   let res: Response
   try {
-    res = await fetch(`/api${path}`, {
+    res = await fetch(`${API_BASE}/api${path}`, {
       method: options.method ?? 'GET',
       headers,
       body: isForm ? (options.body as FormData) : options.body !== undefined ? JSON.stringify(options.body) : undefined,

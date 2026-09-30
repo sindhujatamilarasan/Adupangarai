@@ -4,6 +4,7 @@ import { useAuth } from '../auth'
 import Kolam from '../components/Kolam'
 import { ErrorState, Spinner } from '../components/ui'
 import { nm, useI18n } from '../i18n'
+import { isNative, printPage } from '../lib/native'
 
 type PlanResponse = { data: MealPlanEntry[]; start: string; end: string; nutrition: Record<string, DayNutrition> }
 
@@ -35,11 +36,13 @@ export default function PrintPlanPage() {
           ← {t('Back to planner')}
         </Link>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted">{t('A4 landscape · In the print window choose “Save as PDF” to download.')}</span>
-          <button onClick={() => window.print()} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand">
+          <span className="text-xs text-muted">
+            {isNative ? t('A4 landscape · Choose a printer, or “Save as PDF”.') : t('A4 landscape · In the print window choose “Save as PDF” to download.')}
+          </span>
+          <button onClick={() => printPage(t('Weekly meal plan'))} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-brand">
             🖨️ {t('Print')}
           </button>
-          <button onClick={() => window.print()} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
+          <button onClick={() => printPage(t('Weekly meal plan'))} className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white">
             ⬇ {t('Save as PDF')}
           </button>
         </div>

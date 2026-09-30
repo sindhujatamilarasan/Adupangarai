@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../i18n'
+import { isNative } from '../lib/native'
 
 // Minimal typing for the browser Web Speech API (Chrome, Edge, Android, Safari).
 type Recognition = {
@@ -32,7 +33,36 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
 
   useEffect(() => () => rec.current?.stop(), [])
 
+  /** Android app: the phone's own speech recognition (the browser API isn't available in app WebViews). */
+  async function toggleNative() {
+    const { SpeechRecognition } = await import('@capacitor-community/speech-recognition')
+    if (listening) {
+      await SpeechRecognition.stop()
+      setListening(false)
+      return
+    }
+    const perm = await SpeechRecognition.requestPermissions()
+    if (perm.speechRecognition !== 'granted') {
+      setError(t('Microphone permission was denied.'))
+      return
+    }
+    setError('')
+    base.current = value ? `${value.trim()} ` : ''
+    await SpeechRecognition.removeAllListeners()
+    await SpeechRecognition.addListener('partialResults', (d) => d.matches[0] && onChange(base.current + d.matches[0]))
+    await SpeechRecognition.addListener('listeningState', (s) => s.status === 'stopped' && setListening(false))
+    setListening(true)
+    SpeechRecognition.start({ language: lang, partialResults: true, popup: false }).catch((e: Error) => {
+      setError(t('Voice input stopped ({error}).', { error: e.message }))
+      setListening(false)
+    })
+  }
+
   function toggle() {
+    if (isNative) {
+      void toggleNative()
+      return
+    }
     if (listening) {
       rec.current?.stop()
       return
@@ -66,7 +96,7 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
           placeholder={placeholder}
           className="w-full rounded-2xl border border-line bg-white px-4 py-3 pr-16 outline-none focus:border-brand"
         />
-        {SpeechRecognitionImpl && (
+        {(isNative || SpeechRecognitionImpl) && (
           <button
             type="button"
             onClick={toggle}
@@ -78,7 +108,7 @@ export default function VoiceInput({ value, onChange, placeholder, rows = 4 }: {
         )}
       </div>
       <div className="flex items-center justify-between text-xs text-muted">
-        {SpeechRecognitionImpl ? (
+        {isNative || SpeechRecognitionImpl ? (
           <>
             <span>{listening ? t('Listening… tap ■ when done') : t('Tap 🎙️ and speak, or type')}</span>
             <span className="flex gap-1">

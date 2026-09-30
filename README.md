@@ -65,11 +65,39 @@ Running the API tests from the host needs PHP 8.2+ with `pdo_pgsql`, plus the `d
 
 `AI_FALLBACK_MODEL` is optional. It is tried once when the main model is busy, rate-limited or returns an unreadable answer, which happens often on free tiers.
 
+## Android app (Capacitor)
+
+The same React app is packaged as an Android app in `web/android` (app id `com.adupangarai.app`).
+
+**Native pieces**
+
+| Feature | In the browser | In the Android app |
+|---|---|---|
+| Google sign-in | Google's web button | Native account picker (`@capgo/capacitor-social-login`) |
+| Voice input | Web Speech API | Android speech recognition (`@capacitor-community/speech-recognition`), with microphone permission |
+| Print / PDF | `window.print()` | Android print service with "Save as PDF" (app plugin `PrintPlugin.java`) |
+
+**Build an APK without Android Studio** (uses Docker):
+
+```bash
+docker build -f docker/android-build.Dockerfile -t adupangarai-android docker   # once (~1.5 GB)
+cd web && VITE_API_URL=https://your-api.example.com npm run android:apk
+```
+
+The APK is written to `web/android/app/build/outputs/apk/debug/app-debug.apk`.
+
+**Where the app finds the API:** the app has no dev proxy, so `VITE_API_URL` must point at the Laravel API.
+- **Real phone:** use an **https** URL, i.e. the hosted API.
+- **Local testing:** `http://10.0.2.2:8787` reaches your PC from the Android emulator, and `http://<your PC's LAN IP>:8787` reaches it from a phone on the same Wi-Fi. Plain `http` is only allowed in builds made for testing.
+
+**With Android Studio:** run `npm run android:sync`, then `npx cap open android`.
+
 ## Sign in with Google (optional)
 
-1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), go to **Create credentials → OAuth client ID → Web application**.
-2. Under **Authorized JavaScript origins**, add `http://localhost:5173` and, later, your real domain.
-3. Put the client ID in `api/.env`: `GOOGLE_CLIENT_ID=…apps.googleusercontent.com`. Then restart the API.
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), set up the consent screen (External, and add yourself as a test user).
+2. **Web application client:** create one. It is always needed, because the server verifies tokens against it. For the website, add `http://localhost:5173` and your domain under *Authorized JavaScript origins*.
+3. **Android client (for the app):** create one with package name `com.adupangarai.app` and the SHA-1 of your signing key. Run `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android` for the debug key. Add the release and Play App Signing SHA-1s later.
+4. Put the **Web** client ID in `api/.env`: `GOOGLE_CLIENT_ID=…apps.googleusercontent.com`. Then restart the API. The Android app gets it from the server; no secret is needed anywhere.
 
 How it works:
 - **The button:** "Continue with Google" appears on the login screen only when this is set.

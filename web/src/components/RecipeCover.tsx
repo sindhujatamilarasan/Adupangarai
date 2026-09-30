@@ -1,5 +1,6 @@
 import type { MealType } from '../api'
 import Kolam from './Kolam'
+import { assetUrl } from '../lib/native'
 
 const looks: Record<MealType, { emoji: string; bg: string }> = {
   breakfast: { emoji: '🍳', bg: 'from-[#fbf1e1] to-[#f5e2c4]' },
@@ -23,7 +24,7 @@ export default function RecipeCover({
 }) {
   const look = looks[recipe.meal_type ?? 'lunch']
   if (recipe.image_url) {
-    return <img src={recipe.image_url} alt={recipe.name} loading="lazy" className={`object-cover ${className}`} />
+    return <img src={assetUrl(recipe.image_url) ?? undefined} alt={recipe.name} loading="lazy" className={`object-cover ${className}`} />
   }
   return (
     <div className={`relative grid place-items-center bg-gradient-to-br ${look.bg} ${className}`} role="img" aria-label={recipe.name}>
