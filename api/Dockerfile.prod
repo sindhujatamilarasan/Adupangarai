@@ -1,0 +1,20 @@
+# Production API: FrankenPHP (PHP 8.4 + built-in web server). Caddy in the web container handles HTTPS.
+FROM dunglas/frankenphp:1-php8.4-alpine
+RUN install-php-extensions pdo_pgsql gd zip opcache \
+ && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY docker/php.ini $PHP_INI_DIR/conf.d/zz-adupangarai.ini
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist
+COPY . .
+RUN composer dump-autoload --optimize --no-dev \
+ && rm -f .env && mkdir -p storage/framework/cache storage/framework/views storage/framework/sessions storage/logs storage/app/public
+
+# Plain HTTP inside the network; the web container terminates HTTPS.
+ENV SERVER_NAME=:8000
+EXPOSE 8000
+COPY docker/entrypoint.sh /usr/local/bin/adupangarai-entrypoint
+ENTRYPOINT ["adupangarai-entrypoint"]
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

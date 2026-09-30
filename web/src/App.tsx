@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth'
 import { I18nProvider, useI18n } from './i18n'
 import AiPage from './pages/AiPage'
@@ -7,6 +8,7 @@ import TopBar from './components/TopBar'
 import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
 import CoachPage from './pages/CoachPage'
+import PasswordPage from './pages/PasswordPage'
 import CookPage from './pages/CookPage'
 import GroceriesPage from './pages/GroceriesPage'
 import HomePage from './pages/HomePage'
@@ -17,6 +19,7 @@ import ProfilePage from './pages/ProfilePage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
 import RecipeFormPage from './pages/RecipeFormPage'
 import RecipesPage from './pages/RecipesPage'
+import { setupNative } from './lib/native'
 
 function AppShell() {
   const { user, loading } = useAuth()
@@ -49,16 +52,38 @@ function GuestOnly() {
   return user ? <Navigate to="/" replace /> : <Outlet />
 }
 
+/** Android app only: back button and status bar (see lib/native). */
+function NativeSetup() {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const path = useRef(pathname)
+  useEffect(() => {
+    path.current = pathname
+  }, [pathname])
+  useEffect(() => {
+    setupNative(() => {
+      if (['/', '/login'].includes(path.current)) return false
+      if (window.history.state?.idx > 0) navigate(-1)
+      else navigate('/', { replace: true })
+      return true
+    })
+  }, [navigate])
+  return null
+}
+
 export default function App() {
   return (
     <I18nProvider>
     <AuthProvider>
       <BrowserRouter>
+        <NativeSetup />
         <Routes>
           <Route element={<GuestOnly />}>
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/register" element={<AuthPage mode="register" />} />
+            <Route path="/forgot-password" element={<PasswordPage mode="forgot" />} />
           </Route>
+          <Route path="/reset-password" element={<PasswordPage mode="reset" />} />
           <Route element={<BareShell />}>
             <Route path="/planner/print" element={<PrintPlanPage />} />
           </Route>

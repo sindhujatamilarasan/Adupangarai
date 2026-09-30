@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Adupangarai: keep our own plugins (called from JavaScript by name) and the JS bridge.
+-keep class com.adupangarai.app.** { *; }
+-keepattributes *Annotation*, JavascriptInterface
+-keepclassmembers class * { @android.webkit.JavascriptInterface <methods>; }

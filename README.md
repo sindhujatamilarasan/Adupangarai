@@ -124,6 +124,15 @@ A personal calorie coach at **Coach** (`Support/CalorieTarget.php`, `Support/Coa
 - **Tips:** short and always positive. If you go over, it suggests how many steps would balance it; if you're short on protein, it suggests curd, eggs or sundal.
 - **Smart plan → 🎯 My target:** fits each day to your calorie target, giving each meal its share of what's left.
 
+## Going live
+
+Production runs on one Ubuntu server with Docker:
+- **Web:** Caddy (automatic HTTPS) serves the React app.
+- **API:** Laravel on FrankenPHP.
+- **Database:** PostgreSQL, with daily backups.
+
+See [deploy/README.md](deploy/README.md). Accounts include forgot/reset password by email, account deletion, and `/privacy`, `/terms` and `/delete-account` pages.
+
 ## Stack
 
 - **API:** Laravel 12 REST + Sanctum tokens, PostgreSQL 16
@@ -174,7 +183,7 @@ Units are a PHP enum, not a table: they are a fixed set with fixed conversion fa
 All endpoints are under `/api` and need a Bearer token, except register and login.
 
 ```
-POST register | login | logout      GET/PUT profile        GET dashboard
+POST register | login | logout | forgot-password | reset-password      GET/PUT/DELETE profile        GET dashboard
 GET units | ingredient-categories   GET/POST ingredients
 GET/POST pantry   GET/PATCH/DELETE pantry/{id}   POST pantry/{id}/adjust   POST pantry/discard-expired
 GET/POST recipes  GET/PUT/DELETE recipes/{id}    GET/POST recipes/{id}/cook

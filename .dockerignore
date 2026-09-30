@@ -1,0 +1,7 @@
+**/node_modules
+web/android
+web/dist
+api
+backups
+downloads
+.git

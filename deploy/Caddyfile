@@ -1,0 +1,33 @@
+# Adupangarai in production. Caddy gets and renews the HTTPS certificate by itself.
+# SITE_ADDRESS is "https://DOMAIN, https://www.DOMAIN" (set in docker-compose.prod.yml).
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	@www host www.{$DOMAIN}
+	redir @www https://{$DOMAIN}{uri} permanent
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), geolocation=(), microphone=(self)"
+		-Server
+	}
+
+	# Laravel: API, uploaded photos, legal pages, health check, test APK downloads
+	@laravel path /api/* /storage/* /privacy /terms /delete-account /up /downloads/*
+	handle @laravel {
+		request_body max_size 12MB
+		reverse_proxy api:8000
+	}
+
+	# The React app (single-page: unknown paths fall back to index.html)
+	handle {
+		root * /srv
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		try_files {path} /index.html
+		file_server
+	}
+}

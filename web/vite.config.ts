@@ -9,6 +9,7 @@ export default defineConfig({
       '/api': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
       '/storage': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
       '/privacy': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
+      '/terms': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
       '/delete-account': process.env.VITE_API_PROXY ?? 'http://localhost:8787',
     },
   },

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -109,6 +110,39 @@ class AuthController extends Controller
         }
 
         return $this->tokenResponse($user, $user->wasRecentlyCreated ? 201 : 200);
+    }
+
+    /** Email a reset link. The answer is the same whether or not the email exists, so accounts can't be discovered. */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $data = $request->validate(['email' => ['required', 'email']]);
+        Password::sendResetLink(['email' => strtolower($data['email'])]);
+
+        return response()->json(['message' => __('If that email has an account, we’ve sent a link to reset the password. Check your inbox (and spam).')]);
+    }
+
+    /** Set a new password from the emailed link. Signs out every device. */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $status = Password::reset(
+            ['email' => strtolower($data['email']), 'token' => $data['token'], 'password' => $data['password']],
+            function (User $user, string $password) {
+                $user->forceFill(['password' => $password])->save();
+                $user->tokens()->delete();
+            },
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages(['email' => __('This reset link is invalid or has expired. Please ask for a new one.')]);
+        }
+
+        return response()->json(['message' => __('Password changed. You can log in now.')]);
     }
 
     public function logout(Request $request): JsonResponse

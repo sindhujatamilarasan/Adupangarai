@@ -1,0 +1,4 @@
+# Production settings and data on the server
+/.env
+/backups/
+/downloads/

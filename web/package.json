@@ -19,7 +19,9 @@
   "dependencies": {
     "@capacitor-community/speech-recognition": "^7.0.1",
     "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@capgo/capacitor-social-login": "^8.5.11",
     "@tailwindcss/vite": "^4.3.3",
     "react": "^19.2.8",

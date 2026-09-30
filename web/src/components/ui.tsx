@@ -1,6 +1,7 @@
 import { useI18n } from '../i18n'
 import Kolam from './Kolam'
-import { useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
+import { onBackClose } from '../lib/native'
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
 
 export function Spinner({ label }: { label?: string }) {
   const { t } = useI18n()
@@ -95,6 +96,11 @@ export function Field({ label, error, ...props }: InputHTMLAttributes<HTMLInputE
 
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   const { t } = useI18n()
+  const closeRef = useRef(onClose)
+  useEffect(() => {
+    closeRef.current = onClose
+  })
+  useEffect(() => (open ? onBackClose(() => closeRef.current()) : undefined), [open])
   if (!open) return null
   return (
     <div className="fixed inset-0 z-30 flex items-end justify-center bg-ink/40 sm:items-center" onClick={onClose}>

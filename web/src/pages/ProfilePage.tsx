@@ -85,6 +85,10 @@ export default function ProfilePage() {
         <a href={`${API_BASE}/privacy`} target="_blank" rel="noreferrer" className="font-semibold text-muted underline">
           {t('Privacy policy')}
         </a>
+        {' · '}
+        <a href={`${API_BASE}/terms`} target="_blank" rel="noreferrer" className="font-semibold text-muted underline">
+          {t('Terms of use')}
+        </a>
       </p>
     </div>
   )

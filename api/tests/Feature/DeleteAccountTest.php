@@ -55,5 +55,7 @@ class DeleteAccountTest extends TestCase
     {
         $this->get('/privacy')->assertOk()->assertSee('Privacy policy')->assertSee('Delete account')->assertSee(config('app.contact_email'));
         $this->get('/delete-account')->assertOk()->assertSee('What gets deleted');
+        $this->get('/terms')->assertOk()->assertSee('not medical advice', false);
+        $this->get('/privacy')->assertSee('Grievance contact');
     }
 }

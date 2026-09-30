@@ -28,3 +28,31 @@ export async function nativeGoogleIdToken(webClientId: string): Promise<string> 
   if (!idToken) throw new Error('No Google ID token')
   return idToken
 }
+
+/**
+ * Android back button, like a native app: close the open sheet first, then go back a screen,
+ * and on the home screen send the app to the background.
+ */
+const backStack: (() => void)[] = []
+export function onBackClose(close: () => void): () => void {
+  backStack.push(close)
+  return () => {
+    const i = backStack.lastIndexOf(close)
+    if (i >= 0) backStack.splice(i, 1)
+  }
+}
+
+let goBack: () => boolean = () => false
+let started = false
+export async function setupNative(back: () => boolean) {
+  goBack = back
+  if (!isNative || started) return
+  started = true
+  const [{ App }, { StatusBar, Style }] = await Promise.all([import('@capacitor/app'), import('@capacitor/status-bar')])
+  StatusBar.setStyle({ style: Style.Light }).catch(() => {}) // dark icons on our light header
+  StatusBar.setBackgroundColor({ color: '#fbf8f3' }).catch(() => {})
+  await App.addListener('backButton', () => {
+    if (backStack.length) backStack[backStack.length - 1]()
+    else if (!goBack()) App.minimizeApp()
+  })
+}

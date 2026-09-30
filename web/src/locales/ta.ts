@@ -540,6 +540,18 @@ const ta: Record<string, string> = {
   'Type {email} to confirm': 'உறுதிப்படுத்த {email}-ஐ டைப் பண்ணுங்க',
   'Delete forever': 'நிரந்தரமா டெலீட் பண்ணு',
   'Privacy policy': 'பிரைவசி பாலிசி',
+  // Password reset & terms
+  'Forgot password?': 'பாஸ்வேர்ட் மறந்துடுச்சா?',
+  'Forgot your password?': 'பாஸ்வேர்ட் மறந்துடுச்சா?',
+  'Enter your email and we’ll send you a link to set a new one.': 'உங்க இமெயிலை போடுங்க, புது பாஸ்வேர்ட் வைக்க லிங்க் அனுப்பறோம்.',
+  'Choose a new password': 'புது பாஸ்வேர்ட் வைங்க',
+  'At least 8 characters.': 'குறைஞ்சது 8 எழுத்து.',
+  'Send reset link': 'லிங்க் அனுப்பு',
+  'Save new password': 'புது பாஸ்வேர்ட் சேவ் பண்ணு',
+  'Back to log in': 'லாகினுக்கு திரும்பு',
+  'By creating an account you agree to the': 'அக்கவுன்ட் ஆரம்பிச்சா நீங்க ஒத்துக்கறீங்க:',
+  'Terms of use': 'யூஸ் பண்ற விதிகள்',
+  and: 'மற்றும்',
   // From a code comment example; harmless
   '{count} left': 'மீதி {count}',
 }

@@ -10,3 +10,4 @@ Route::get('/', function () {
 $legal = ['updated' => '30 September 2026', 'contact' => config('app.contact_email'), 'developer' => config('app.developer_name')];
 Route::view('/privacy', 'legal.privacy', $legal);
 Route::view('/delete-account', 'legal.delete-account', $legal);
+Route::view('/terms', 'legal.terms', $legal);

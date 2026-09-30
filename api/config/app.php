@@ -58,6 +58,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    /* Where the web app lives (password reset links point here). */
+    'frontend_url' => env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

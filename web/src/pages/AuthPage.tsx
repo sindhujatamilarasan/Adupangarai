@@ -6,6 +6,7 @@ import { useI18n } from '../i18n'
 import GoogleButton from '../components/GoogleButton'
 import Kolam from '../components/Kolam'
 import { Alert, Button, Field } from '../components/ui'
+import { API_BASE } from '../lib/native'
 
 export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const { login, register, loginWithGoogle } = useAuth()
@@ -93,9 +94,23 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
             error={errors.household_name?.[0]}
           />
         )}
+        {!isRegister && (
+          <p className="-mt-2 text-right text-sm">
+            <Link to="/forgot-password" className="font-semibold text-brand">
+              {t('Forgot password?')}
+            </Link>
+          </p>
+        )}
         <Button type="submit" loading={busy}>
           {isRegister ? t('Create account') : t('Log in')}
         </Button>
+        {isRegister && (
+          <p className="text-center text-xs text-muted">
+            {t('By creating an account you agree to the')}{' '}
+            <a href={`${API_BASE}/terms`} target="_blank" rel="noreferrer" className="underline">{t('Terms of use')}</a> {t('and')}{' '}
+            <a href={`${API_BASE}/privacy`} target="_blank" rel="noreferrer" className="underline">{t('Privacy policy')}</a>.
+          </p>
+        )}
       </form>
 
       <GoogleButton
