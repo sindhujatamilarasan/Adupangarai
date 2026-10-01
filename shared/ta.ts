@@ -552,6 +552,10 @@ const ta: Record<string, string> = {
   'By creating an account you agree to the': 'அக்கவுன்ட் ஆரம்பிச்சா நீங்க ஒத்துக்கறீங்க:',
   'Terms of use': 'யூஸ் பண்ற விதிகள்',
   and: 'மற்றும்',
+  // Mobile app
+  'This screen is coming in the next update of the app. Meanwhile you can use it on the website.': 'இந்த ஸ்க்ரீன் அடுத்த அப்டேட்ல வரும். அதுவரைக்கும் வெப்சைட்ல யூஸ் பண்ணுங்க.',
+  'Open the website': 'வெப்சைட்டை திற',
+  'Google sign-in failed. Please try again.': 'Google லாகின் ஆகல. திரும்ப ட்ரை பண்ணுங்க.',
   // From a code comment example; harmless
   '{count} left': 'மீதி {count}',
 }

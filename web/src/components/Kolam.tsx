@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { inBetweenDots, pulliDots, sikkuLoopPaths } from '../lib/kolam'
+import { inBetweenDots, pulliDots, sikkuLoopPaths } from '../../../shared/kolam'
 
 type Props = {
   m?: number
@@ -17,7 +17,7 @@ type Props = {
   strokeWidth?: number
 }
 
-/** A real sikku kolam, generated (see lib/kolam.ts). Colours follow currentColor. */
+/** A real sikku kolam, generated (see shared/kolam.ts). Colours follow currentColor. */
 export default function Kolam({ m = 3, n = 4, diamond = false, classic = false, animate = false, className = '', strokeWidth = 0.07 }: Props) {
   if (classic) [m, n, diamond] = [4, 4, true]
   const loops = useMemo(() => sikkuLoopPaths(m, n), [m, n])

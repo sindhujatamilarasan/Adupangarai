@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
-import ta from './locales/ta'
+import ta from '../../shared/ta'
 
 export type Lang = 'en' | 'ta'
 const KEY = 'adupangarai.lang'

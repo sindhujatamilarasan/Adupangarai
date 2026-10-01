@@ -40,7 +40,7 @@ services:
     image: node:22-alpine
     user: "${UID:-1000}:${GID:-1000}"
     working_dir: /app
-    volumes: ["./web:/app"]
+    volumes: ["./web:/app", "./shared:/shared"]
     environment:
       HOME: /tmp
       VITE_API_PROXY: http://api:8000

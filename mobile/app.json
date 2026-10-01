@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Adupangarai",
+    "slug": "adupangarai",
+    "scheme": "adupangarai",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#fbf8f3",
+    "android": {
+      "package": "com.adupangarai.app",
+      "versionCode": 2,
+      "adaptiveIcon": {
+        "backgroundImage": "./assets/android-icon-background.png",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#fbf8f3"
+        }
+      ],
+      "./plugins/withAdupangaraiAndroid",
+      "@react-native-google-signin/google-signin"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

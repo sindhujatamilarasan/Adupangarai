@@ -1,22 +1,34 @@
 import { useCallback, useEffect, useState } from 'react'
+import { currentLang, translate } from './i18n'
+import { storage } from './storage'
 
-import { currentLang, tk, translate } from './i18n'
-import { API_BASE } from './lib/native'
+export * from '../../../shared/types'
 
-export * from '../../shared/types'
+/** The Laravel API, e.g. https://adupangarai.in (set at build time). */
+export const API_BASE = (process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:8787').replace(/\/$/, '')
 
 const TOKEN_KEY = 'adupangarai.token'
-
+let tokenValue: string | null = null
 export const token = {
-  get: () => localStorage.getItem(TOKEN_KEY),
-  set: (t: string) => localStorage.setItem(TOKEN_KEY, t),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
+  load: async () => (tokenValue = await storage.get(TOKEN_KEY)),
+  get: () => tokenValue,
+  set: (t: string) => {
+    tokenValue = t
+    storage.set(TOKEN_KEY, t)
+  },
+  clear: () => {
+    tokenValue = null
+    storage.remove(TOKEN_KEY)
+  },
 }
+
+/** Called when the server says the login has expired (the auth provider listens). */
+let onExpired: () => void = () => {}
+export const setOnExpired = (fn: () => void) => (onExpired = fn)
 
 export class ApiError extends Error {
   status: number
   errors: Record<string, string[]>
-
   constructor(status: number, message: string, errors: Record<string, string[]> = {}) {
     super(message)
     this.status = status
@@ -28,8 +40,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': currentLang() }
   const isForm = options.body instanceof FormData
   if (options.body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
-  const t = token.get()
-  if (t) headers.Authorization = `Bearer ${t}`
+  if (tokenValue) headers.Authorization = `Bearer ${tokenValue}`
 
   let res: Response
   try {
@@ -44,20 +55,19 @@ export async function api<T>(path: string, options: { method?: string; body?: un
 
   const data = res.status === 204 ? null : await res.json().catch(() => null)
   if (!res.ok) {
-    if (res.status === 401) {
+    if (res.status === 401 && tokenValue) {
       token.clear()
-      window.dispatchEvent(new Event('auth:expired'))
+      onExpired()
     }
     throw new ApiError(res.status, data?.message ?? translate(currentLang(), 'Something went wrong.'), data?.errors)
   }
   return data as T
 }
 
-
+/** GET with loading / error state; keeps the last data while reloading. `reload` refetches. */
 export function useApi<T>(path: string | null) {
   const [tick, setTick] = useState(0)
   const key = path && `${path}#${tick}`
-  // `done` is the key of the last finished request; data is kept while reloading.
   const [state, setState] = useState<{ done: string | null; data: T | null; error: string | null }>({ done: null, data: null, error: null })
 
   useEffect(() => {
@@ -74,5 +84,3 @@ export function useApi<T>(path: string | null) {
   const reload = useCallback(() => setTick((t) => t + 1), [])
   return { data: state.data, error: state.done === key ? state.error : null, loading: !!key && state.done !== key, reload }
 }
-
-export const AI_WAIT = tk('This can take a few seconds — please keep this open.')

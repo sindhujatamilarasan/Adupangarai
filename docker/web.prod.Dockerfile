@@ -4,6 +4,7 @@ WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY web/ ./
+COPY shared/ /shared/
 # Same domain for app and API, so the API base stays relative.
 RUN npx vite build
 
