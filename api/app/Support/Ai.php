@@ -5,6 +5,7 @@ namespace App\Support;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * Minimal client for any OpenAI-compatible chat API (Ollama, Gemini, Groq...).
@@ -17,6 +18,7 @@ class Ai
     public static function json(string $system, string $prompt, int $maxTokens = 1500): array
     {
         $config = config('services.ai');
+        self::checkAllowance($config);
         $models = array_values(array_filter([$config['model'], $config['fallback_model'] ?? null]));
         // Thinking models count their reasoning against the limit, so leave generous room.
         $maxTokens = max($maxTokens, 2048);
@@ -42,6 +44,39 @@ class Ai
         }
 
         throw new AiUnavailable(__('The AI assistant gave an unreadable answer. Please try again.'));
+    }
+
+    public static function enabled(): bool
+    {
+        return (bool) config('services.ai.enabled');
+    }
+
+    /** AI calls left today for the signed-in person (null = unlimited). */
+    public static function remaining(): ?int
+    {
+        $limit = (int) config('services.ai.daily_limit');
+
+        return $limit > 0 && auth()->id() ? RateLimiter::remaining(self::quotaKey(), $limit) : null;
+    }
+
+    /** Off switch and per-person daily cap, so a free key can't be used up by one person. */
+    private static function checkAllowance(array $config): void
+    {
+        if (! $config['enabled']) {
+            throw new AiUnavailable(__('AI help is switched off right now. You can type it in instead.'));
+        }
+        $limit = (int) $config['daily_limit'];
+        if ($limit > 0 && auth()->id()) {
+            if (RateLimiter::tooManyAttempts(self::quotaKey(), $limit)) {
+                throw new AiUnavailable(__('You’ve used today’s :n AI helps. Type it in, or try again tomorrow.', ['n' => $limit]));
+            }
+            RateLimiter::hit(self::quotaKey(), now()->secondsUntilEndOfDay() + 1);
+        }
+    }
+
+    private static function quotaKey(): string
+    {
+        return 'ai-daily:'.auth()->id().':'.now()->toDateString();
     }
 
     private static function decode(string $content): ?array

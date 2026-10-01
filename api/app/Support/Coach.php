@@ -306,9 +306,18 @@ class Coach
         return array_slice($tips, 0, 4);
     }
 
-    /** Free text ("2 vadai and a coffee") -> food rows with estimated calories. A draft; nothing is saved. */
+    /**
+     * Free text ("2 vadai and a coffee") -> food rows with calories. A draft; nothing is saved.
+     * Known foods are read instantly from the built-in list; only unknown ones go to the AI.
+     *
+     * @return array{items: list<array>, source: 'rules'|'ai'}
+     */
     public static function estimateFood(string $text): array
     {
+        if ($known = Foods::parse($text)) {
+            return ['items' => $known, 'source' => 'rules'];
+        }
+
         $answer = Ai::json(
             'You are a nutritionist who knows Indian home and street food. Estimate calories and protein using standard food composition values.',
             "The user ate: \"{$text}\"\n\nReturn {\"items\": [{\"name\": short name with amount, in the language the user wrote, \"calories\": kcal for the amount eaten, \"protein_g\": grams}]}",
@@ -329,6 +338,6 @@ class Coach
             throw new AiUnavailable(__('Couldn’t work that out. Try again, or enter the calories yourself.'));
         }
 
-        return $items;
+        return ['items' => $items, 'source' => 'ai'];
     }
 }

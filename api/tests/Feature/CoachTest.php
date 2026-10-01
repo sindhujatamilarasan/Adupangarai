@@ -178,7 +178,7 @@ class CoachTest extends TestCase
             ['calories' => 50],
         ]])]]]])]);
 
-        $r = $this->actingAs($this->user)->postJson('/api/coach/food/estimate', ['text' => '2 vadai'])->assertOk()->json('data');
+        $r = $this->actingAs($this->user)->postJson('/api/coach/food/estimate', ['text' => 'medu vada at the stall near the temple'])->assertOk()->json('data');
         $this->assertSame([['name' => 'Medu vada (2)', 'calories' => 280, 'protein_g' => 8]], $r);
         $this->assertSame(0, FoodLog::count());
     }

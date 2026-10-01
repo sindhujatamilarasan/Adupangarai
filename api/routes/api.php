@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/coach/steps', [CoachController::class, 'setSteps']);
     Route::post('/coach/food', [CoachController::class, 'addFood']);
     Route::delete('/coach/food/{log}', [CoachController::class, 'deleteFood']);
+    Route::get('/coach/foods', [CoachController::class, 'foods']);
     Route::post('/coach/food/estimate', [CoachController::class, 'estimateFood'])->middleware('throttle:20,1');
 
     Route::get('/grocery', [GroceryController::class, 'index']);

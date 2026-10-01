@@ -7,6 +7,7 @@
   ":name is measured in :default.": ":name-ஐ :default-ல தான் அளக்கணும்.",
   ":name is measured in :default; :unit can't be converted.": ":name-ஐ :default-ல தான் அளக்கணும்; :unit-ஆ மாத்த முடியாது.",
   ":name's Kitchen": "எங்க வீட்டு கிச்சன்",
+  "AI help is switched off right now. You can type it in instead.": "AI உதவி இப்போ ஆஃப் பண்ணியிருக்கு. நீங்களே டைப் பண்ணலாம்.",
   "Add your steps from your phone’s step counter to join the :goal-step challenge.": "உங்க போன்ல இருக்குற ஸ்டெப் கவுண்டர்லேர்ந்து ஸ்டெப்ஸ் போடுங்க, :goal ஸ்டெப் சேலஞ்ச்ல சேருங்க.",
   "All rights reserved.": "அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
   "Already added to your kitchen; only the price can change.": "ஏற்கனவே கிச்சன்ல சேர்த்தாச்சு; விலையை மட்டும் மாத்தலாம்.",
@@ -77,5 +78,6 @@
   "You’re :kcal kcal short of your target. A glass of milk with a banana (~250 kcal) or a handful of nuts helps.": "டார்கெட்டுக்கு இன்னும் :kcal kcal வேணும். ஒரு கிளாஸ் பால், ஒரு வாழைப்பழம் (~250 kcal) இல்லன்னா ஒரு கைப்பிடி நட்ஸ் சாப்பிடுங்க.",
   "You’ve gained :kg kg since you started. Great going!": "ஆரம்பிச்சதுலேர்ந்து :kg kg ஏறியிருக்கு. சூப்பரா போயிட்டு இருக்கீங்க!",
   "You’ve lost :kg kg since you started. Great going!": "ஆரம்பிச்சதுலேர்ந்து :kg kg குறைஞ்சிருக்கு. சூப்பரா போயிட்டு இருக்கீங்க!",
+  "You’ve used today’s :n AI helps. Type it in, or try again tomorrow.": "இன்னைக்கு :n AI உதவியும் முடிஞ்சது. டைப் பண்ணுங்க, இல்லன்னா நாளைக்கு ட்ரை பண்ணுங்க.",
   "🔥 :n days in a row on target — keep it going!": "🔥 தொடர்ந்து :n நாள் டார்கெட்ல இருக்கீங்க — இப்படியே தொடருங்க!"
 }

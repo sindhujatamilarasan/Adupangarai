@@ -10,6 +10,7 @@ use App\Models\StepLog;
 use App\Models\WeightLog;
 use App\Support\CalorieTarget;
 use App\Support\Coach;
+use App\Support\Foods;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -164,6 +165,16 @@ class CoachController extends Controller
     {
         $text = $request->validate(['text' => ['required', 'string', 'max:500']])['text'];
 
-        return response()->json(['data' => Coach::estimateFood($text)]);
+        $result = Coach::estimateFood($text);
+
+        return response()->json(['data' => $result['items'], 'source' => $result['source']]);
+    }
+
+    /** Search the built-in food list (no AI). */
+    public function foods(Request $request): JsonResponse
+    {
+        $data = $request->validate(['search' => ['nullable', 'string', 'max:50']]);
+
+        return response()->json(['data' => Foods::search($data['search'] ?? '')]);
     }
 }

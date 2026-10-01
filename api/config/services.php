@@ -45,6 +45,9 @@ return [
         // Tried once if the main model is busy or rate-limited (common on free tiers).
         'fallback_model' => env('AI_FALLBACK_MODEL'),
         'timeout' => (int) env('AI_TIMEOUT', 300),
+        // Cost control: switch AI off entirely, and cap AI calls per person per day (0 = no cap).
+        'enabled' => (bool) env('AI_ENABLED', true),
+        'daily_limit' => (int) env('AI_DAILY_LIMIT', 10),
     ],
 
     // "Sign in with Google": OAuth Web client ID from Google Cloud console. Empty = button hidden.

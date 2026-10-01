@@ -7,6 +7,7 @@ use App\Http\Middleware\SetLocale;
 use App\Models\Household;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Support\Ai;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +67,10 @@ class AuthController extends Controller
     /** Public settings the login screen needs. */
     public function config(): JsonResponse
     {
-        return response()->json(['google_client_id' => config('services.google.client_id') ?: null]);
+        return response()->json([
+            'google_client_id' => config('services.google.client_id') ?: null,
+            'ai_enabled' => Ai::enabled(),
+        ]);
     }
 
     /**
