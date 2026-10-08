@@ -1,7 +1,7 @@
 // Android build settings for Adupangarai (applied on every `expo prebuild`; never edit android/ by hand).
 // - Release builds are signed with the Play upload key from ../keys/keystore.properties (gitignored).
 // - Debug builds use ../keys/debug.keystore, the key Google sign-in is registered with.
-// - Phones only (arm), R8 shrinking on.
+// - Phones only (arm), R8 shrinking on, compressed native libraries.
 const { withAppBuildGradle, withDangerousMod, withGradleProperties } = require('expo/config-plugins')
 const fs = require('fs')
 const path = require('path')
@@ -48,6 +48,8 @@ module.exports = function withAdupangaraiAndroid(config) {
     set('reactNativeArchitectures', 'armeabi-v7a,arm64-v8a')
     set('android.enableMinifyInReleaseBuilds', 'true')
     set('android.enableShrinkResourcesInReleaseBuilds', 'true')
+    // Compressed native libraries, unpacked on install: smaller download, and works on emulators that translate ARM.
+    set('expo.useLegacyPackaging', 'true')
     return c
   })
 }
