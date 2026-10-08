@@ -22,7 +22,10 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.brand,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: { backgroundColor: colors.white, borderTopColor: colors.line },
-        tabBarLabelStyle: { fontFamily: lang === 'ta' ? fonts.taSemibold : fonts.semibold, fontSize: lang === 'ta' ? 10 : 11 },
+        // Six tabs: keep labels small and tight so none get cut off on narrow phones.
+        tabBarLabelStyle: { fontFamily: lang === 'ta' ? fonts.taSemibold : fonts.semibold, fontSize: 10, letterSpacing: -0.1 },
+        tabBarItemStyle: { paddingHorizontal: 0 },
+        tabBarAllowFontScaling: false,
         sceneStyle: { backgroundColor: colors.cream },
       }}
     >

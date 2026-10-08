@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 # Build the Android app in Docker (no Android Studio needed).
-#   EXPO_PUBLIC_API_URL=https://your-api ./scripts/build-android.sh apk    # test APK (debug key, Google sign-in works)
+#   EXPO_PUBLIC_API_URL=https://your-api ./scripts/build-android.sh apk    # test APK: "Adupangarai New", installs next to the current app
 #   EXPO_PUBLIC_API_URL=https://your-api ./scripts/build-android.sh aab    # Play Store bundle (upload key from ../keys)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 kind="${1:-apk}"
 : "${EXPO_PUBLIC_API_URL:?Set EXPO_PUBLIC_API_URL to the API address, e.g. https://adupangarai.in}"
 
-CI=1 npx expo prebuild -p android --no-install > /dev/null
-task=assembleRelease; test_signing=1
-[ "$kind" = "aab" ] && { task=bundleRelease; test_signing=0; }
+task=assembleRelease; test_signing=1; variant=preview
+[ "$kind" = "aab" ] && { task=bundleRelease; test_signing=0; variant=; }
+# Test APKs are a separate "preview" app that installs next to the current one.
+# Switching between preview and Play builds changes the package name, so regenerate android/ cleanly then.
+clean=; [ "$(cat android/.variant 2>/dev/null)" != "$variant" ] && clean=--clean
+APP_VARIANT=$variant CI=1 npx expo prebuild -p android --no-install $clean > /dev/null
+echo "$variant" > android/.variant
 
 repo="$(cd .. && pwd)"
 docker run --rm -u "$(id -u):$(id -g)" \

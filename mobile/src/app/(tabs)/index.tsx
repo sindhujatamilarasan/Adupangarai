@@ -14,12 +14,12 @@ function Section({ title, link, linkLabel, children }: { title: string; link?: (
   const { t } = useI18n()
   return (
     <Card>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <T weight="display" size={18}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 8 }}>
+        <T weight="display" size={18} style={{ flex: 1 }}>
           {title}
         </T>
         {link && (
-          <Pressable onPress={link} hitSlop={8}>
+          <Pressable onPress={link} hitSlop={8} style={{ paddingTop: 2 }}>
             <T weight="bold" size={14} color={colors.brand}>
               {linkLabel ?? t('See all')} →
             </T>

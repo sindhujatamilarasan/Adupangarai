@@ -46,6 +46,8 @@ module.exports = function withAdupangaraiAndroid(config) {
       c.modResults.push({ type: 'property', key, value })
     }
     set('reactNativeArchitectures', 'armeabi-v7a,arm64-v8a')
+    // Reuse earlier build results (the C++ part takes most of the build time).
+    set('org.gradle.caching', 'true')
     set('android.enableMinifyInReleaseBuilds', 'true')
     set('android.enableShrinkResourcesInReleaseBuilds', 'true')
     // Compressed native libraries, unpacked on install: smaller download, and works on emulators that translate ARM.
