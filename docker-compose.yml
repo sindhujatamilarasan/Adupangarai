@@ -44,7 +44,7 @@ services:
     environment:
       HOME: /tmp
       VITE_API_PROXY: http://api:8000
-    ports: ["5173:5173"]
+    ports: ["5180:5173"] # host port 5180: 5173 is used by another project on this machine
     depends_on: [api]
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 

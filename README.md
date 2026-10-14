@@ -28,7 +28,7 @@ when you cook.
 docker compose up -d
 ```
 
-- Web: http://localhost:5173
+- Web: http://localhost:5180
 - API: http://localhost:8787 (the web dev server proxies `/api`)
 - Postgres: localhost:5434 (`adupangarai` / `secret`)
 
@@ -95,7 +95,7 @@ The APK is written to `web/android/app/build/outputs/apk/debug/app-debug.apk`.
 ## Sign in with Google (optional)
 
 1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), set up the consent screen (External, and add yourself as a test user).
-2. **Web application client:** create one. It is always needed, because the server verifies tokens against it. For the website, add `http://localhost:5173` and your domain under *Authorized JavaScript origins*.
+2. **Web application client:** create one. It is always needed, because the server verifies tokens against it. For the website, add `http://localhost:5180` and your domain under *Authorized JavaScript origins*.
 3. **Android client (for the app):** create one with package name `com.adupangarai.app` and the SHA-1 of your signing key. Run `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android` for the debug key. Add the release and Play App Signing SHA-1s later.
 4. Put the **Web** client ID in `api/.env`: `GOOGLE_CLIENT_ID=…apps.googleusercontent.com`. Then restart the API. The Android app gets it from the server; no secret is needed anywhere.
 

@@ -29,8 +29,8 @@ class GoogleLoginTest extends TestCase
     public function test_config_exposes_client_id_only_when_set(): void
     {
         $this->getJson('/api/auth/config')->assertJsonPath('google_client_id', 'our-client.apps.googleusercontent.com');
-        config(['services.google.web_origins' => ['https://adupangarai.in', 'http://localhost:5173']]);
-        $this->getJson('/api/auth/config')->assertJsonPath('google_web_origins', ['https://adupangarai.in', 'http://localhost:5173']);
+        config(['services.google.web_origins' => ['https://adupangarai.in', 'http://localhost:5180']]);
+        $this->getJson('/api/auth/config')->assertJsonPath('google_web_origins', ['https://adupangarai.in', 'http://localhost:5180']);
         config(['services.google.client_id' => null]);
         $this->getJson('/api/auth/config')->assertJsonPath('google_client_id', null);
         $this->postJson('/api/auth/google', ['credential' => 'x'])->assertNotFound();
