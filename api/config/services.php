@@ -53,6 +53,9 @@ return [
     // "Sign in with Google": OAuth Web client ID from Google Cloud console. Empty = button hidden.
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
+        // Website addresses registered as "Authorized JavaScript origins" in Google Cloud (comma separated).
+        // The website shows the Google button only on these, instead of Google's "origin_mismatch" error.
+        'web_origins' => array_values(array_filter(explode(',', (string) env('GOOGLE_WEB_ORIGINS', 'http://localhost:5173')))),
     ],
 
 ];

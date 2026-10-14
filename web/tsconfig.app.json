@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src", "../shared"],
-  "exclude": ["src/**/*.test.ts", "../shared/**/*.test.ts"]
+  "exclude": ["src/**/*.test.ts", "../shared/**/*.test.ts", "../shared/i18nKeys.ts"]
 }

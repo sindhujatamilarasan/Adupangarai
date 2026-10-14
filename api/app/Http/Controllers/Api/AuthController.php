@@ -69,6 +69,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'google_client_id' => config('services.google.client_id') ?: null,
+            'google_web_origins' => config('services.google.web_origins'),
             'ai_enabled' => Ai::enabled(),
         ]);
     }

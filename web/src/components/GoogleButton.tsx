@@ -14,8 +14,10 @@ type GoogleId = {
 
 /** "Sign in with Google" (Google Identity Services). Renders nothing until a client id is configured. */
 export default function GoogleButton({ lang, onCredential }: { lang: string; onCredential: (credential: string) => void }) {
-  const config = useApi<{ google_client_id: string | null }>('/auth/config')
-  const clientId = config.data?.google_client_id
+  const config = useApi<{ google_client_id: string | null; google_web_origins?: string[] }>('/auth/config')
+  // In a browser, Google only accepts registered addresses; elsewhere it shows an "origin_mismatch" error page.
+  const allowedHere = isNative || (config.data?.google_web_origins ?? []).includes(window.location.origin)
+  const clientId = allowedHere ? config.data?.google_client_id : null
   const box = useRef<HTMLDivElement>(null)
   const callback = useRef(onCredential)
   const { t } = useI18n()
