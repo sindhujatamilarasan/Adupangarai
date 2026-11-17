@@ -30,7 +30,7 @@ docker compose up -d
 
 - Web: http://localhost:5180
 - API: http://localhost:8787 (the web dev server proxies `/api`)
-- Postgres: localhost:5434 (`adupangarai` / `secret`)
+- Postgres: localhost:5444 (`adupangarai` / `secret`)
 
 The first start installs dependencies, creates `api/.env`, migrates and seeds. Seeding is safe to
 re-run.
