@@ -45,7 +45,8 @@ class GroceryCalculator
      * @param  array<string, array{ingredient: Ingredient, unit: Unit, quantity: float}>  $requirements
      * @param  Collection<int, PantryItem>  $pantry  keyed by ingredient_id
      * @param  Collection<int, GroceryItem>  $onList  items already covering needs (not yet in pantry)
-     * @return list<array{ingredient: Ingredient, quantity: float, unit: Unit}> in the ingredient's default unit
+     * @return list<array{ingredient: Ingredient, quantity: float, unit: Unit, need: float, packs: ?int}> in the ingredient's default unit;
+     *                                                                                                    quantity is what to buy (whole packs when the ingredient has a usual pack), need is what the plan is short of
      */
     public static function shortfall(array $requirements, Collection $pantry, Collection $onList): array
     {
@@ -70,7 +71,15 @@ class GroceryCalculator
                 $quantity = ceil($quantity - 0.0005);
             }
 
-            $toBuy[] = ['ingredient' => $ingredient, 'quantity' => round($quantity, 3), 'unit' => $unit];
+            // Shops sell packs: 2 tsp of turmeric means buying one 100 g packet.
+            $packs = null;
+            $buy = $quantity;
+            if ($ingredient->pack_quantity && $unit === $ingredient->default_unit) {
+                $packs = (int) max(1, ceil($quantity / $ingredient->pack_quantity - 0.0005));
+                $buy = $packs * $ingredient->pack_quantity;
+            }
+
+            $toBuy[] = ['ingredient' => $ingredient, 'quantity' => round($buy, 3), 'unit' => $unit, 'need' => round($quantity, 3), 'packs' => $packs];
         }
 
         return $toBuy;

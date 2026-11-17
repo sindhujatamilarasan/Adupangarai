@@ -10,7 +10,7 @@ class GroceryItem extends Model
 {
     protected $fillable = [
         'grocery_list_id', 'ingredient_id', 'name', 'category', 'quantity', 'unit', 'source',
-        'purchased', 'actual_quantity', 'price', 'added_to_pantry_at',
+        'purchased', 'actual_quantity', 'price', 'added_to_pantry_at', 'need_quantity', 'packs',
     ];
 
     protected $appends = ['label'];
@@ -20,6 +20,8 @@ class GroceryItem extends Model
         return [
             'quantity' => 'float',
             'actual_quantity' => 'float',
+            'need_quantity' => 'float',
+            'packs' => 'integer',
             'price' => 'float',
             'unit' => Unit::class,
             'purchased' => 'boolean',

@@ -108,6 +108,29 @@ class IngredientSeeder extends Seeder
         'Bakery & Others' => 'பேக்கரி & மத்தது',
     ];
 
+    /**
+     * Usual shop pack per ingredient: [quantity in the ingredient's own unit, what the shop calls it].
+     * Spices are kept in teaspoons, so a 100 g packet of turmeric is about 33 tsp (≈3 g per tsp).
+     * Loose vegetables bought by the piece have no pack: you buy exactly what you need.
+     */
+    public const PACKS = [
+        'Sugar' => [1000, '1 kg'], 'Tea Powder' => [250, '250 g'],
+        'Butter' => [100, '100 g'], 'Curd' => [400, '400 g'], 'Egg' => [6, '6 eggs'], 'Ghee' => [200, '200 ml'],
+        'Milk' => [500, '500 ml'], 'Paneer' => [200, '200 g'], 'Banana' => [6, '6 bananas'],
+        'Basmati Rice' => [1000, '1 kg'], 'Bread' => [1, '1 packet'], 'Oats' => [500, '500 g'], 'Ragi Flour' => [500, '500 g'],
+        'Rava' => [500, '500 g'], 'Rice' => [1000, '1 kg'], 'Wheat Flour' => [1000, '1 kg'],
+        'Chicken' => [500, '½ kg'], 'Fish' => [500, '½ kg'], 'Mutton' => [500, '½ kg'],
+        'Cashew' => [100, '100 g'], 'Cooking Oil' => [1000, '1 L'], 'Soy Sauce' => [13, '200 ml bottle'], 'Tomato Ketchup' => [33, '500 g bottle'],
+        'Chana Dal' => [500, '500 g'], 'Chickpeas' => [500, '500 g'], 'Green Gram' => [500, '500 g'], 'Moong Dal' => [500, '500 g'],
+        'Toor Dal' => [500, '500 g'], 'Urad Dal' => [500, '500 g'],
+        'Black Pepper' => [20, '50 g'], 'Coriander Powder' => [50, '100 g'], 'Cumin Seeds' => [48, '100 g'], 'Garam Masala' => [20, '50 g'],
+        'Hing' => [20, '50 g'], 'Mustard Seeds' => [28, '100 g'], 'Red Chilli Powder' => [40, '100 g'], 'Salt' => [1000, '1 kg'],
+        'Turmeric Powder' => [33, '100 g'],
+        'Coriander Leaves' => [100, '1 bunch'], 'Curry Leaves' => [50, '1 bunch'], 'Garlic' => [100, '100 g'], 'Ginger' => [100, '100 g'],
+        'Green Chilli' => [10, '100 g'], 'Green Peas' => [250, '250 g'], 'Spinach' => [250, '1 bunch'], 'Spring Onion' => [100, '1 bunch'],
+        'Onion' => [4, '½ kg'], 'Potato' => [4, '½ kg'], 'Tomato' => [4, '½ kg'], 'Carrot' => [4, '½ kg'], 'Capsicum' => [2, '250 g'],
+    ];
+
     public function run(): void
     {
         $order = 0;
@@ -120,7 +143,8 @@ class IngredientSeeder extends Seeder
             foreach ($ingredients as $name => [$unit, $icon]) {
                 Ingredient::updateOrCreate(
                     ['normalized_name' => Ingredient::normalize($name)],
-                    ['name' => $name, 'name_ta' => self::TAMIL[$name], 'ingredient_category_id' => $category->id, 'default_unit' => $unit, 'icon' => $icon],
+                    ['name' => $name, 'name_ta' => self::TAMIL[$name], 'ingredient_category_id' => $category->id, 'default_unit' => $unit, 'icon' => $icon,
+                        'pack_quantity' => self::PACKS[$name][0] ?? null, 'pack_label' => self::PACKS[$name][1] ?? null],
                 );
             }
         }

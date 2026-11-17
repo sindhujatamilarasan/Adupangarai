@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { api, ApiError, fmtQty, useApi, type GroceryItem, type GroceryResponse } from '../api'
 import { Alert, Button, EmptyState, ErrorState, Sheet, Spinner } from '../components/ui'
-import { unitLabel, useI18n, type Lang } from '../i18n'
+import { translate, unitLabel, useI18n, type Lang } from '../i18n'
 
 const qty = (lang: Lang, i: GroceryItem) => (i.quantity ? `${fmtQty(i.quantity)} ${unitLabel(lang, i.unit)}` : '')
+/** "1 × 100 g" when the item is bought in shop packs, else the plain quantity. */
+const toBuy = (lang: Lang, i: GroceryItem) => (i.packs && i.ingredient?.pack_label ? `${i.packs} × ${translate(lang, i.ingredient.pack_label)}` : qty(lang, i))
 
 export default function GroceriesPage() {
   const { t, lang, fmtDate: fmtD } = useI18n()
@@ -129,10 +131,15 @@ export default function GroceriesPage() {
                       <span className="text-xl" aria-hidden>
                         {i.ingredient?.display_icon ?? '🧴'}
                       </span>
-                      <span className="truncate">{i.label}</span>
+                      <span className="min-w-0">
+                        <span className="block truncate">{i.label}</span>
+                        {i.packs && i.need_quantity !== null && !i.purchased && (
+                          <span className="block text-xs font-medium text-muted">{t('plan needs {qty}', { qty: `${fmtQty(i.need_quantity)} ${unitLabel(lang, i.unit)}` })}</span>
+                        )}
+                      </span>
                     </span>
                     <span className="shrink-0 text-sm text-muted">
-                      {i.actual_quantity ? `${fmtQty(i.actual_quantity)} ${unitLabel(lang, i.unit)}` : qty(lang, i)}
+                      {i.actual_quantity ? `${fmtQty(i.actual_quantity)} ${unitLabel(lang, i.unit)}` : toBuy(lang, i)}
                       {i.price !== null && ` · ₹${fmtQty(i.price)}`}
                       {i.added_to_pantry_at && ` · ${t('in kitchen')}`}
                     </span>
@@ -238,18 +245,23 @@ function ItemSheet({ item, onClose, onSaved }: { item: GroceryItem; onClose: () 
   )
 }
 
+/** Before stock goes into the kitchen: how much really came home (whole packets, not the 2 tsp the recipe needed). */
 function ConfirmPantrySheet({ items, onClose, onDone }: { items: GroceryItem[]; onClose: () => void; onDone: (r: GroceryResponse) => void }) {
   const { t, lang } = useI18n()
   const addable = items.filter((i) => (i.actual_quantity ?? i.quantity) && i.unit)
   const skipped = items.filter((i) => !addable.includes(i))
+  const packOf = (i: GroceryItem) => (i.ingredient?.pack_quantity && i.ingredient.pack_label ? i.ingredient.pack_quantity : null)
+  const [amounts, setAmounts] = useState<Record<number, number>>(() => Object.fromEntries(addable.map((i) => [i.id, i.actual_quantity ?? i.quantity ?? 0])))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const setAmount = (id: number, v: number) => setAmounts({ ...amounts, [id]: Math.max(0, Math.round(v * 1000) / 1000) })
 
   async function confirm() {
     setBusy(true)
     setError('')
     try {
-      onDone(await api<GroceryResponse>('/grocery/add-to-pantry', { method: 'POST', body: { item_ids: addable.map((i) => i.id) } }))
+      const ready = addable.filter((i) => amounts[i.id] > 0)
+      onDone(await api<GroceryResponse>('/grocery/add-to-pantry', { method: 'POST', body: { item_ids: ready.map((i) => i.id), quantities: Object.fromEntries(ready.map((i) => [i.id, amounts[i.id]])) } }))
     } catch (e) {
       setError((e as ApiError).message)
       setBusy(false)
@@ -257,25 +269,62 @@ function ConfirmPantrySheet({ items, onClose, onDone }: { items: GroceryItem[]; 
   }
 
   return (
-    <Sheet open onClose={onClose} title={t('Add to kitchen?')}>
+    <Sheet open onClose={onClose} title={t('How much did you buy?')}>
       <div className="space-y-4">
+        <p className="text-sm text-muted">{t('Check the amounts — you usually buy a whole packet, more than one recipe needs. The extra stays in your kitchen for next time.')}</p>
         {error && <Alert kind="error">{error}</Alert>}
         <ul className="divide-y divide-line rounded-2xl bg-white px-4">
-          {addable.map((i) => (
-            <li key={i.id} className="flex justify-between py-3">
-              <span className="font-semibold">{i.label}</span>
-              <span className="font-bold text-leaf">
-                +{fmtQty(i.actual_quantity ?? i.quantity ?? 0)} {unitLabel(lang, i.unit)}
-              </span>
-            </li>
-          ))}
+          {addable.map((i) => {
+            const pack = packOf(i)
+            const packs = pack ? Math.round((amounts[i.id] / pack) * 100) / 100 : 0
+            return (
+              <li key={i.id} className="space-y-2 py-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-semibold">
+                    {i.ingredient?.display_icon} {i.label}
+                  </span>
+                  <span className="font-bold whitespace-nowrap text-leaf">
+                    +{fmtQty(amounts[i.id])} {unitLabel(lang, i.unit)}
+                  </span>
+                </div>
+                {pack ? (
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => setAmount(i.id, Math.max(0, Math.ceil(packs) - 1) * pack)} aria-label={t('Fewer')} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold">
+                      −
+                    </button>
+                    <span className="min-w-28 text-center text-sm font-semibold">
+                      {fmtQty(packs)} × {translate(lang, i.ingredient!.pack_label!)}
+                    </span>
+                    <button type="button" onClick={() => setAmount(i.id, (Math.floor(packs) + 1) * pack)} aria-label={t('More')} className="grid size-9 place-items-center rounded-full bg-cream text-lg font-bold">
+                      +
+                    </button>
+                    {i.need_quantity !== null && <span className="ml-auto text-xs text-muted">{t('plan needs {qty}', { qty: `${fmtQty(i.need_quantity)} ${unitLabel(lang, i.unit)}` })}</span>}
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-2 text-sm text-muted">
+                    {t('Bought')}
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="any"
+                      value={amounts[i.id] || ''}
+                      onChange={(e) => setAmount(i.id, Number(e.target.value))}
+                      className="w-24 rounded-xl border border-line px-3 py-1.5 text-ink"
+                    />
+                    {unitLabel(lang, i.unit)}
+                  </label>
+                )}
+              </li>
+            )
+          })}
         </ul>
         {skipped.length > 0 && (
           <p className="text-sm text-muted">{t('Skipped (no quantity entered): {names}. Tap them in the list to add how much you bought.', { names: skipped.map((i) => i.label).join(', ') })}</p>
         )}
         {addable.length > 0 ? (
-          <Button onClick={confirm} loading={busy}>
-            {t('Add {n} item(s) to kitchen', { n: addable.length })}
+          <Button onClick={confirm} loading={busy} disabled={!addable.some((i) => amounts[i.id] > 0)}>
+            {t('Add {n} item(s) to kitchen', { n: addable.filter((i) => amounts[i.id] > 0).length })}
           </Button>
         ) : (
           <Button onClick={onClose}>{t('OK')}</Button>

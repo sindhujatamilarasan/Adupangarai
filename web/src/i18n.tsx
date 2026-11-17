@@ -86,6 +86,8 @@ export const RUNTIME_KEYS = [
   tk('breakfast'), tk('lunch'), tk('snack'), tk('dinner'),
   tk('pantry'), tk('fridge'), tk('freezer'),
   tk('piece'), tk('packet'), tk('cup'),
+  // Shop pack names (ingredients.pack_label)
+  tk('1 bunch'), tk('6 eggs'), tk('6 bananas'), tk('1 packet'), tk('200 ml bottle'), tk('500 g bottle'),
 ]
 
 /** Unit names that are words (piece, packet, cup) get translated; symbols (g, kg, ml...) stay. */

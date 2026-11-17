@@ -9,6 +9,15 @@ export type Category = { id: number; name: string; label?: string; icon: string 
 export type Ingredient = { id: number; name: string; label?: string; default_unit: UnitValue; ingredient_category_id: number; category: Category; display_icon: string }
 export type ExpiryStatus = 'fresh' | 'expiring_soon' | 'expired' | null
 export type PantryView = 'all' | 'low_stock' | 'expiring_soon' | 'expired'
+/** One ingredient the next 7 days of planned meals need, against what's in the kitchen. */
+export type PlanNeed = {
+  ingredient: { id: number; name: string; label?: string; display_icon: string }
+  unit: UnitValue
+  need: number
+  have: number
+  status: 'enough' | 'short' | 'missing'
+  used_in: string[]
+}
 export type PantryItem = {
   id: number
   ingredient: Ingredient
@@ -115,7 +124,10 @@ export type GroceryItem = {
   price: number | null
   added_to_pantry_at: string | null
   label: string
-  ingredient: { display_icon: string } | null
+  /** What the plan needs; `quantity` is that rounded up to whole shop packs (`packs` × the ingredient's pack). */
+  need_quantity: number | null
+  packs: number | null
+  ingredient: { display_icon: string; pack_quantity: number | null; pack_label: string | null } | null
 }
 export type GroceryResponse = {
   data: GroceryItem[]

@@ -57,8 +57,8 @@ class GroceryTest extends TestCase
     {
         $items = $this->actingAs($this->user)->postJson('/api/grocery/generate', $body)->assertOk()->json('data');
 
-        // Unpurchased items only; order-insensitive via assertEquals.
-        return collect($items)->where('purchased', false)->mapWithKeys(fn ($i) => [$i['name'] => $i['quantity'].' '.$i['unit']])->all();
+        // Unpurchased items only, with what the plan needs (quantity itself is rounded up to whole shop packs; see PackSizeTest).
+        return collect($items)->where('purchased', false)->mapWithKeys(fn ($i) => [$i['name'] => ($i['need_quantity'] ?? $i['quantity']).' '.$i['unit']])->all();
     }
 
     public function test_spec_example_chicken_and_eggs(): void

@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pantry', [PantryController::class, 'store']);
     Route::post('/pantry/bulk', [PantryController::class, 'bulk']);
     Route::post('/pantry/discard-expired', [PantryController::class, 'discardExpired']);
+    Route::get('/pantry/plan', [PantryController::class, 'forPlan']);
     Route::get('/pantry/{item}', [PantryController::class, 'show']);
     Route::patch('/pantry/{item}', [PantryController::class, 'update']);
     Route::post('/pantry/{item}/adjust', [PantryController::class, 'adjust']);

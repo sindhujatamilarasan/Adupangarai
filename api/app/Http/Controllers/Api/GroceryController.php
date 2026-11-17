@@ -60,6 +60,8 @@ class GroceryController extends Controller
                     'name' => $row['ingredient']->name,
                     'category' => $row['ingredient']->category->name,
                     'quantity' => $row['quantity'],
+                    'need_quantity' => $row['need'],
+                    'packs' => $row['packs'],
                     'unit' => $row['unit'],
                     'source' => 'plan',
                 ]);
@@ -143,13 +145,24 @@ class GroceryController extends Controller
     /** Called only after the user confirms. All-or-nothing. */
     public function addToPantry(Request $request): JsonResponse
     {
-        $data = $request->validate(['item_ids' => ['required', 'array', 'min:1'], 'item_ids.*' => ['integer', 'distinct']]);
+        $data = $request->validate([
+            'item_ids' => ['required', 'array', 'min:1'],
+            'item_ids.*' => ['integer', 'distinct'],
+            // How much really came home, per item id (e.g. a whole 100 g packet, not the 2 tsp the plan needed).
+            'quantities' => ['nullable', 'array'],
+            'quantities.*' => ['numeric', 'gt:0', 'max:100000'],
+        ]);
         $user = $request->user();
         $list = GroceryList::for($user->household_id);
 
         $items = $list->items()->whereIn('id', $data['item_ids'])->with('ingredient')->get();
         if ($items->count() !== count($data['item_ids'])) {
             abort(404);
+        }
+        foreach ($items as $item) {
+            if (isset($data['quantities'][$item->id]) && ! $item->added_to_pantry_at) {
+                $item->actual_quantity = (float) $data['quantities'][$item->id];
+            }
         }
 
         foreach ($items as $item) {
@@ -160,6 +173,7 @@ class GroceryController extends Controller
 
         DB::transaction(function () use ($items, $user) {
             foreach ($items as $item) {
+                $item->save(); // keeps the bought quantity entered above
                 PantryLedger::receive(
                     $user->household_id, $item->ingredient, $item->boughtQuantity(), $item->unit,
                     TransactionType::PURCHASE, $user->id, note: 'Grocery purchase',

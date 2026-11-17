@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
+use App\Models\MealPlan;
 use App\Models\PantryItem;
+use App\Support\GroceryCalculator;
 use App\Support\PantryLedger;
+use App\Support\RecipeMatcher;
 use App\Support\TransactionType;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -83,6 +87,53 @@ class PantryController extends Controller
         });
 
         return response()->json(['message' => __(':count item(s) added to your kitchen.', ['count' => count($data['items'])])]);
+    }
+
+    /**
+     * What the planned meals (today + 6 days, not yet cooked) need from the kitchen, against what's in it:
+     * enough / short / missing, with the dishes that use each ingredient.
+     */
+    public function forPlan(Request $request): JsonResponse
+    {
+        $household = $request->user()->household_id;
+        $start = Carbon::today();
+        $end = $start->copy()->addDays(6);
+        $plans = MealPlan::where('household_id', $household)->whereBetween('date', [$start, $end])->whereNull('cooked_at')
+            ->with('recipe.ingredients.ingredient.category')->orderBy('date')->get();
+        $pantry = RecipeMatcher::pantryFor($household);
+
+        $usedIn = [];
+        foreach ($plans as $plan) {
+            foreach ($plan->recipe->ingredients as $ri) {
+                if (! $ri->optional) {
+                    $usedIn[$ri->ingredient_id][$plan->recipe_id] = $plan->recipe->label;
+                }
+            }
+        }
+
+        $rows = collect(GroceryCalculator::requirements($plans))->map(function ($need) use ($pantry, $usedIn) {
+            $ingredient = $need['ingredient'];
+            $unit = $ingredient->default_unit->isCompatibleWith($need['unit']) ? $ingredient->default_unit : $need['unit'];
+            $have = RecipeMatcher::usableQuantity($pantry->get($ingredient->id), $unit);
+            $needQty = Unit::convert($need['quantity'], $need['unit'], $unit);
+
+            return [
+                'ingredient' => $ingredient->only(['id', 'name', 'label', 'display_icon']),
+                'unit' => $unit->value,
+                'need' => round($needQty, 3),
+                'have' => round($have, 3),
+                'status' => $have >= $needQty - 0.0005 ? 'enough' : ($have > 0 ? 'short' : 'missing'),
+                'used_in' => array_values($usedIn[$ingredient->id] ?? []),
+            ];
+        })->sortBy(fn ($r) => [array_search($r['status'], ['missing', 'short', 'enough']), $r['ingredient']['label']])->values();
+
+        return response()->json([
+            'data' => $rows,
+            'start' => $start->toDateString(),
+            'end' => $end->toDateString(),
+            'meals' => $plans->count(),
+            'summary' => $rows->countBy('status'),
+        ]);
     }
 
     public function show(Request $request, PantryItem $item): JsonResponse
