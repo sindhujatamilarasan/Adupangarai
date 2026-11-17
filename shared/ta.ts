@@ -659,6 +659,22 @@ const ta: Record<string, string> = {
   'Add a kids’ lunch box row': 'பசங்க லஞ்ச் பாக்ஸ் வரிசை சேர்',
   // From a code comment example; harmless
   '{count} left': 'மீதி {count}',
+  // Phase C: share the grocery list, money-saving tips
+  'Share list': 'லிஸ்ட் அனுப்பு',
+  'Ways to save this week': 'இந்த வாரம் காசு மிச்சம் பண்ண',
+  'Grocery list': 'மளிகை லிஸ்ட்',
+  'Made with Adupangarai': 'அடுப்பங்கரை ஆப்ல செஞ்சது',
+  '{n} items': '{n} சாமான்',
+  'Saved the picture to your downloads.': 'படம் Downloads-ல சேவ் ஆச்சு.',
+  'Only what’s still to buy, in shop order — send it to whoever is going to the shop.': 'இன்னும் வாங்க வேண்டியது மட்டும், கடை வரிசைப்படி — கடைக்கு போறவங்களுக்கு அனுப்புங்க.',
+  'Making the picture…': 'படம் ரெடி பண்றோம்…',
+  'Share as picture': 'படமா அனுப்பு',
+  'Download picture': 'படம் டவுன்லோட் பண்ணு',
+  'Send as WhatsApp message': 'WhatsApp மெசேஜா அனுப்பு',
+  '{name} is ₹{cost} of your ₹{total} list — the biggest cost this week.': '₹{total} லிஸ்ட்ல {name} மட்டுமே ₹{cost} — இந்த வாரம் இதுதான் பெரிய செலவு.',
+  'Meat costs ₹{n} this week. One veg day with sambar or egg curry saves a good amount.': 'இந்த வாரம் கறிக்கு ₹{n}. ஒரு நாள் சாம்பார் இல்லனா முட்டை குழம்பு வெச்சா நல்லா மிச்சம் ஆகும்.',
+  '{n} items are needed only in small amounts. The rest stays in your kitchen, so you won’t buy them again next week.': '{n} சாமான் கொஞ்சம் தான் தேவை. மீதி கிச்சன்லயே இருக்கும், அடுத்த வாரம் திரும்ப வாங்க வேண்டாம்.',
+  'Buy vegetables at the uzhavar sandhai or weekly market — usually cheaper and fresher.': 'காய்கறி உழவர் சந்தை இல்லனா வாரச் சந்தைல வாங்குங்க — விலையும் கம்மி, ஃப்ரெஷ்ஷாவும் இருக்கும்.',
 }
 
 export default ta

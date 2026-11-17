@@ -11,6 +11,7 @@ use App\Support\Cost;
 use App\Support\GroceryCalculator;
 use App\Support\PantryLedger;
 use App\Support\RecipeMatcher;
+use App\Support\SavingTips;
 use App\Support\TransactionType;
 use App\Support\Unit;
 use Illuminate\Http\JsonResponse;
@@ -193,20 +194,31 @@ class GroceryController extends Controller
 
     private function listResponse(GroceryList $list): JsonResponse
     {
-        $items = $list->items()->with('ingredient.category')->orderBy('category')->orderBy('name')->get();
+        // In shop-section order (vegetables first, household last), bought items at the bottom of each section.
+        $items = $list->items()->with('ingredient.category')->get()
+            ->each(fn ($i) => $i->setAttribute('section', $i->ingredient?->category?->label ?? __($i->category))
+                ->setAttribute('section_icon', $i->ingredient?->category?->icon ?? '🧴'))
+            ->sortBy([
+                fn ($a, $b) => ($a->ingredient?->category?->sort_order ?? 99) <=> ($b->ingredient?->category?->sort_order ?? 99),
+                fn ($a, $b) => $a->section <=> $b->section,
+                fn ($a, $b) => $a->purchased <=> $b->purchased,
+                fn ($a, $b) => $a->label <=> $b->label,
+            ])->values();
+        $toBuy = $items->where('purchased', false);
 
         return response()->json([
             'data' => $items,
             'list' => $list->only(['planned_from', 'planned_to']),
             'summary' => [
                 'total' => $items->count(),
-                'remaining' => $items->where('purchased', false)->count(),
+                'remaining' => $toBuy->count(),
                 'to_add_to_pantry' => $items->filter(fn ($i) => $i->purchased && $i->ingredient_id && ! $i->added_to_pantry_at)->count(),
                 'spent' => round($items->where('purchased', true)->sum('price'), 2),
                 // Rough cost of what's still to buy, from usual pack prices; compare with the kitchen's weekly budget.
-                'estimated_cost' => (int) round($items->where('purchased', false)->sum(fn ($i) => Cost::forItem($i))),
+                'estimated_cost' => (int) round($toBuy->sum(fn ($i) => Cost::forItem($i))),
                 'weekly_budget' => $list->household->weekly_budget,
             ],
+            'tips' => SavingTips::for($toBuy),
         ]);
     }
 }

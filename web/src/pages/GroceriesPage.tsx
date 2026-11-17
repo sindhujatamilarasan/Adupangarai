@@ -1,12 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { api, ApiError, fmtQty, useApi, type GroceryItem, type GroceryResponse, type User } from '../api'
 import { useAuth } from '../auth'
 import { Alert, Button, EmptyState, ErrorState, Sheet, Spinner } from '../components/ui'
-import { translate, unitLabel, useI18n, type Lang } from '../i18n'
-
-const qty = (lang: Lang, i: GroceryItem) => (i.quantity ? `${fmtQty(i.quantity)} ${unitLabel(lang, i.unit)}` : '')
-/** "1 × 100 g" when the item is bought in shop packs, else the plain quantity. */
-const toBuy = (lang: Lang, i: GroceryItem) => (i.packs && i.ingredient?.pack_label ? `${i.packs} × ${translate(lang, i.ingredient.pack_label)}` : qty(lang, i))
+import { translate, unitLabel, useI18n } from '../i18n'
+import { groceryImage, groceryText, shareOrDownload, toBuy } from '../lib/groceryShare'
+import { isNative } from '../lib/native'
 
 export default function GroceriesPage() {
   const { t, lang, fmtDate: fmtD } = useI18n()
@@ -19,6 +17,7 @@ export default function GroceriesPage() {
   const [newItem, setNewItem] = useState('')
   const [openId, setOpenId] = useState<number | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [sharing, setSharing] = useState(false)
 
   async function call(key: string, fn: () => Promise<GroceryResponse | unknown>, success?: string) {
     setBusy(key)
@@ -52,8 +51,9 @@ export default function GroceriesPage() {
   if (!list && res.loading) return <Spinner label={t('Loading your list…')} />
   if (!list) return <ErrorState message={res.error ?? t('Could not load groceries.')} onRetry={res.reload} />
 
+  // Shop sections in the server's order (vegetables first, bought items last in each).
   const groups = new Map<string, GroceryItem[]>()
-  list.data.forEach((i) => groups.set(i.category, [...(groups.get(i.category) ?? []), i]))
+  list.data.forEach((i) => groups.set(i.section, [...(groups.get(i.section) ?? []), i]))
   const pending = list.data.filter((i) => i.purchased && i.ingredient_id && !i.added_to_pantry_at)
   const open = list.data.find((i) => i.id === openId)
 
@@ -62,8 +62,13 @@ export default function GroceriesPage() {
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{t('Groceries')}</h1>
         {list.summary.total > 0 && (
-          <span className="text-sm font-bold text-muted">
+          <span className="flex items-center gap-3 text-sm font-bold text-muted">
             {t('{n} left', { n: list.summary.remaining })}{list.summary.spent > 0 && ` · ₹${fmtQty(list.summary.spent)}`}
+            {list.summary.remaining > 0 && (
+              <button onClick={() => setSharing(true)} className="rounded-full bg-leaf px-4 py-2 text-white active:scale-95">
+                📤 {t('Share list')}
+              </button>
+            )}
           </span>
         )}
       </div>
@@ -86,6 +91,20 @@ export default function GroceriesPage() {
 
         {list.summary.estimated_cost !== undefined && (list.summary.estimated_cost > 0 || list.summary.weekly_budget) && (
           <BudgetBar cost={list.summary.estimated_cost} budget={list.summary.weekly_budget ?? null} onSaved={() => call('budget', () => api<GroceryResponse>('/grocery'))} />
+        )}
+
+        {!!list.tips?.length && (
+          <section className="rounded-2xl bg-amber-50 p-4">
+            <h2 className="font-semibold text-amber-950">💡 {t('Ways to save this week')}</h2>
+            <ul className="mt-2 space-y-1.5 text-sm text-amber-950">
+              {list.tips.map((tip) => (
+                <li key={tip.key} className="flex gap-2">
+                  <span aria-hidden>•</span>
+                  {translate(lang, tip.text, tip.params)}
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         {pending.length > 0 && (
@@ -117,9 +136,11 @@ export default function GroceriesPage() {
           </EmptyState>
         )}
 
-        {[...groups].map(([category, items]) => (
-          <section key={category} className="card p-2">
-            <h2 className="px-3 pt-2 pb-1 text-xs font-bold uppercase tracking-wide text-muted">{category}</h2>
+        {[...groups].map(([section, items]) => (
+          <section key={section} className="card p-2">
+            <h2 className="px-3 pt-2 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
+              {items[0].section_icon} {section}
+            </h2>
             <ul>
               {items.map((i) => (
                 <li key={i.id} className="flex items-center gap-3 rounded-2xl px-3 py-2.5">
@@ -162,6 +183,7 @@ export default function GroceriesPage() {
         )}
       </div>
 
+      {sharing && <ShareSheet list={list} onClose={() => setSharing(false)} />}
       {open && <ItemSheet key={open.id} item={open} onClose={() => setOpenId(null)} onSaved={(r) => setData(r)} />}
       {confirming && (
         <ConfirmPantrySheet
@@ -394,5 +416,53 @@ function BudgetBar({ cost, budget, onSaved }: { cost: number; budget: number | n
         </form>
       )}
     </div>
+  )
+}
+
+/** The list to send: a bright picture (share or download) or a WhatsApp message. Only what's still to buy. */
+function ShareSheet({ list, onClose }: { list: GroceryResponse; onClose: () => void }) {
+  const { t, lang, fmtDate } = useI18n()
+  const { user } = useAuth()
+  const kitchen = user?.household.name ?? ''
+  const dates = list.list.planned_from ? `${fmtDate(list.list.planned_from, { day: 'numeric', month: 'short' })} – ${fmtDate(list.list.planned_to!, { day: 'numeric', month: 'short' })}` : ''
+  const [image, setImage] = useState<{ blob: Blob; url: string } | null>(null)
+  const [note, setNote] = useState('')
+
+  // Draw the picture as soon as the sheet opens, so "Share" runs straight from the tap.
+  useEffect(() => {
+    let url = ''
+    groceryImage(lang, list, kitchen, dates).then((blob) => {
+      url = URL.createObjectURL(blob)
+      setImage({ blob, url })
+    })
+    return () => URL.revokeObjectURL(url)
+  }, [lang, list, kitchen, dates])
+
+  async function share() {
+    if (!image) return
+    const r = await shareOrDownload(image.blob, 'grocery-list.png', t('Grocery list'))
+    if (r === 'downloaded') setNote(t('Saved the picture to your downloads.'))
+  }
+
+  const whatsapp = () => window.open(`https://wa.me/?text=${encodeURIComponent(groceryText(lang, list, kitchen))}`, '_blank')
+
+  return (
+    <Sheet open onClose={onClose} title={t('Share list')}>
+      <div className="space-y-3">
+        <p className="text-sm text-muted">{t('Only what’s still to buy, in shop order — send it to whoever is going to the shop.')}</p>
+        <div className="max-h-[45vh] overflow-y-auto rounded-2xl border border-line bg-white">
+          {image ? <img src={image.url} alt={t('Grocery list')} className="w-full" /> : <Spinner label={t('Making the picture…')} />}
+        </div>
+        {note && <Alert kind="success">{note}</Alert>}
+        {!isNative && (
+          <Button onClick={share} disabled={!image}>
+            🖼️ {'canShare' in navigator ? t('Share as picture') : t('Download picture')}
+          </Button>
+        )}
+        <button onClick={whatsapp} className="w-full rounded-2xl border-2 border-leaf py-3 font-bold text-leaf">
+          💬 {t('Send as WhatsApp message')}
+        </button>
+      </div>
+    </Sheet>
   )
 }

@@ -91,6 +91,11 @@ export const RUNTIME_KEYS = [
   tk('lunchbox'), tk('piece'), tk('packet'), tk('cup'),
   // Shop pack names (ingredients.pack_label)
   tk('1 bunch'), tk('6 eggs'), tk('6 bananas'), tk('1 packet'), tk('200 ml bottle'), tk('500 g bottle'), tk('1 kg packet'), tk('1 lemon'), tk('1 coconut'), tk('1 cucumber'),
+  // Money-saving tips sent by the server (api SavingTips)
+  tk('{name} is ₹{cost} of your ₹{total} list — the biggest cost this week.'),
+  tk('Meat costs ₹{n} this week. One veg day with sambar or egg curry saves a good amount.'),
+  tk('{n} items are needed only in small amounts. The rest stays in your kitchen, so you won’t buy them again next week.'),
+  tk('Buy vegetables at the uzhavar sandhai or weekly market — usually cheaper and fresher.'),
 ]
 
 /** Unit names that are words (piece, packet, cup) get translated; symbols (g, kg, ml...) stay. */

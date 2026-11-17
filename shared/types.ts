@@ -136,11 +136,17 @@ export type GroceryItem = {
   need_quantity: number | null
   packs: number | null
   ingredient: { display_icon: string; pack_quantity: number | null; pack_label: string | null } | null
+  /** Shop section (the ingredient's category, localised) and its emoji. */
+  section: string
+  section_icon: string
 }
+/** A money-saving tip: an English template with {params}, translated in the app. */
+export type SavingTip = { key: string; text: string; params: Record<string, string | number> }
 export type GroceryResponse = {
   data: GroceryItem[]
   list: { planned_from: string | null; planned_to: string | null }
   summary: { total: number; remaining: number; to_add_to_pantry: number; spent: number; estimated_cost?: number; weekly_budget?: number | null }
+  tips?: SavingTip[]
 }
 
 export type CookRow = {
