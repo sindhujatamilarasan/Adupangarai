@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { api, ApiError, type User } from '../api'
 import { useAuth } from '../auth'
 import { useI18n } from '../i18n'
@@ -77,6 +78,10 @@ export default function ProfilePage() {
           ))}
         </div>
       </section>
+      <Link to="/welcome?tour=1" className="card flex items-center justify-between p-5 font-semibold">
+        <span>✨ {t('Show the welcome tour again')}</span>
+        <span className="text-brand">→</span>
+      </Link>
       <button onClick={logout} className="w-full rounded-2xl border border-line bg-white py-3 font-bold text-red-700">
         {t('Log out')}
       </button>

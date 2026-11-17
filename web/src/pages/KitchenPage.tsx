@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api, ApiError, fmtQty, useApi, type PantryItem, type PantryView, type UnitInfo } from '../api'
 import AddPantrySheet from '../components/AddPantrySheet'
 import { AiPantrySheet } from '../components/AiSheets'
@@ -28,7 +29,8 @@ export default function KitchenPage() {
   const [view, setView] = useState<PantryView>('all')
   const pantry = useApi<{ data: PantryItem[]; counts: Record<PantryView, number> }>(`/pantry?view=${view}`)
   const units = useApi<{ data: UnitInfo[] }>('/units').data?.data ?? []
-  const [adding, setAdding] = useState(false)
+  const [params] = useSearchParams()
+  const [adding, setAdding] = useState(params.get('add') === '1') // ?add=1: opened from the welcome screen
   const [speaking, setSpeaking] = useState(false)
   const [openId, setOpenId] = useState<number | null>(null)
   const [flash, setFlash] = useState<{ kind: 'error' | 'success'; text: string } | null>(null)

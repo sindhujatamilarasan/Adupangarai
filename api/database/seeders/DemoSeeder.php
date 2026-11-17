@@ -55,6 +55,7 @@ class DemoSeeder extends Seeder
             'name' => 'Demo',
             'email' => self::EMAIL,
             'password' => 'password',
+            'onboarded_at' => now(), // the demo opens straight into a filled kitchen
         ]);
         $household = $user->household_id;
         $today = Carbon::today();

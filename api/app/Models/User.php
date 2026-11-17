@@ -25,6 +25,7 @@ class User extends Authenticatable implements HasLocalePreference
         'household_id',
         'locale',
         'google_id',
+        'onboarded_at',
         'name',
         'email',
         'password',
@@ -50,6 +51,7 @@ class User extends Authenticatable implements HasLocalePreference
     {
         return [
             'email_verified_at' => 'datetime',
+            'onboarded_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

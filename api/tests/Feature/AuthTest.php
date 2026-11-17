@@ -85,4 +85,18 @@ class AuthTest extends TestCase
         $this->actingAs($user)->putJson('/api/profile', ['password' => 'newpassword', 'current_password' => 'password'])
             ->assertOk();
     }
+
+    public function test_new_accounts_see_the_welcome_steps_once(): void
+    {
+        $r = $this->postJson('/api/register', ['name' => 'Priya', 'email' => 'priya@example.com', 'password' => 'secret123'])->assertCreated();
+        $this->assertNull($r->json('user.onboarded_at'));
+        $token = $r->json('token');
+
+        $done = $this->withToken($token)->putJson('/api/profile', ['household_name' => 'Amma Kitchen', 'onboarded' => true])->assertOk()->json('user');
+        $this->assertNotNull($done['onboarded_at']);
+        $this->assertSame('Amma Kitchen', $done['household']['name']);
+
+        // "Show the welcome tour again" from Profile
+        $this->assertNull($this->withToken($token)->putJson('/api/profile', ['onboarded' => false])->json('user.onboarded_at'));
+    }
 }

@@ -9,6 +9,7 @@ import { Spinner } from './components/ui'
 import AuthPage from './pages/AuthPage'
 import CoachPage from './pages/CoachPage'
 import PasswordPage from './pages/PasswordPage'
+import WelcomePage from './pages/WelcomePage'
 import CookPage from './pages/CookPage'
 import GroceriesPage from './pages/GroceriesPage'
 import HomePage from './pages/HomePage'
@@ -26,6 +27,8 @@ function AppShell() {
   const { t, lang } = useI18n()
   if (loading) return <Spinner label={t('Opening your kitchen…')} />
   if (!user) return <Navigate to="/login" replace />
+  // New accounts first name their kitchen and see a short tour.
+  if (!user.onboarded_at) return <Navigate to="/welcome" replace />
   return (
     <>
       <TopBar />
@@ -86,6 +89,7 @@ export default function App() {
           <Route path="/reset-password" element={<PasswordPage mode="reset" />} />
           <Route element={<BareShell />}>
             <Route path="/planner/print" element={<PrintPlanPage />} />
+            <Route path="/welcome" element={<WelcomePage />} />
           </Route>
           <Route element={<AppShell />}>
             <Route path="/" element={<HomePage />} />

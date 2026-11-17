@@ -12,7 +12,7 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const { login, register, loginWithGoogle } = useAuth()
   const { t, lang, setLang } = useI18n()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', email: '', password: '', household_name: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [errors, setErrors] = useState<Record<string, string[]>>({})
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -27,7 +27,7 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     setMessage('')
     try {
       if (isRegister) {
-        await register({ ...form, household_name: form.household_name || undefined })
+        await register(form) // the kitchen is named on the welcome screen next
       } else {
         await login(form.email, form.password)
       }
@@ -85,15 +85,6 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           autoComplete={isRegister ? 'new-password' : 'current-password'}
           required
         />
-        {isRegister && (
-          <Field
-            label={t('Kitchen name (optional)')}
-            placeholder={t("e.g. Amma's Kitchen")}
-            value={form.household_name}
-            onChange={set('household_name')}
-            error={errors.household_name?.[0]}
-          />
-        )}
         {!isRegister && (
           <p className="-mt-2 text-right text-sm">
             <Link to="/forgot-password" className="font-semibold text-brand">

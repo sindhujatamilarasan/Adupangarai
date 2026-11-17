@@ -173,9 +173,13 @@ class AuthController extends Controller
             'current_password' => ['required_with:password', 'current_password'],
             'password' => ['sometimes', 'string', 'min:8'],
             'locale' => ['sometimes', Rule::in(SetLocale::SUPPORTED)],
+            'onboarded' => ['sometimes', 'boolean'],
         ]);
 
         DB::transaction(function () use ($user, $data) {
+            if (array_key_exists('onboarded', $data)) {
+                $user->onboarded_at = $data['onboarded'] ? now() : null; // false = show the welcome tour again
+            }
             if (isset($data['email'])) {
                 $data['email'] = strtolower($data['email']);
             }

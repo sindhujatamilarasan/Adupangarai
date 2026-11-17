@@ -1,7 +1,7 @@
 /** Data shapes returned by the Adupangarai API, plus small display helpers. Used by the web and mobile apps. */
 
 export type Household = { id: number; name: string }
-export type User = { id: number; name: string; email: string; locale: 'en' | 'ta'; household_id: number; household: Household }
+export type User = { id: number; name: string; email: string; locale: 'en' | 'ta'; household_id: number; household: Household; onboarded_at?: string | null }
 
 export type UnitValue = 'g' | 'kg' | 'ml' | 'L' | 'cup' | 'tbsp' | 'tsp' | 'piece' | 'packet'
 export type UnitInfo = { value: UnitValue; dimension: string }
