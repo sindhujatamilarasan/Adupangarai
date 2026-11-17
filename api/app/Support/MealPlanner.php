@@ -12,13 +12,24 @@ use Illuminate\Support\Collection;
  * - a dish comes back at most twice a week and never within 3 days;
  * - two dishes on the same day may not be near-duplicates (e.g. two fried rices);
  * - an expiring ingredient earns its bonus only once, so it can't dominate the plan.
+ *
+ * Plan styles for Indian families:
+ * - family: the usual meals for everyone;
+ * - lunchbox: kids' lunch box on school days (Mon–Fri) only, from dishes that pack well, no repeats in the week;
+ * - working: on weekdays breakfast and dinner are quick (≤ 25 min) or made ahead, and lunch packs well for office.
+ * "Save money" leans to dishes that cost less per serving.
  */
 class MealPlanner
 {
     public const GOALS = ['balanced', 'high_protein', 'low_calorie', 'my_target'];
 
     /** Share of the day's calories each meal usually takes (used by the "my target" goal). */
-    public const MEAL_SHARE = ['breakfast' => 0.25, 'lunch' => 0.35, 'snack' => 0.1, 'dinner' => 0.3];
+    public const MEAL_SHARE = ['breakfast' => 0.25, 'lunch' => 0.35, 'lunchbox' => 0.35, 'snack' => 0.1, 'dinner' => 0.3];
+
+    public const STYLES = ['family', 'lunchbox', 'working'];
+
+    /** "Quick" on a working day. */
+    public const WORKDAY_MINUTES = 25;
 
     /** any = everything; veg = vegetarian only; nonveg = everything, leaning to meat/fish/egg dishes. */
     public const DIETS = ['any', 'veg', 'nonveg'];
@@ -45,8 +56,11 @@ class MealPlanner
      * @param  Collection<int, array{recipe: array, match: array}>  $matches  keyed by recipe id
      * @return list<array{date: string, meal_type: string, recipe_id: int, servings: int}>
      */
-    public static function suggest(Collection $recipes, Collection $matches, Carbon $start, int $days, array $meals, string $goal, int $servings, int $seed = 0, string $diet = 'any', ?int $targetKcal = null): array
+    public static function suggest(Collection $recipes, Collection $matches, Carbon $start, int $days, array $meals, string $goal, int $servings, int $seed = 0, string $diet = 'any', ?int $targetKcal = null, string $style = 'family', bool $cheap = false): array
     {
+        if ($style === 'lunchbox') {
+            $meals = ['lunchbox'];
+        }
         if ($diet === 'veg') {
             $recipes = $recipes->where('is_veg', true)->values();
         }
@@ -61,6 +75,11 @@ class MealPlanner
         $plan = [];
 
         for ($d = 0; $d < $days; $d++) {
+            $date = $start->copy()->addDays($d);
+            if ($style === 'lunchbox' && $date->isWeekend()) {
+                continue; // no school
+            }
+            $workday = $style === 'working' && ! $date->isWeekend();
             $today = [];
             $eaten = 0.0;
             foreach ($meals as $k => $meal) {
@@ -69,39 +88,54 @@ class MealPlanner
                 $budget = $targetKcal ? ($targetKcal - $eaten) * self::MEAL_SHARE[$meal] / $shareLeft : null;
                 $best = null;
                 $bestScore = -INF;
-                foreach ($recipes as $r) {
-                    $uses = $used[$r->id] ?? [];
-                    if ($uses && ($d - max($uses) < self::REPEAT_GAP_DAYS || count($uses) >= self::MAX_USES)) {
-                        continue;
-                    }
-                    $fit = self::fit($meal, $r->meal_type);
-                    if ($fit !== null && $meal === 'breakfast' && $r->meal_type === 'snack' && $r->calories !== null && $r->calories < self::MIN_MEAL_KCAL) {
-                        $fit = null;
-                    }
-                    if ($fit === null || in_array($r->id, $today, true)) {
-                        continue;
-                    }
-                    foreach ($today as $other) {
-                        if (self::similarity($main[$r->id], $main[$other]) >= self::SIMILARITY_LIMIT) {
-                            continue 2;
+                // First pass keeps the style's extra rules; if nothing fits them, the second pass relaxes them.
+                foreach ([true, false] as $strict) {
+                    foreach ($recipes as $r) {
+                        $uses = $used[$r->id] ?? [];
+                        if ($uses && ($d - max($uses) < self::REPEAT_GAP_DAYS || count($uses) >= self::MAX_USES)) {
+                            continue;
+                        }
+                        if ($strict && $style === 'lunchbox' && $uses) {
+                            continue; // a different lunch box every school day
+                        }
+                        if ($strict && $workday && in_array($meal, ['breakfast', 'dinner'], true) && $r->total_time > self::WORKDAY_MINUTES && ! $r->hasTag('prep_ahead')) {
+                            continue;
+                        }
+                        $fit = self::fit($meal, $r);
+                        if ($fit !== null && $meal === 'breakfast' && $r->meal_type === 'snack' && $r->calories !== null && $r->calories < self::MIN_MEAL_KCAL) {
+                            $fit = null;
+                        }
+                        if ($fit === null || in_array($r->id, $today, true)) {
+                            continue;
+                        }
+                        foreach ($today as $other) {
+                            if (self::similarity($main[$r->id], $main[$other]) >= self::SIMILARITY_LIMIT) {
+                                continue 2;
+                            }
+                        }
+                        $match = $matches[$r->id]['match'] ?? ['match_percent' => 0, 'uses_expiring' => []];
+                        $freshExpiring = array_diff(array_column($match['uses_expiring'], 'ingredient_id'), $expiringUsed);
+
+                        $sameHero = collect($today)->contains(fn ($other) => array_intersect($hero[$r->id], $hero[$other]));
+
+                        $score = $fit
+                            - ($sameHero ? 3 : 0)
+                            + ($budget !== null ? self::budgetScore($r, $budget) : self::goalScore($goal, $r))
+                            + $match['match_percent'] / 50
+                            + ($freshExpiring ? 1.5 : 0)
+                            + $jitter[$r->id]
+                            - ($uses ? 2 : 0) // prefer something new, but a great fit may return
+                            + ($diet === 'nonveg' && ! $r->is_veg ? 2 : 0)
+                            + ($style === 'lunchbox' && $r->hasTag('kids') ? 1 : 0)
+                            + ($workday && $meal === 'lunch' && $r->hasTag('lunchbox') ? 1.5 : 0) // packs for the office
+                            + ($cheap ? self::cheapScore($r) : 0);
+
+                        if ($score > $bestScore) {
+                            [$best, $bestScore] = [$r, $score];
                         }
                     }
-                    $match = $matches[$r->id]['match'] ?? ['match_percent' => 0, 'uses_expiring' => []];
-                    $freshExpiring = array_diff(array_column($match['uses_expiring'], 'ingredient_id'), $expiringUsed);
-
-                    $sameHero = collect($today)->contains(fn ($other) => array_intersect($hero[$r->id], $hero[$other]));
-
-                    $score = $fit
-                        - ($sameHero ? 3 : 0)
-                        + ($budget !== null ? self::budgetScore($r, $budget) : self::goalScore($goal, $r))
-                        + $match['match_percent'] / 50
-                        + ($freshExpiring ? 1.5 : 0)
-                        + $jitter[$r->id]
-                        - ($uses ? 2 : 0) // prefer something new, but a great fit may return
-                        + ($diet === 'nonveg' && ! $r->is_veg ? 2 : 0);
-
-                    if ($score > $bestScore) {
-                        [$best, $bestScore] = [$r, $score];
+                    if ($best) {
+                        break;
                     }
                 }
                 if (! $best) {
@@ -112,25 +146,34 @@ class MealPlanner
                 $eaten += (float) $best->calories;
                 $used[$best->id][] = $d;
                 $expiringUsed = array_merge($expiringUsed, array_column($matches[$best->id]['match']['uses_expiring'] ?? [], 'ingredient_id'));
-                $plan[] = ['date' => $start->copy()->addDays($d)->toDateString(), 'meal_type' => $meal, 'recipe_id' => $best->id, 'servings' => $servings];
+                $plan[] = ['date' => $date->toDateString(), 'meal_type' => $meal, 'recipe_id' => $best->id, 'servings' => $servings];
             }
         }
 
         return $plan;
     }
 
-    /** How well a recipe's usual meal time suits the slot; null = don't use it there. */
-    public static function fit(string $slot, string $recipeMeal): ?float
+    /** How well a recipe suits the slot; null = don't use it there. The lunch box takes any dish that packs well. */
+    public static function fit(string $slot, Recipe $r): ?float
     {
-        if ($slot === $recipeMeal) {
+        if ($slot === 'lunchbox') {
+            return $r->hasTag('lunchbox') ? 3 : null;
+        }
+        if ($slot === $r->meal_type) {
             return 3;
         }
 
-        return match ([$slot, $recipeMeal]) {
+        return match ([$slot, $r->meal_type]) {
             ['lunch', 'dinner'], ['dinner', 'lunch'] => 1.5,
             ['breakfast', 'snack'], ['snack', 'breakfast'] => 1,
             default => null,
         };
+    }
+
+    /** "Save money": ₹10 a serving earns +3, ₹40 is neutral, ₹70 or more −3. */
+    public static function cheapScore(Recipe $r): float
+    {
+        return max(-3, min(3, (40 - Cost::perServing($r)) / 10));
     }
 
     public static function goalScore(string $goal, Recipe $r): float
@@ -189,14 +232,16 @@ class MealPlanner
         $days = [];
         foreach ($plan as $p) {
             $r = $byId[$p['recipe_id']];
-            $days[$p['date']] ??= ['calories' => 0.0, 'protein_g' => 0.0];
+            $days[$p['date']] ??= ['calories' => 0.0, 'protein_g' => 0.0, 'cost' => 0.0];
             $days[$p['date']]['calories'] += (float) $r->calories;
             $days[$p['date']]['protein_g'] += (float) $r->protein_g;
+            $days[$p['date']]['cost'] += Cost::perServing($r) * $p['servings']; // for everyone eating it
         }
         $n = max(count($days), 1);
 
         return [
-            'per_day' => $days,
+            'per_day' => array_map(fn ($d) => [...$d, 'cost' => round($d['cost'])], $days),
+            'total_cost' => (int) round(array_sum(array_column($days, 'cost'))),
             'avg_calories' => round(array_sum(array_column($days, 'calories')) / $n),
             'avg_protein_g' => round(array_sum(array_column($days, 'protein_g')) / $n, 1),
         ];

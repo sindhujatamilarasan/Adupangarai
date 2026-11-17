@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MealPlan extends Model
 {
+    /** Planner slots: the recipe meal types plus a kids' lunch box packed for school. */
+    public const SLOTS = ['breakfast', 'lunch', 'lunchbox', 'snack', 'dinner'];
+
     protected $fillable = ['household_id', 'date', 'meal_type', 'recipe_id', 'servings', 'cooked_at'];
 
     protected function casts(): array

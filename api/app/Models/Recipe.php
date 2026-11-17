@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasTamilName;
+use App\Support\Cost;
 use App\Support\Nutrition;
 use App\Support\Quantities;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +18,7 @@ class Recipe extends Model
 
     protected $fillable = [
         'household_id', 'name', 'description', 'meal_type', 'cuisine', 'servings', 'prep_time', 'cook_time', 'is_veg',
-        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at', 'image_path', 'name_ta', 'description_ta',
+        'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'nutrition_estimated_at', 'image_path', 'name_ta', 'description_ta', 'tags',
     ];
 
     protected $hidden = ['image_path'];
@@ -30,6 +31,7 @@ class Recipe extends Model
             'is_veg' => 'boolean', 'servings' => 'integer', 'prep_time' => 'integer', 'cook_time' => 'integer',
             'calories' => 'float', 'protein_g' => 'float', 'carbs_g' => 'float', 'fat_g' => 'float', 'fiber_g' => 'float',
             'nutrition_estimated_at' => 'datetime',
+            'tags' => 'array',
         ];
     }
 
@@ -52,6 +54,17 @@ class Recipe extends Model
     public function getTotalTimeAttribute(): int
     {
         return $this->prep_time + $this->cook_time;
+    }
+
+    /** Estimated ₹ per serving; only when the ingredients are loaded (see Support\Cost). */
+    public function getCostPerServingAttribute(): ?float
+    {
+        return $this->relationLoaded('ingredients') ? Cost::perServing($this) : null;
+    }
+
+    public function hasTag(string $tag): bool
+    {
+        return in_array($tag, $this->tags ?? [], true);
     }
 
     public function getHealthTagsAttribute(): array

@@ -23,7 +23,7 @@ class DashboardController extends Controller
 
         $todayMeals = MealPlan::where('household_id', $household)->whereDate('date', Carbon::today())
             ->with('recipe:id,name,name_ta,is_veg,servings,meal_type,image_path')->orderBy('id')->get()
-            ->sortBy(fn ($p) => array_search($p->meal_type, Recipe::MEAL_TYPES))->values()
+            ->sortBy(fn ($p) => array_search($p->meal_type, MealPlan::SLOTS))->values()
             ->map(fn (MealPlan $p) => [
                 'id' => $p->id, 'meal_type' => $p->meal_type, 'servings' => $p->servings, 'cooked_at' => $p->cooked_at,
                 'recipe' => $p->recipe,

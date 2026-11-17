@@ -7,6 +7,7 @@ use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\Ingredient;
 use App\Models\MealPlan;
+use App\Support\Cost;
 use App\Support\GroceryCalculator;
 use App\Support\PantryLedger;
 use App\Support\RecipeMatcher;
@@ -202,6 +203,9 @@ class GroceryController extends Controller
                 'remaining' => $items->where('purchased', false)->count(),
                 'to_add_to_pantry' => $items->filter(fn ($i) => $i->purchased && $i->ingredient_id && ! $i->added_to_pantry_at)->count(),
                 'spent' => round($items->where('purchased', true)->sum('price'), 2),
+                // Rough cost of what's still to buy, from usual pack prices; compare with the kitchen's weekly budget.
+                'estimated_cost' => (int) round($items->where('purchased', false)->sum(fn ($i) => Cost::forItem($i))),
+                'weekly_budget' => $list->household->weekly_budget,
             ],
         ]);
     }

@@ -24,13 +24,16 @@ export function hasStoredLang(): boolean {
   }
 }
 
+/** Keys that are code values (e.g. the planner slot 'lunchbox') shown in English with nicer wording. */
+const EN: Record<string, string> = { lunchbox: 'Lunch box' }
+
 /**
  * English text is the key: t('Kitchen') -> 'சமையலறை' in Tamil, 'Kitchen' in English.
  * Placeholders: t('{count} left', { count: 3 }). Missing Tamil falls back to English.
  */
 // oxlint-disable-next-line react/only-export-components
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>): string {
-  const text = lang === 'ta' ? (ta[key] ?? key) : key
+  const text = lang === 'ta' ? (ta[key] ?? key) : (EN[key] ?? key)
   return vars ? text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`)) : text
 }
 
@@ -85,9 +88,9 @@ export const tk = (s: string) => s
 export const RUNTIME_KEYS = [
   tk('breakfast'), tk('lunch'), tk('snack'), tk('dinner'),
   tk('pantry'), tk('fridge'), tk('freezer'),
-  tk('piece'), tk('packet'), tk('cup'),
+  tk('lunchbox'), tk('piece'), tk('packet'), tk('cup'),
   // Shop pack names (ingredients.pack_label)
-  tk('1 bunch'), tk('6 eggs'), tk('6 bananas'), tk('1 packet'), tk('200 ml bottle'), tk('500 g bottle'),
+  tk('1 bunch'), tk('6 eggs'), tk('6 bananas'), tk('1 packet'), tk('200 ml bottle'), tk('500 g bottle'), tk('1 kg packet'), tk('1 lemon'), tk('1 coconut'), tk('1 cucumber'),
 ]
 
 /** Unit names that are words (piece, packet, cup) get translated; symbols (g, kg, ml...) stay. */

@@ -19,11 +19,11 @@ class IngredientSeeder extends Seeder
         ],
         'Fruits' => ['Lemon' => ['piece', '🍋'], 'Banana' => ['piece', '🍌']],
         'Dairy & Eggs' => [
-            'Egg' => ['piece', '🥚'], 'Milk' => ['ml', '🥛'], 'Curd' => ['g', '🥣'], 'Paneer' => ['g', '🧀'], 'Butter' => ['g', '🧈'], 'Ghee' => ['ml', '🫙'],
+            'Egg' => ['piece', '🥚'], 'Milk' => ['ml', '🥛'], 'Curd' => ['g', '🥣'], 'Paneer' => ['g', '🧀'], 'Butter' => ['g', '🧈'], 'Ghee' => ['ml', '🫙'], 'Cheese' => ['g', '🧀'],
         ],
         'Meat & Seafood' => ['Chicken' => ['g', '🍗'], 'Mutton' => ['g', '🍖'], 'Fish' => ['g', '🐟']],
         'Grains & Flours' => [
-            'Rice' => ['g', '🍚'], 'Basmati Rice' => ['g', '🍚'], 'Wheat Flour' => ['g', '🌾'], 'Rava' => ['g', '🌾'], 'Bread' => ['packet', '🍞'], 'Oats' => ['g', '🥣'], 'Ragi Flour' => ['g', '🌾'],
+            'Rice' => ['g', '🍚'], 'Basmati Rice' => ['g', '🍚'], 'Wheat Flour' => ['g', '🌾'], 'Rava' => ['g', '🌾'], 'Bread' => ['packet', '🍞'], 'Oats' => ['g', '🥣'], 'Ragi Flour' => ['g', '🌾'], 'Poha' => ['g', '🍚'], 'Idli Dosa Batter' => ['g', '🥣'], 'Vermicelli' => ['g', '🍜'],
         ],
         'Pulses' => ['Toor Dal' => ['g', '🫘'], 'Moong Dal' => ['g', '🫘'], 'Urad Dal' => ['g', '🫘'], 'Chana Dal' => ['g', '🫘'], 'Chickpeas' => ['g', '🫘'], 'Green Gram' => ['g', '🫘']],
         'Spices' => [
@@ -32,8 +32,8 @@ class IngredientSeeder extends Seeder
             'Hing' => ['tsp', '🫙'],
         ],
         'Oils & Sauces' => ['Cooking Oil' => ['ml', '🫗'], 'Soy Sauce' => ['tbsp', '🍶'], 'Tomato Ketchup' => ['tbsp', '🥫']],
-        'Nuts & Dry Fruits' => ['Cashew' => ['g', '🥜'], 'Coconut' => ['piece', '🥥']],
-        'Bakery & Others' => ['Sugar' => ['g', '🍬'], 'Tea Powder' => ['g', '🍵'], 'Water' => ['ml', '💧']],
+        'Nuts & Dry Fruits' => ['Cashew' => ['g', '🥜'], 'Coconut' => ['piece', '🥥'], 'Peanuts' => ['g', '🥜']],
+        'Bakery & Others' => ['Sugar' => ['g', '🍬'], 'Jaggery' => ['g', '🟫'], 'Tea Powder' => ['g', '🍵'], 'Water' => ['ml', '💧']],
     ];
 
     /** Tamil names shown when the app is in Tamil. */
@@ -56,6 +56,12 @@ class IngredientSeeder extends Seeder
         'Milk' => 'பால்',
         'Curd' => 'தயிர்',
         'Paneer' => 'பன்னீர்',
+        'Cheese' => 'சீஸ்',
+        'Poha' => 'அவல்',
+        'Idli Dosa Batter' => 'இட்லி தோசை மாவு',
+        'Vermicelli' => 'சேமியா',
+        'Peanuts' => 'வேர்க்கடலை',
+        'Jaggery' => 'வெல்லம்',
         'Butter' => 'வெண்ணெய்',
         'Ghee' => 'நெய்',
         'Chicken' => 'சிக்கன்',
@@ -128,7 +134,26 @@ class IngredientSeeder extends Seeder
         'Turmeric Powder' => [33, '100 g'],
         'Coriander Leaves' => [100, '1 bunch'], 'Curry Leaves' => [50, '1 bunch'], 'Garlic' => [100, '100 g'], 'Ginger' => [100, '100 g'],
         'Green Chilli' => [10, '100 g'], 'Green Peas' => [250, '250 g'], 'Spinach' => [250, '1 bunch'], 'Spring Onion' => [100, '1 bunch'],
+        'Cheese' => [200, '200 g'], 'Poha' => [500, '500 g'], 'Idli Dosa Batter' => [1000, '1 kg packet'], 'Vermicelli' => [200, '200 g'],
+        'Peanuts' => [200, '200 g'], 'Jaggery' => [500, '500 g'], 'Lemon' => [1, '1 lemon'], 'Coconut' => [1, '1 coconut'], 'Cucumber' => [1, '1 cucumber'],
         'Onion' => [4, '½ kg'], 'Potato' => [4, '½ kg'], 'Tomato' => [4, '½ kg'], 'Carrot' => [4, '½ kg'], 'Capsicum' => [2, '250 g'],
+    ];
+
+    /**
+     * Usual price of one pack in ₹ (Chennai retail, late 2026, rounded). Only for estimates:
+     * "this week's list ≈ ₹850". People pay different prices; what they enter when buying is kept on the list.
+     */
+    public const PRICES = [
+        'Sugar' => 48, 'Jaggery' => 45, 'Tea Powder' => 140, 'Butter' => 58, 'Curd' => 40, 'Egg' => 42, 'Ghee' => 130, 'Milk' => 28,
+        'Paneer' => 90, 'Cheese' => 130, 'Banana' => 36, 'Lemon' => 5, 'Basmati Rice' => 130, 'Bread' => 45, 'Oats' => 110, 'Ragi Flour' => 45,
+        'Rava' => 40, 'Rice' => 60, 'Wheat Flour' => 55, 'Poha' => 40, 'Idli Dosa Batter' => 70, 'Vermicelli' => 25,
+        'Chicken' => 130, 'Fish' => 200, 'Mutton' => 450, 'Cashew' => 110, 'Coconut' => 35, 'Peanuts' => 40,
+        'Cooking Oil' => 160, 'Soy Sauce' => 60, 'Tomato Ketchup' => 120,
+        'Chana Dal' => 55, 'Chickpeas' => 70, 'Green Gram' => 70, 'Moong Dal' => 70, 'Toor Dal' => 85, 'Urad Dal' => 75,
+        'Black Pepper' => 60, 'Coriander Powder' => 30, 'Cumin Seeds' => 60, 'Garam Masala' => 45, 'Hing' => 70, 'Mustard Seeds' => 20,
+        'Red Chilli Powder' => 40, 'Salt' => 25, 'Turmeric Powder' => 30,
+        'Coriander Leaves' => 10, 'Curry Leaves' => 5, 'Garlic' => 30, 'Ginger' => 15, 'Green Chilli' => 8, 'Green Peas' => 40,
+        'Spinach' => 20, 'Spring Onion' => 15, 'Onion' => 20, 'Potato' => 20, 'Tomato' => 15, 'Carrot' => 30, 'Capsicum' => 25, 'Cucumber' => 10,
     ];
 
     public function run(): void
@@ -144,7 +169,7 @@ class IngredientSeeder extends Seeder
                 Ingredient::updateOrCreate(
                     ['normalized_name' => Ingredient::normalize($name)],
                     ['name' => $name, 'name_ta' => self::TAMIL[$name], 'ingredient_category_id' => $category->id, 'default_unit' => $unit, 'icon' => $icon,
-                        'pack_quantity' => self::PACKS[$name][0] ?? null, 'pack_label' => self::PACKS[$name][1] ?? null],
+                        'pack_quantity' => self::PACKS[$name][0] ?? null, 'pack_label' => self::PACKS[$name][1] ?? null, 'pack_price' => self::PRICES[$name] ?? null],
                 );
             }
         }

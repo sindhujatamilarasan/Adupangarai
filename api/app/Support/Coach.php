@@ -5,7 +5,6 @@ namespace App\Support;
 use App\Models\FoodLog;
 use App\Models\HealthProfile;
 use App\Models\MealPlan;
-use App\Models\Recipe;
 use App\Models\StepLog;
 use App\Models\User;
 use App\Models\WeightLog;
@@ -108,7 +107,7 @@ class Coach
         $logs = FoodLog::where('user_id', $user->id)->whereDate('date', $date)->orderBy('id')->get();
         $planned = MealPlan::where('household_id', $user->household_id)->whereDate('date', $date)
             ->with('recipe:id,name,name_ta,meal_type,is_veg,calories,protein_g,image_path')->get()
-            ->sortBy(fn ($m) => array_search($m->meal_type, Recipe::MEAL_TYPES))->values()
+            ->sortBy(fn ($m) => array_search($m->meal_type, MealPlan::SLOTS))->values()
             ->map(fn (MealPlan $m) => [
                 'id' => $m->id, 'meal_type' => $m->meal_type, 'recipe' => $m->recipe,
                 'log' => $logs->firstWhere('meal_plan_id', $m->id),

@@ -17,7 +17,7 @@ import {
   fmtQty,
 } from '../api'
 
-type PlanSummary = { per_day: Record<string, { calories: number; protein_g: number }>; avg_calories: number; avg_protein_g: number; target_calories: number | null }
+type PlanSummary = { per_day: Record<string, { calories: number; protein_g: number; cost: number }>; avg_calories: number; avg_protein_g: number; target_calories: number | null; total_cost: number; weekly_budget: number | null }
 import VoiceInput from './VoiceInput'
 import { nm, tk, unitLabel, useI18n } from '../i18n'
 import { Alert, Button, Sheet, Spinner } from './ui'
@@ -213,13 +213,20 @@ const goals = [
   { key: 'my_target', label: tk('🎯 My target') },
 ] as const
 
+/** Who the plan is for (see api MealPlanner). */
+const styles = [
+  { key: 'family', icon: '👨‍👩‍👧', label: tk('Family'), hint: tk('Everyday meals for everyone') },
+  { key: 'lunchbox', icon: '🎒', label: tk('Kids’ lunch box'), hint: tk('School days, packs well, no repeats') },
+  { key: 'working', icon: '💼', label: tk('Working person'), hint: tk('Quick weekdays, cook ahead on Sunday') },
+] as const
+
 const diets = [
   { key: 'any', label: tk('Any') },
   { key: 'veg', label: tk('🟢 Veg only') },
   { key: 'nonveg', label: tk('🔴 Non-veg') },
 ] as const
 
-type PlanPrefs = Partial<{ days: number; meals: MealType[]; goal: (typeof goals)[number]['key']; diet: (typeof diets)[number]['key']; servings: number }>
+type PlanPrefs = Partial<{ days: number; meals: MealType[]; goal: (typeof goals)[number]['key']; diet: (typeof diets)[number]['key']; servings: number; style: (typeof styles)[number]['key']; cheap: boolean }>
 const PREFS_KEY = 'adupangarai.planPrefs'
 
 /** Last used plan options, remembered on this device (a convenience; safe to lose). */
@@ -248,6 +255,8 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
   const [goal, setGoal] = useState<(typeof goals)[number]['key']>(saved.goal ?? 'balanced')
   const [diet, setDiet] = useState<(typeof diets)[number]['key']>(saved.diet ?? 'any')
   const [servings, setServings] = useState(saved.servings ?? 2)
+  const [style, setStyle] = useState<(typeof styles)[number]['key']>(saved.style ?? 'family')
+  const [cheap, setCheap] = useState(saved.cheap ?? false)
   const [plan, setPlan] = useState<AiPlanEntry[] | null>(null)
   const [summary, setSummary] = useState<PlanSummary | null>(null)
   const [seed, setSeed] = useState(0)
@@ -270,10 +279,10 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
     run(async () => {
       const r = await api<{ data: AiPlanEntry[]; summary: PlanSummary }>('/meal-plans/suggest', {
         method: 'POST',
-        body: { start, days, meals: MEAL_TYPES.filter((m) => meals.includes(m)), goal, diet, servings, seed: nextSeed },
+        body: { start, days, meals: style === 'lunchbox' ? ['lunchbox'] : MEAL_TYPES.filter((m) => meals.includes(m)), goal, diet, servings, seed: nextSeed, style, cheap },
       })
       if (r.data.length === 0) throw new ApiError(0, t('No recipes fit these meals yet. Add a few recipes and try again.'))
-      savePlanPrefs({ days, meals, goal, diet, servings })
+      savePlanPrefs({ days, meals, goal, diet, servings, style, cheap })
       setSeed(nextSeed)
       setPlan(r.data)
       setSummary(r.summary)
@@ -296,6 +305,15 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
         {error && <Alert kind="error">{error}</Alert>}
         {!plan ? (
           <>
+            <div className="grid grid-cols-3 gap-2">
+              {styles.map((st) => (
+                <button key={st.key} onClick={() => setStyle(st.key)} aria-pressed={style === st.key} className={`flex flex-col items-center gap-1 rounded-2xl border p-2.5 text-center ${style === st.key ? 'border-brand bg-brand/5' : 'border-line bg-white'}`}>
+                  <span className="text-2xl">{st.icon}</span>
+                  <span className={`text-sm leading-tight font-bold ${style === st.key ? 'text-brand' : 'text-ink'}`}>{t(st.label)}</span>
+                  <span className="text-[11px] leading-tight text-muted">{t(st.hint)}</span>
+                </button>
+              ))}
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <label className="text-sm font-semibold text-muted">
                 {t('Starting')}
@@ -310,6 +328,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 </select>
               </label>
             </div>
+            {style !== 'lunchbox' && (
             <div>
               <p className="mb-1 text-sm font-semibold text-muted">{t('Meals')}</p>
               <div className="flex flex-wrap gap-2">
@@ -320,6 +339,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 ))}
               </div>
             </div>
+            )}
             <div>
               <p className="mb-1 text-sm font-semibold text-muted">{t('Food preference')}</p>
               <div className="flex flex-wrap gap-2">
@@ -341,8 +361,15 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
               </div>
             </div>
             {goal === 'my_target' && <p className="-mt-2 text-xs text-muted">{t('Fits each day to your Coach calorie target (one serving per person).')}</p>}
+            <button onClick={() => setCheap(!cheap)} aria-pressed={cheap} className={`flex w-full items-center justify-between rounded-2xl border p-3 text-left ${cheap ? 'border-leaf bg-green-50' : 'border-line bg-white'}`}>
+              <span>
+                <span className="block font-semibold">💰 {t('Save money')}</span>
+                <span className="block text-xs text-muted">{t('Prefer dishes that cost less per serving')}</span>
+              </span>
+              <span className={`grid size-6 place-items-center rounded-full border-2 text-xs font-bold ${cheap ? 'border-leaf bg-leaf text-white' : 'border-line'}`}>{cheap ? '✓' : ''}</span>
+            </button>
             <div className="flex items-center justify-between rounded-2xl border border-line bg-white p-3">
-              <span className="font-semibold">{t('People')}</span>
+              <span className="font-semibold">{style === 'lunchbox' ? t('Children') : t('People')}</span>
               <div className="flex items-center gap-3">
                 <button onClick={() => setServings(Math.max(1, servings - 1))} className="grid size-8 place-items-center rounded-full bg-cream font-bold" aria-label={t('Fewer')}>
                   −
@@ -353,7 +380,7 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 </button>
               </div>
             </div>
-            <Button onClick={() => generate()} loading={busy} disabled={meals.length === 0}>
+            <Button onClick={() => generate()} loading={busy} disabled={style !== 'lunchbox' && meals.length === 0}>
               {t('Suggest a plan')}
             </Button>
           </>
@@ -374,13 +401,25 @@ export function AiPlanSheet({ start: initialStart, onClose, onDone }: { start?: 
                 </div>
               </div>
             )}
+            {summary && summary.total_cost > 0 && (
+              <div className={`rounded-2xl p-3 text-sm ${summary.weekly_budget && summary.total_cost > summary.weekly_budget ? 'bg-amber-50 text-amber-900' : 'bg-green-50 text-green-900'}`}>
+                <p className="font-semibold">💰 {t('≈ ₹{n} for these meals', { n: summary.total_cost.toLocaleString('en-IN') })}</p>
+                <p className="text-xs opacity-80">
+                  {summary.weekly_budget
+                    ? summary.total_cost > summary.weekly_budget
+                      ? t('Over your ₹{b} weekly budget — try “Save money” or Shuffle.', { b: summary.weekly_budget.toLocaleString('en-IN') })
+                      : t('Within your ₹{b} weekly budget.', { b: summary.weekly_budget.toLocaleString('en-IN') })
+                    : t('Estimated from usual shop prices, for everyone eating. Set a weekly budget in Groceries.')}
+                </p>
+              </div>
+            )}
             {[...byDate].map(([date, entries]) => (
               <section key={date} className="rounded-2xl border border-line bg-white p-3">
                 <p className="mb-1 flex items-baseline justify-between font-semibold">
                   {fmtDate(date, { weekday: 'long', day: 'numeric', month: 'short' })}
                   {summary?.per_day[date] && (
                     <span className="text-xs font-medium text-muted">
-                      {fmtQty(Math.round(summary.per_day[date].protein_g))} g · {fmtQty(Math.round(summary.per_day[date].calories))} kcal
+                      {fmtQty(Math.round(summary.per_day[date].protein_g))} g · {fmtQty(Math.round(summary.per_day[date].calories))} kcal · ₹{summary.per_day[date].cost}
                     </span>
                   )}
                 </p>

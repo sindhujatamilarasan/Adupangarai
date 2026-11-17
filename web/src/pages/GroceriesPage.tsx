@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { api, ApiError, fmtQty, useApi, type GroceryItem, type GroceryResponse } from '../api'
+import { api, ApiError, fmtQty, useApi, type GroceryItem, type GroceryResponse, type User } from '../api'
+import { useAuth } from '../auth'
 import { Alert, Button, EmptyState, ErrorState, Sheet, Spinner } from '../components/ui'
 import { translate, unitLabel, useI18n, type Lang } from '../i18n'
 
@@ -82,6 +83,10 @@ export default function GroceriesPage() {
         </button>
 
         {flash && <Alert kind={flash.kind}>{flash.text}</Alert>}
+
+        {list.summary.estimated_cost !== undefined && (list.summary.estimated_cost > 0 || list.summary.weekly_budget) && (
+          <BudgetBar cost={list.summary.estimated_cost} budget={list.summary.weekly_budget ?? null} onSaved={() => call('budget', () => api<GroceryResponse>('/grocery'))} />
+        )}
 
         {pending.length > 0 && (
           <div className="flex items-center gap-3 rounded-2xl bg-green-50 p-4">
@@ -331,5 +336,63 @@ function ConfirmPantrySheet({ items, onClose, onDone }: { items: GroceryItem[]; 
         )}
       </div>
     </Sheet>
+  )
+}
+
+/** "≈ ₹850 to buy · budget ₹1,000": what's left on the list (usual shop prices) against the kitchen's weekly budget. */
+function BudgetBar({ cost, budget, onSaved }: { cost: number; budget: number | null; onSaved: () => void }) {
+  const { t } = useI18n()
+  const { setUser } = useAuth()
+  const [editing, setEditing] = useState(false)
+  const [value, setValue] = useState(budget ? String(budget) : '')
+  const [busy, setBusy] = useState(false)
+  const over = budget !== null && cost > budget
+  const share = budget ? Math.min(cost / budget, 1) : 0
+
+  async function save(e: FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    try {
+      const r = await api<{ user: User }>('/profile', { method: 'PUT', body: { weekly_budget: value ? Number(value) : null } })
+      setUser(r.user)
+      setEditing(false)
+      onSaved()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className={`rounded-2xl p-4 ${over ? 'bg-amber-50' : 'bg-white card'}`}>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-semibold">
+          💰 {t('≈ ₹{n} to buy', { n: cost.toLocaleString('en-IN') })}
+        </p>
+        <button onClick={() => setEditing(!editing)} className="text-sm font-bold text-brand">
+          {budget ? t('Budget ₹{b}', { b: budget.toLocaleString('en-IN') }) : t('Set weekly budget')} ✏️
+        </button>
+      </div>
+      {budget !== null && (
+        <>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-line">
+            <div className={`h-full rounded-full ${over ? 'bg-accent' : 'bg-leaf'}`} style={{ width: `${share * 100}%` }} />
+          </div>
+          <p className={`mt-1.5 text-xs ${over ? 'font-semibold text-amber-900' : 'text-muted'}`}>
+            {over ? t('₹{n} over budget — plan with “💰 Save money” to bring it down.', { n: (cost - budget).toLocaleString('en-IN') }) : t('₹{n} left in this week’s budget.', { n: (budget - cost).toLocaleString('en-IN') })}
+          </p>
+        </>
+      )}
+      <p className="mt-1 text-[11px] text-muted">{t('Estimated from usual shop prices; your shop may differ.')}</p>
+      {editing && (
+        <form onSubmit={save} className="mt-3 flex items-center gap-2">
+          <span className="font-semibold">₹</span>
+          <input autoFocus inputMode="numeric" value={value} onChange={(e) => setValue(e.target.value.replace(/\D/g, ''))} placeholder="1500" aria-label={t('Weekly grocery budget')} className="w-28 rounded-xl border border-line bg-white px-3 py-2" />
+          <span className="text-sm text-muted">{t('per week')}</span>
+          <button disabled={busy} className="ml-auto rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+            {t('Save')}
+          </button>
+        </form>
+      )}
+    </div>
   )
 }

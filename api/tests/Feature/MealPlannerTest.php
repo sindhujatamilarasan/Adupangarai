@@ -11,6 +11,7 @@ use App\Support\MealPlanner;
 use Database\Seeders\IngredientSeeder;
 use Database\Seeders\RecipeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class MealPlannerTest extends TestCase
@@ -155,5 +156,56 @@ class MealPlannerTest extends TestCase
 
         $this->assertNotContains('Secret', $this->names($plan));
         $this->assertSame(0, MealPlan::count());
+    }
+
+    public function test_kids_lunchbox_plan_is_school_days_only_packable_and_never_repeats(): void
+    {
+        // 2026-10-05 is a Monday: 7 days = Mon–Fri + a weekend.
+        $plan = $this->suggest(['style' => 'lunchbox', 'meals' => ['breakfast', 'dinner']])['data'];
+        $recipes = Recipe::all()->keyBy('id');
+
+        $this->assertSame(['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09'], array_column($plan, 'date'));
+        $this->assertSame(['lunchbox'], array_values(array_unique(array_column($plan, 'meal_type'))));
+        foreach ($plan as $p) {
+            $this->assertContains('lunchbox', $recipes[$p['recipe_id']]->tags, $recipes[$p['recipe_id']]->name.' does not pack well');
+        }
+        $this->assertCount(5, array_unique(array_column($plan, 'recipe_id')), 'a lunch box repeated within the week');
+
+        // The lunch box can be saved next to the family's own lunch.
+        $this->actingAs($this->user)->postJson('/api/meal-plans/bulk', ['entries' => $plan])->assertCreated();
+    }
+
+    public function test_working_person_gets_quick_or_made_ahead_weekday_breakfast_and_dinner(): void
+    {
+        $plan = $this->suggest(['style' => 'working', 'meals' => ['breakfast', 'lunch', 'dinner']])['data'];
+        $recipes = Recipe::all()->keyBy('id');
+
+        foreach ($plan as $p) {
+            $r = $recipes[$p['recipe_id']];
+            if (in_array($p['meal_type'], ['breakfast', 'dinner'], true) && ! Carbon::parse($p['date'])->isWeekend()) {
+                $this->assertTrue($r->prep_time + $r->cook_time <= MealPlanner::WORKDAY_MINUTES || in_array('prep_ahead', $r->tags, true), "{$r->name} is too slow for a working day");
+            }
+        }
+    }
+
+    public function test_save_money_makes_the_week_cheaper_and_costs_are_shown(): void
+    {
+        $normal = $this->suggest(['meals' => ['breakfast', 'lunch', 'dinner']])['summary'];
+        $cheap = $this->suggest(['meals' => ['breakfast', 'lunch', 'dinner'], 'cheap' => true])['summary'];
+
+        $this->assertGreaterThan(0, $normal['total_cost']);
+        $this->assertLessThan($normal['total_cost'], $cheap['total_cost']);
+        $this->assertArrayHasKey('cost', $cheap['per_day']['2026-10-05']);
+    }
+
+    public function test_weekly_budget_shows_on_plan_and_grocery_list(): void
+    {
+        $this->actingAs($this->user)->putJson('/api/profile', ['weekly_budget' => 1500])->assertOk()->assertJsonPath('user.household.weekly_budget', 1500);
+        $this->assertSame(1500, $this->suggest()['summary']['weekly_budget']);
+
+        $this->actingAs($this->user)->postJson('/api/meal-plans/bulk', ['entries' => $this->suggest()['data']])->assertCreated();
+        $grocery = $this->actingAs($this->user)->postJson('/api/grocery/generate', ['start' => '2026-10-05'])->assertOk()->json('summary');
+        $this->assertSame(1500, $grocery['weekly_budget']);
+        $this->assertGreaterThan(0, $grocery['estimated_cost']);
     }
 }

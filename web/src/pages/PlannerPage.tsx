@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { addDays, api, ApiError, isoDate, MEAL_TYPES, useApi, type DayNutrition, type MealPlanEntry, type MealType, type RecipeSummary } from '../api'
+import { addDays, api, ApiError, isoDate, MEAL_SLOTS, useApi, type DayNutrition, type MealPlanEntry, type MealSlot, type RecipeSummary } from '../api'
 import { AiPlanSheet } from '../components/AiSheets'
 import { ProteinWeekChart } from '../components/Health'
 import { Alert, Button, ErrorState, Sheet, Spinner } from '../components/ui'
@@ -8,7 +8,16 @@ import { nm, useI18n } from '../i18n'
 import { VegDot } from './RecipesPage'
 
 
-type Editing = { mode: 'add'; date: string; meal_type: MealType } | { mode: 'edit'; entry: MealPlanEntry }
+type Editing = { mode: 'add'; date: string; meal_type: MealSlot } | { mode: 'edit'; entry: MealPlanEntry }
+
+const LUNCHBOX_KEY = 'adupangarai.lunchboxRow'
+const readLunchboxPref = () => {
+  try {
+    return localStorage.getItem(LUNCHBOX_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 export default function PlannerPage() {
   const { t, fmtDate: fmt } = useI18n()
@@ -18,6 +27,16 @@ export default function PlannerPage() {
   const [aiOpen, setAiOpen] = useState(false)
   const [flash, setFlash] = useState<string>((useLocation().state as { flash?: string } | null)?.flash ?? '')
   const [clearing, setClearing] = useState(false)
+  // The kids' lunch box row shows on school days once it's used (or switched on here).
+  const [lunchboxOn, setLunchboxOn] = useState(readLunchboxPref)
+  const toggleLunchbox = () => {
+    try {
+      localStorage.setItem(LUNCHBOX_KEY, lunchboxOn ? '0' : '1')
+    } catch {
+      /* private mode */
+    }
+    setLunchboxOn(!lunchboxOn)
+  }
   const uncooked = res.data?.data.filter((p) => !p.cooked_at).length ?? 0
 
   async function clearWeek() {
@@ -34,6 +53,11 @@ export default function PlannerPage() {
     }
   }
   const weekStart = res.data?.start
+  const hasLunchbox = lunchboxOn || !!res.data?.data.some((p) => p.meal_type === 'lunchbox')
+  const slotsFor = (date: string) => {
+    const day = new Date(`${date}T00:00:00`).getDay()
+    return MEAL_SLOTS.filter((m) => m !== 'lunchbox' || (hasLunchbox && day !== 0 && day !== 6))
+  }
   const today = isoDate(new Date())
 
   const byDay = useMemo(() => {
@@ -78,13 +102,18 @@ export default function PlannerPage() {
           </button>
         </div>
       )}
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <button onClick={toggleLunchbox} aria-pressed={hasLunchbox} className={`rounded-full px-3 py-1.5 text-sm font-semibold ${hasLunchbox ? 'bg-amber-50 text-amber-900' : 'text-muted'}`}>
+          🎒 {hasLunchbox ? t('Lunch box row on') : t('Add a kids’ lunch box row')}
+        </button>
       {uncooked > 0 && (
-        <div className="mt-2 flex justify-end">
+        <div className="flex justify-end">
           <button onClick={clearWeek} disabled={clearing} className="px-2 py-1 text-sm font-semibold text-red-700 disabled:opacity-50">
             🗑 {clearing ? t('Clearing…') : t('Clear this week')}
           </button>
         </div>
       )}
+      </div>
 
       <div className="mt-4 space-y-4">
         {weekStart && <ProteinWeekChart days={Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))} nutrition={res.data!.nutrition} />}
@@ -98,7 +127,7 @@ export default function PlannerPage() {
                 {date === today && <span className="ml-2 text-xs font-semibold tracking-wide text-brand uppercase">{t('Today')}</span>}
               </h2>
               <div className="divide-y divide-line">
-                {MEAL_TYPES.map((meal) => (
+                {slotsFor(date).map((meal) => (
                   <div key={meal} className="flex items-start gap-3 py-2">
                     <span className="w-20 shrink-0 pt-1.5 text-xs font-bold uppercase text-muted">{t(meal)}</span>
                     <div className="flex flex-1 flex-wrap gap-1.5">
@@ -162,7 +191,8 @@ function PlanSheet({ editing, onClose, onSaved }: { editing: Editing; onClose: (
   const chosen = list.find((r) => r.id === recipeId) ?? (entry ? { ...entry.recipe } : null)
   const matches = list
     .filter((r) => `${r.name} ${nm(r)}`.toLowerCase().includes(search.trim().toLowerCase()))
-    .sort((a, b) => Number(b.meal_type === meal) - Number(a.meal_type === meal))
+    // Best fits first: for the lunch box, dishes that pack well; otherwise the same meal time.
+    .sort((a, b) => (meal === 'lunchbox' ? Number(!!b.tags?.includes('lunchbox')) - Number(!!a.tags?.includes('lunchbox')) : Number(b.meal_type === meal) - Number(a.meal_type === meal)))
 
   async function save() {
     setBusy(true)

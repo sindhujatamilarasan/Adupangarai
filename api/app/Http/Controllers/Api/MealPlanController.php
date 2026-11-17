@@ -56,11 +56,13 @@ class MealPlanController extends Controller
             'start' => ['required', 'date_format:Y-m-d'],
             'days' => ['required', 'integer', 'min:1', 'max:7'],
             'meals' => ['required', 'array', 'min:1'],
-            'meals.*' => ['distinct', Rule::in(Recipe::MEAL_TYPES)],
+            'meals.*' => ['distinct', Rule::in(MealPlan::SLOTS)],
             'goal' => ['required', Rule::in(MealPlanner::GOALS)],
             'servings' => ['required', 'integer', 'min:1', 'max:20'],
             'seed' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'diet' => ['nullable', Rule::in(MealPlanner::DIETS)],
+            'style' => ['nullable', Rule::in(MealPlanner::STYLES)],
+            'cheap' => ['nullable', 'boolean'],
         ]);
         $household = $request->user()->household_id;
         $target = null;
@@ -71,14 +73,14 @@ class MealPlanController extends Controller
         }
         $recipes = Recipe::visibleTo($household)->with('ingredients.ingredient.category')->get();
         $matches = RecipeMatcher::matchAll($recipes, RecipeMatcher::pantryFor($household))->keyBy('recipe.id');
-        $meals = array_values(array_intersect(Recipe::MEAL_TYPES, $data['meals']));
+        $meals = array_values(array_intersect(MealPlan::SLOTS, $data['meals']));
 
-        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0, $data['diet'] ?? 'any', $target);
+        $plan = MealPlanner::suggest($recipes, $matches, Carbon::parse($data['start']), $data['days'], $meals, $data['goal'], $data['servings'], $data['seed'] ?? 0, $data['diet'] ?? 'any', $target, $data['style'] ?? 'family', (bool) ($data['cheap'] ?? false));
         $labels = $recipes->pluck('label', 'id');
 
         return response()->json([
             'data' => array_map(fn ($p) => [...$p, 'recipe_name' => $labels[$p['recipe_id']]], $plan),
-            'summary' => [...MealPlanner::summary($plan, $recipes), 'target_calories' => $target],
+            'summary' => [...MealPlanner::summary($plan, $recipes), 'target_calories' => $target, 'weekly_budget' => $request->user()->household->weekly_budget],
         ]);
     }
 
@@ -105,7 +107,7 @@ class MealPlanController extends Controller
         $data = $request->validate([
             'entries' => ['required', 'array', 'min:1', 'max:60'],
             'entries.*.date' => ['required', 'date_format:Y-m-d'],
-            'entries.*.meal_type' => ['required', Rule::in(Recipe::MEAL_TYPES)],
+            'entries.*.meal_type' => ['required', Rule::in(MealPlan::SLOTS)],
             'entries.*.recipe_id' => ['required', Rule::exists('recipes', 'id')->where(
                 fn ($q) => $q->whereNull('household_id')->orWhere('household_id', $household)
             )],
@@ -142,7 +144,7 @@ class MealPlanController extends Controller
 
         return $request->validate([
             'date' => [$required, 'date_format:Y-m-d'],
-            'meal_type' => [$required, Rule::in(Recipe::MEAL_TYPES)],
+            'meal_type' => [$required, Rule::in(MealPlan::SLOTS)],
             'recipe_id' => [$required, Rule::exists('recipes', 'id')->where(
                 fn ($q) => $q->whereNull('household_id')->orWhere('household_id', $household)
             )],

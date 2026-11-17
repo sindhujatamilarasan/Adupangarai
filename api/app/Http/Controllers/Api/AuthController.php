@@ -174,6 +174,7 @@ class AuthController extends Controller
             'password' => ['sometimes', 'string', 'min:8'],
             'locale' => ['sometimes', Rule::in(SetLocale::SUPPORTED)],
             'onboarded' => ['sometimes', 'boolean'],
+            'weekly_budget' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:1000000'],
         ]);
 
         DB::transaction(function () use ($user, $data) {
@@ -187,6 +188,9 @@ class AuthController extends Controller
 
             if (isset($data['household_name'])) {
                 $user->household->update(['name' => $data['household_name']]);
+            }
+            if (array_key_exists('weekly_budget', $data)) {
+                $user->household->update(['weekly_budget' => $data['weekly_budget'] ?: null]);
             }
         });
 

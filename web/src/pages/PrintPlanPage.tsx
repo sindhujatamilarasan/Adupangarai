@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom'
-import { addDays, fmtQty, MEAL_TYPES, useApi, type DayNutrition, type MealPlanEntry } from '../api'
+import { addDays, fmtQty, MEAL_SLOTS, useApi, type DayNutrition, type MealPlanEntry } from '../api'
 import { useAuth } from '../auth'
 import Kolam from '../components/Kolam'
 import { ErrorState, Spinner } from '../components/ui'
@@ -83,7 +83,7 @@ export default function PrintPlanPage() {
             </tr>
           </thead>
           <tbody>
-            {MEAL_TYPES.map((meal, row) => (
+            {MEAL_SLOTS.filter((m) => m !== 'lunchbox' || plans.some((p) => p.meal_type === 'lunchbox')).map((meal, row) => (
               <tr key={meal} className={row % 2 ? 'bg-cream/70' : ''}>
                 <th className="border-b border-line px-1.5 py-2 text-left align-top text-[9pt] font-semibold tracking-wide text-brand uppercase">
                   {t(meal)}

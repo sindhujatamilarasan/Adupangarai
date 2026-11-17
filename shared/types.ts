@@ -1,6 +1,6 @@
 /** Data shapes returned by the Adupangarai API, plus small display helpers. Used by the web and mobile apps. */
 
-export type Household = { id: number; name: string }
+export type Household = { id: number; name: string; weekly_budget?: number | null }
 export type User = { id: number; name: string; email: string; locale: 'en' | 'ta'; household_id: number; household: Household; onboarded_at?: string | null }
 
 export type UnitValue = 'g' | 'kg' | 'ml' | 'L' | 'cup' | 'tbsp' | 'tsp' | 'piece' | 'packet'
@@ -46,6 +46,11 @@ export const fmtQty = (n: number) => String(Number(n.toFixed(3)))
 
 export type MealType = 'breakfast' | 'lunch' | 'snack' | 'dinner'
 export const MEAL_TYPES: MealType[] = ['breakfast', 'lunch', 'snack', 'dinner']
+/** Planner slots: the meal types plus a kids' lunch box packed for school. */
+export type MealSlot = MealType | 'lunchbox'
+export const MEAL_SLOTS: MealSlot[] = ['breakfast', 'lunch', 'lunchbox', 'snack', 'dinner']
+/** lunchbox: packs well; kids: mild, kid-friendly; prep_ahead: can be made the day before. */
+export type RecipeTag = 'lunchbox' | 'kids' | 'prep_ahead'
 export type RecipeSummary = {
   id: number
   name: string
@@ -63,6 +68,9 @@ export type RecipeSummary = {
   ingredients_count: number
   health_tags: HealthTag[]
   image_url: string | null
+  tags?: RecipeTag[]
+  /** Estimated ₹ per serving (from usual shop prices); only in some lists. */
+  cost_per_serving?: number | null
 } & NutritionValues
 
 export type HealthTag = 'high_protein' | 'low_calorie' | 'high_fiber'
@@ -95,7 +103,7 @@ export type CookResult = {
 export type MealPlanEntry = {
   id: number
   date: string
-  meal_type: MealType
+  meal_type: MealSlot
   recipe_id: number
   servings: number
   cooked_at: string | null
@@ -132,7 +140,7 @@ export type GroceryItem = {
 export type GroceryResponse = {
   data: GroceryItem[]
   list: { planned_from: string | null; planned_to: string | null }
-  summary: { total: number; remaining: number; to_add_to_pantry: number; spent: number }
+  summary: { total: number; remaining: number; to_add_to_pantry: number; spent: number; estimated_cost?: number; weekly_budget?: number | null }
 }
 
 export type CookRow = {
@@ -149,7 +157,7 @@ export type CookRow = {
 }
 
 export type Dashboard = {
-  today_meals: { id: number; meal_type: MealType; servings: number; cooked_at: string | null; recipe: { id: number; name: string; label?: string; is_veg: boolean; meal_type: MealType; image_url: string | null }; can_cook_now: boolean }[]
+  today_meals: { id: number; meal_type: MealSlot; servings: number; cooked_at: string | null; recipe: { id: number; name: string; label?: string; is_veg: boolean; meal_type: MealType; image_url: string | null }; can_cook_now: boolean }[]
   cook_now: CookResult[]
   almost_count: number
   use_soon: CookResult[]
@@ -174,7 +182,7 @@ export type AiItem = {
 export type RecipeDraft = Omit<RecipeDetail, 'id' | 'ingredients' | 'match' | 'requested_servings' | 'total_time' | 'is_editable' | 'health_tags' | 'image_url'> & {
   ingredients: AiItem[]
 }
-export type AiPlanEntry = { date: string; meal_type: MealType; recipe_id: number; servings: number; recipe_name: string }
+export type AiPlanEntry = { date: string; meal_type: MealSlot; recipe_id: number; servings: number; recipe_name: string }
 
 export type CoachGoal = 'lose' | 'maintain' | 'gain'
 export type Activity = 'sedentary' | 'light' | 'moderate' | 'active'
@@ -204,7 +212,7 @@ export type CoachData = {
     protein_g: number
     planned_calories: number
     steps: number
-    planned: { id: number; meal_type: MealType; recipe: Pick<RecipeSummary, 'id' | 'name' | 'label' | 'is_veg' | 'calories' | 'protein_g' | 'image_url' | 'meal_type'>; log: FoodLog | null }[]
+    planned: { id: number; meal_type: MealSlot; recipe: Pick<RecipeSummary, 'id' | 'name' | 'label' | 'is_veg' | 'calories' | 'protein_g' | 'image_url' | 'meal_type'>; log: FoodLog | null }[]
     extras: FoodLog[]
   }
   week: { date: string; calories: number; steps: number; on_target: boolean; logged: boolean }[]

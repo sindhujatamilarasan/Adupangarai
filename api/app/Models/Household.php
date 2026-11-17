@@ -10,7 +10,12 @@ class Household extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'weekly_budget'];
+
+    protected function casts(): array
+    {
+        return ['weekly_budget' => 'integer'];
+    }
 
     public function users(): HasMany
     {

@@ -12,7 +12,7 @@ class Ingredient extends Model
 {
     use HasTamilName;
 
-    protected $fillable = ['name', 'name_ta', 'ingredient_category_id', 'default_unit', 'icon', 'pack_quantity', 'pack_label'];
+    protected $fillable = ['name', 'name_ta', 'ingredient_category_id', 'default_unit', 'icon', 'pack_quantity', 'pack_label', 'pack_price'];
 
     protected $appends = ['display_icon'];
 
@@ -20,7 +20,7 @@ class Ingredient extends Model
 
     protected function casts(): array
     {
-        return ['default_unit' => Unit::class, 'pack_quantity' => 'float'];
+        return ['default_unit' => Unit::class, 'pack_quantity' => 'float', 'pack_price' => 'float'];
     }
 
     protected static function booted(): void

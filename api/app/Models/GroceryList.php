@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GroceryList extends Model
@@ -12,6 +13,11 @@ class GroceryList extends Model
     protected function casts(): array
     {
         return ['planned_from' => 'date:Y-m-d', 'planned_to' => 'date:Y-m-d'];
+    }
+
+    public function household(): BelongsTo
+    {
+        return $this->belongsTo(Household::class);
     }
 
     public function items(): HasMany

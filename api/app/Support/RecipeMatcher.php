@@ -105,7 +105,7 @@ class RecipeMatcher
     public static function matchAll(Collection $recipes, Collection $pantry): Collection
     {
         return $recipes->map(fn (Recipe $r) => [
-            'recipe' => $r->only(['id', 'name', 'label', 'blurb', 'description', 'meal_type', 'cuisine', 'servings', 'total_time', 'is_veg', 'calories', 'protein_g', 'health_tags', 'image_url']),
+            'recipe' => $r->only(['id', 'name', 'label', 'blurb', 'description', 'meal_type', 'cuisine', 'servings', 'total_time', 'is_veg', 'calories', 'protein_g', 'health_tags', 'image_url', 'tags', 'cost_per_serving']),
             'match' => self::match($r, $pantry),
         ]);
     }

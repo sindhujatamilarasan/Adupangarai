@@ -152,6 +152,103 @@ class RecipeSeeder extends Seeder
             'ingredients' => [['Fish', 500, 'g'], ['Tomato', 3, 'piece'], ['Onion', 1, 'piece'], ['Red Chilli Powder', 2, 'tsp'], ['Coriander Powder', 2, 'tsp'], ['Turmeric Powder', 0.5, 'tsp'], ['Mustard Seeds', 1, 'tsp'], ['Salt', 6, 'g'], ['Cooking Oil', 2, 'tbsp'], ['Curry Leaves', 5, 'g', true]],
             'steps' => ['Temper mustard and curry leaves; sauté onion.', 'Add tomatoes and spice powders with a cup of water; simmer 10 minutes.', 'Slide in the fish and cook gently for 8 minutes.'],
         ],
+        // Family plans: lunch box, quick weekday and prep-ahead dishes.
+        [
+            'name' => 'Coconut Rice', 'meal_type' => 'lunch', 'cuisine' => 'South Indian', 'servings' => 3, 'prep_time' => 10, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Rice tossed with fresh grated coconut and a crunchy dal tempering. A lunch box favourite.',
+            'ingredients' => [['Rice', 300, 'g'], ['Coconut', 0.5, 'piece'], ['Urad Dal', 10, 'g'], ['Chana Dal', 10, 'g'], ['Mustard Seeds', 0.5, 'tsp'], ['Curry Leaves', 5, 'g'], ['Green Chilli', 2, 'piece'], ['Cooking Oil', 2, 'tbsp'], ['Salt', 5, 'g'], ['Cashew', 15, 'g', true]],
+            'steps' => ['Cook the rice and spread it out to cool.', 'Heat oil; fry mustard, urad dal, chana dal, cashew, chilli and curry leaves.', 'Add the grated coconut and stir for a minute.', 'Mix in the rice and salt gently.'],
+        ],
+        [
+            'name' => 'Jeera Rice', 'meal_type' => 'lunch', 'cuisine' => 'North Indian', 'servings' => 3, 'prep_time' => 5, 'cook_time' => 20, 'is_veg' => true,
+            'description' => 'Fragrant basmati rice with ghee and cumin.',
+            'ingredients' => [['Basmati Rice', 300, 'g'], ['Cumin Seeds', 1.5, 'tsp'], ['Ghee', 2, 'tbsp'], ['Salt', 5, 'g'], ['Water', 600, 'ml']],
+            'steps' => ['Wash and soak the rice for 15 minutes.', 'Heat ghee and fry the cumin until it crackles.', 'Add rice, water and salt; cook covered until done.', 'Fluff with a fork.'],
+        ],
+        [
+            'name' => 'Veg Pulao', 'meal_type' => 'lunch', 'cuisine' => 'North Indian', 'servings' => 3, 'prep_time' => 15, 'cook_time' => 20, 'is_veg' => true,
+            'description' => 'Mild one-pot rice with carrot and peas.',
+            'ingredients' => [['Basmati Rice', 300, 'g'], ['Carrot', 1, 'piece'], ['Green Peas', 80, 'g'], ['Onion', 1, 'piece'], ['Ginger', 5, 'g'], ['Garam Masala', 1, 'tsp'], ['Ghee', 2, 'tbsp'], ['Salt', 5, 'g'], ['Water', 600, 'ml']],
+            'steps' => ['Soak the rice for 15 minutes.', 'Fry onion and ginger in ghee; add carrot, peas and garam masala.', 'Add rice, water and salt; cook covered until done.'],
+        ],
+        [
+            'name' => 'Idli', 'meal_type' => 'breakfast', 'cuisine' => 'South Indian', 'servings' => 4, 'prep_time' => 5, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Soft steamed idlis from ready batter.',
+            'ingredients' => [['Idli Dosa Batter', 500, 'g'], ['Cooking Oil', 1, 'tsp']],
+            'steps' => ['Grease the idli plates.', 'Pour in the batter.', 'Steam for 10–12 minutes until a toothpick comes out clean.'],
+        ],
+        [
+            'name' => 'Dosa', 'meal_type' => 'breakfast', 'cuisine' => 'South Indian', 'servings' => 4, 'prep_time' => 5, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Crisp dosas from ready batter.',
+            'ingredients' => [['Idli Dosa Batter', 500, 'g'], ['Cooking Oil', 3, 'tbsp']],
+            'steps' => ['Heat a tawa and wipe it with a little oil.', 'Spread a ladle of batter in a thin circle.', 'Drizzle oil around the edge and cook until golden.'],
+        ],
+        [
+            'name' => 'Veg Cheese Sandwich', 'meal_type' => 'snack', 'cuisine' => 'Indian', 'servings' => 2, 'prep_time' => 10, 'cook_time' => 5, 'is_veg' => true,
+            'description' => 'Buttered sandwich with cucumber, tomato and cheese.',
+            'ingredients' => [['Bread', 0.25, 'packet'], ['Cheese', 40, 'g'], ['Cucumber', 0.5, 'piece'], ['Tomato', 1, 'piece'], ['Butter', 15, 'g'], ['Black Pepper', 0.25, 'tsp', true]],
+            'steps' => ['Butter the bread slices.', 'Layer cucumber, tomato and cheese; sprinkle pepper.', 'Toast on a tawa until golden on both sides.'],
+        ],
+        [
+            'name' => 'Egg Sandwich', 'meal_type' => 'snack', 'cuisine' => 'Indian', 'servings' => 2, 'prep_time' => 10, 'cook_time' => 10, 'is_veg' => false,
+            'description' => 'Boiled egg sandwich with butter and pepper.',
+            'ingredients' => [['Bread', 0.25, 'packet'], ['Egg', 2, 'piece'], ['Butter', 10, 'g'], ['Black Pepper', 0.25, 'tsp'], ['Salt', 1, 'g']],
+            'steps' => ['Boil the eggs for 10 minutes, cool and slice.', 'Butter the bread and layer the egg slices.', 'Season with salt and pepper and close.'],
+        ],
+        [
+            'name' => 'Paneer Roll', 'meal_type' => 'lunch', 'cuisine' => 'North Indian', 'servings' => 2, 'prep_time' => 15, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Chapati rolled around spiced paneer and capsicum.',
+            'ingredients' => [['Wheat Flour', 150, 'g'], ['Paneer', 100, 'g'], ['Capsicum', 0.5, 'piece'], ['Onion', 0.5, 'piece'], ['Tomato Ketchup', 1, 'tbsp'], ['Garam Masala', 0.5, 'tsp'], ['Cooking Oil', 1, 'tbsp'], ['Salt', 2, 'g']],
+            'steps' => ['Make soft chapatis.', 'Sauté onion and capsicum; add crumbled paneer, garam masala and salt.', 'Spread ketchup on each chapati, add the filling and roll tightly.'],
+        ],
+        [
+            'name' => 'Semiya Upma', 'meal_type' => 'breakfast', 'cuisine' => 'South Indian', 'servings' => 2, 'prep_time' => 5, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Vermicelli upma with carrot and peas.',
+            'ingredients' => [['Vermicelli', 150, 'g'], ['Onion', 1, 'piece'], ['Carrot', 0.5, 'piece'], ['Green Peas', 30, 'g'], ['Mustard Seeds', 0.5, 'tsp'], ['Curry Leaves', 3, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Salt', 3, 'g'], ['Water', 400, 'ml']],
+            'steps' => ['Roast the vermicelli until light golden; keep aside.', 'Temper mustard and curry leaves; sauté onion, carrot and peas.', 'Add water and salt; when it boils, add vermicelli and cook covered until soft.'],
+        ],
+        [
+            'name' => 'Aval Upma', 'meal_type' => 'breakfast', 'cuisine' => 'South Indian', 'servings' => 2, 'prep_time' => 5, 'cook_time' => 10, 'is_veg' => true,
+            'description' => 'Light poha with peanuts, onion and lemon.',
+            'ingredients' => [['Poha', 150, 'g'], ['Onion', 1, 'piece'], ['Peanuts', 20, 'g'], ['Mustard Seeds', 0.5, 'tsp'], ['Turmeric Powder', 0.25, 'tsp'], ['Curry Leaves', 3, 'g'], ['Green Chilli', 1, 'piece'], ['Lemon', 0.5, 'piece'], ['Cooking Oil', 1, 'tbsp'], ['Salt', 3, 'g']],
+            'steps' => ['Rinse the poha and drain.', 'Fry peanuts, mustard, curry leaves and chilli; add onion and turmeric.', 'Add poha and salt, mix gently and steam 2 minutes; squeeze lemon.'],
+        ],
+        [
+            'name' => 'Bread Omelette', 'meal_type' => 'breakfast', 'cuisine' => 'Indian', 'servings' => 1, 'prep_time' => 5, 'cook_time' => 5, 'is_veg' => false,
+            'description' => 'Street-style omelette folded into toasted bread.',
+            'ingredients' => [['Bread', 0.125, 'packet'], ['Egg', 2, 'piece'], ['Onion', 0.25, 'piece'], ['Green Chilli', 1, 'piece'], ['Butter', 10, 'g'], ['Salt', 1, 'g']],
+            'steps' => ['Beat eggs with onion, chilli and salt.', 'Pour into a buttered pan and place the bread slices on top.', 'Flip, fold the omelette over the bread and toast both sides.'],
+        ],
+        [
+            'name' => 'Egg Curry', 'meal_type' => 'dinner', 'cuisine' => 'South Indian', 'servings' => 3, 'prep_time' => 10, 'cook_time' => 20, 'is_veg' => false,
+            'description' => 'Boiled eggs in onion-tomato masala. Tastes even better the next day.',
+            'ingredients' => [['Egg', 6, 'piece'], ['Onion', 2, 'piece'], ['Tomato', 2, 'piece'], ['Ginger', 5, 'g'], ['Garlic', 5, 'g'], ['Red Chilli Powder', 1, 'tsp'], ['Coriander Powder', 1, 'tsp'], ['Garam Masala', 0.5, 'tsp'], ['Turmeric Powder', 0.25, 'tsp'], ['Cooking Oil', 2, 'tbsp'], ['Salt', 4, 'g']],
+            'steps' => ['Boil and peel the eggs; make small slits.', 'Fry onion, ginger and garlic; add tomato and the spice powders.', 'Add a cup of water and the eggs; simmer 10 minutes.'],
+        ],
+        [
+            'name' => 'Dal Khichdi', 'meal_type' => 'dinner', 'cuisine' => 'Indian', 'servings' => 3, 'prep_time' => 5, 'cook_time' => 20, 'is_veg' => true,
+            'description' => 'Comforting one-pot rice and moong dal. Easy for kids and tired evenings.',
+            'ingredients' => [['Rice', 150, 'g'], ['Moong Dal', 100, 'g'], ['Ghee', 1, 'tbsp'], ['Cumin Seeds', 1, 'tsp'], ['Turmeric Powder', 0.25, 'tsp'], ['Ginger', 5, 'g'], ['Salt', 4, 'g'], ['Water', 900, 'ml']],
+            'steps' => ['Wash rice and dal together.', 'Fry cumin and ginger in ghee in a pressure cooker.', 'Add rice, dal, turmeric, salt and water; cook for 3 whistles.'],
+        ],
+        [
+            'name' => 'Tomato Rasam', 'meal_type' => 'lunch', 'cuisine' => 'South Indian', 'servings' => 4, 'prep_time' => 5, 'cook_time' => 15, 'is_veg' => true,
+            'description' => 'Peppery tomato rasam. Keeps well for two days.',
+            'ingredients' => [['Tomato', 3, 'piece'], ['Toor Dal', 30, 'g'], ['Black Pepper', 1, 'tsp'], ['Cumin Seeds', 1, 'tsp'], ['Garlic', 5, 'g'], ['Mustard Seeds', 0.5, 'tsp'], ['Hing', 0.25, 'tsp'], ['Curry Leaves', 3, 'g'], ['Ghee', 1, 'tsp'], ['Salt', 4, 'g'], ['Water', 800, 'ml'], ['Coriander Leaves', 5, 'g', true]],
+            'steps' => ['Cook the toor dal soft.', 'Crush pepper, cumin and garlic.', 'Boil tomatoes with water, salt, hing and the crushed spices; add the dal water.', 'Temper mustard and curry leaves in ghee and pour over.'],
+        ],
+        [
+            'name' => 'Sambar', 'meal_type' => 'lunch', 'cuisine' => 'South Indian', 'servings' => 4, 'prep_time' => 10, 'cook_time' => 30, 'is_veg' => true,
+            'description' => 'Everyday toor dal sambar with vegetables. Make it on Sunday for two days.',
+            'ingredients' => [['Toor Dal', 120, 'g'], ['Tomato', 2, 'piece'], ['Onion', 1, 'piece'], ['Carrot', 1, 'piece'], ['Red Chilli Powder', 1, 'tsp'], ['Coriander Powder', 2, 'tsp'], ['Turmeric Powder', 0.25, 'tsp'], ['Mustard Seeds', 0.5, 'tsp'], ['Hing', 0.25, 'tsp'], ['Curry Leaves', 3, 'g'], ['Cooking Oil', 1, 'tbsp'], ['Salt', 5, 'g'], ['Water', 800, 'ml']],
+            'steps' => ['Pressure cook the dal with turmeric.', 'Boil onion, carrot and tomato with the spice powders and salt.', 'Add the mashed dal and simmer 5 minutes.', 'Temper mustard, hing and curry leaves and pour over.'],
+        ],
+        [
+            'name' => 'Banana Milkshake', 'meal_type' => 'snack', 'cuisine' => 'Indian', 'servings' => 2, 'prep_time' => 5, 'cook_time' => 0, 'is_veg' => true,
+            'description' => 'Thick banana milkshake. An after-school favourite.',
+            'ingredients' => [['Banana', 2, 'piece'], ['Milk', 300, 'ml'], ['Sugar', 10, 'g'], ['Cashew', 10, 'g', true]],
+            'steps' => ['Blend banana, chilled milk, sugar and cashew until smooth.', 'Serve right away.'],
+        ],
     ];
 
     /** Estimated nutrition per serving: [kcal, protein g, carbs g, fat g, fiber g]. */
@@ -179,6 +276,22 @@ class RecipeSeeder extends Seeder
         'Pepper Chicken' => [260, 30, 6, 13, 2],
         'Paneer Tikka' => [290, 18, 9, 20, 2],
         'Fish Curry' => [240, 26, 8, 11, 2],
+        'Coconut Rice' => [380, 7, 52, 16, 4],
+        'Jeera Rice' => [320, 6, 58, 7, 1],
+        'Veg Pulao' => [360, 8, 60, 9, 4],
+        'Idli' => [180, 6, 36, 1, 2],
+        'Dosa' => [220, 5, 34, 7, 1],
+        'Veg Cheese Sandwich' => [310, 12, 34, 14, 3],
+        'Egg Sandwich' => [290, 14, 30, 12, 2],
+        'Paneer Roll' => [420, 18, 50, 16, 5],
+        'Semiya Upma' => [300, 7, 52, 7, 3],
+        'Aval Upma' => [280, 6, 45, 9, 3],
+        'Bread Omelette' => [330, 15, 26, 18, 1],
+        'Egg Curry' => [260, 14, 9, 18, 2],
+        'Dal Khichdi' => [290, 11, 48, 6, 4],
+        'Tomato Rasam' => [70, 3, 10, 2, 2],
+        'Sambar' => [150, 8, 22, 4, 6],
+        'Banana Milkshake' => [210, 7, 36, 5, 2],
     ];
 
     /** Tamil name and description per built-in recipe. */
@@ -206,6 +319,39 @@ class RecipeSeeder extends Seeder
         'Pepper Chicken' => ['பெப்பர் சிக்கன்', 'மிளகு, கறிவேப்பிலையோட வறுத்த செட்டிநாடு ஸ்டைல் சிக்கன்.'],
         'Paneer Tikka' => ['பன்னீர் டிக்கா', 'மசாலா தயிர்ல ஊற வெச்ச பன்னீர், குடைமிளகாய் — தவால வாட்டினது.'],
         'Fish Curry' => ['மீன் குழம்பு', 'தக்காளி போட்ட புளிப்பான மீன் குழம்பு.'],
+        'Coconut Rice' => ['தேங்காய் சாதம்', 'துருவின தேங்காய், பருப்பு தாளிச்ச சாதம் — லஞ்ச் பாக்ஸ்க்கு சூப்பர்.'],
+        'Jeera Rice' => ['ஜீரா சாதம்', 'நெய், சீரகம் போட்ட வாசனையான பாசுமதி சாதம்.'],
+        'Veg Pulao' => ['வெஜ் புலாவ்', 'கேரட், பட்டாணி போட்ட மிதமான ஒரே பாத்திர சாதம்.'],
+        'Idli' => ['இட்லி', 'ரெடிமேட் மாவுல ஆவியில வேக வெச்ச மெதுவான இட்லி.'],
+        'Dosa' => ['தோசை', 'ரெடிமேட் மாவுல மொறுமொறு தோசை.'],
+        'Veg Cheese Sandwich' => ['வெஜ் சீஸ் சாண்ட்விச்', 'வெள்ளரி, தக்காளி, சீஸ் வெச்ச பட்டர் சாண்ட்விச்.'],
+        'Egg Sandwich' => ['முட்டை சாண்ட்விச்', 'அவிச்ச முட்டை, பட்டர், மிளகு வெச்ச சாண்ட்விச்.'],
+        'Paneer Roll' => ['பன்னீர் ரோல்', 'மசாலா பன்னீர், குடைமிளகாய் வெச்சு சுருட்டின சப்பாத்தி.'],
+        'Semiya Upma' => ['சேமியா உப்புமா', 'கேரட், பட்டாணி போட்ட சேமியா உப்புமா.'],
+        'Aval Upma' => ['அவல் உப்புமா', 'வேர்க்கடலை, வெங்காயம், எலுமிச்சை போட்ட லைட்டான அவல்.'],
+        'Bread Omelette' => ['பிரெட் ஆம்லெட்', 'டோஸ்ட் பண்ண பிரெட்ல மடிச்ச ரோட்டுக்கடை ஸ்டைல் ஆம்லெட்.'],
+        'Egg Curry' => ['முட்டை குழம்பு', 'வெங்காயம்-தக்காளி மசாலால அவிச்ச முட்டை — மறுநாள் இன்னும் டேஸ்ட்.'],
+        'Dal Khichdi' => ['பருப்பு கிச்சடி', 'அரிசி, பாசிப்பருப்பு ஒரே பாத்திரத்துல — குழந்தைகளுக்கும் களைப்பான சாயங்காலத்துக்கும் ஈஸி.'],
+        'Tomato Rasam' => ['தக்காளி ரசம்', 'மிளகு தூக்கலான தக்காளி ரசம் — ரெண்டு நாள் நல்லா இருக்கும்.'],
+        'Sambar' => ['சாம்பார்', 'காய்கறி போட்ட தினசரி துவரம்பருப்பு சாம்பார் — ஞாயிறு செஞ்சா ரெண்டு நாளுக்கு.'],
+        'Banana Milkshake' => ['வாழைப்பழ மில்க் ஷேக்', 'கெட்டியான வாழைப்பழ மில்க் ஷேக் — ஸ்கூல் முடிஞ்சு வந்ததும் பிடிக்கும்.'],
+    ];
+
+    /**
+     * lunchbox: packs well and is still good at noon; kids: mild and kid-friendly;
+     * prep_ahead: can be made the day before (Sunday prep) and keeps.
+     */
+    public const TAGS = [
+        'Omelette' => ['kids'], 'Egg Fried Rice' => ['lunchbox', 'kids'], 'Chicken Fried Rice' => ['lunchbox'], 'Chicken Curry' => ['prep_ahead'],
+        'Tomato Rice' => ['lunchbox', 'kids'], 'Curd Rice' => ['lunchbox', 'kids'], 'Dal' => ['prep_ahead', 'kids'], 'Chapati' => ['lunchbox', 'kids'],
+        'Upma' => ['lunchbox', 'kids'], 'Paneer Butter Masala' => ['kids'], 'Paneer Bhurji' => ['lunchbox', 'kids'], 'Ven Pongal' => ['kids'],
+        'Lemon Rice' => ['lunchbox', 'kids'], 'Potato Poriyal' => ['lunchbox', 'kids'], 'Chana Sundal' => ['lunchbox', 'kids'], 'Ragi Dosa' => ['kids'],
+        'Keerai Kootu' => ['prep_ahead'], 'Fish Curry' => ['prep_ahead'], 'Paneer Tikka' => ['kids'],
+        'Coconut Rice' => ['lunchbox', 'kids'], 'Jeera Rice' => ['lunchbox', 'kids'], 'Veg Pulao' => ['lunchbox', 'kids'],
+        'Idli' => ['lunchbox', 'kids'], 'Dosa' => ['kids'], 'Veg Cheese Sandwich' => ['lunchbox', 'kids'], 'Egg Sandwich' => ['lunchbox', 'kids'],
+        'Paneer Roll' => ['lunchbox', 'kids'], 'Semiya Upma' => ['lunchbox', 'kids'], 'Aval Upma' => ['lunchbox', 'kids'],
+        'Bread Omelette' => ['lunchbox', 'kids'], 'Egg Curry' => ['prep_ahead'], 'Dal Khichdi' => ['kids'],
+        'Tomato Rasam' => ['prep_ahead'], 'Sambar' => ['prep_ahead'], 'Banana Milkshake' => ['kids'],
     ];
 
     public function run(): void
@@ -218,6 +364,7 @@ class RecipeSeeder extends Seeder
                 [
                     ...collect($data)->except(['ingredients', 'steps'])->all(),
                     ...array_combine(Nutrition::FIELDS, self::NUTRITION[$data['name']]),
+                    'tags' => self::TAGS[$data['name']] ?? [],
                     'name_ta' => self::TAMIL[$data['name']][0],
                     'description_ta' => self::TAMIL[$data['name']][1],
                 ],

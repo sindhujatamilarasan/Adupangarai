@@ -18,9 +18,12 @@ export async function loadLang(): Promise<Lang> {
   return current
 }
 
+/** Keys that are code values (e.g. the planner slot 'lunchbox') shown in English with nicer wording. */
+const EN: Record<string, string> = { lunchbox: 'Lunch box' }
+
 /** English text is the key: t('Kitchen') -> 'கிச்சன்'. Placeholders: t('{n} left', { n: 3 }). */
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>): string {
-  const text = lang === 'ta' ? (ta[key] ?? key) : key
+  const text = lang === 'ta' ? (ta[key] ?? key) : (EN[key] ?? key)
   return vars ? text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`)) : text
 }
 
