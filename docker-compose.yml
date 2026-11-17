@@ -1,5 +1,6 @@
 services:
   db:
+    restart: unless-stopped # comes back by itself when Docker starts (e.g. after a laptop restart)
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: adupangarai
@@ -15,6 +16,7 @@ services:
       retries: 20
 
   api:
+    restart: unless-stopped # comes back by itself when Docker starts (e.g. after a laptop restart)
     build: ./api
     user: "${UID:-1000}:${GID:-1000}" # files written to ./api stay owned by you
     working_dir: /app
@@ -37,6 +39,7 @@ services:
              php artisan serve --no-reload --host=0.0.0.0 --port=8000"
 
   web:
+    restart: unless-stopped # comes back by itself when Docker starts (e.g. after a laptop restart)
     image: node:22-alpine
     user: "${UID:-1000}:${GID:-1000}"
     working_dir: /app
