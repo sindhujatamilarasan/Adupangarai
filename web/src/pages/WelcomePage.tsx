@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api, ApiError, type User } from '../api'
 import { useAuth } from '../auth'
+import Art, { type ArtName } from '../components/Art'
 import Kolam from '../components/Kolam'
 import { Alert, Button, Field } from '../components/ui'
 import { tk, useI18n } from '../i18n'
@@ -21,37 +22,37 @@ const Arrow = ({ back = false }: { back?: boolean }) => (
 /** What the app does, why it helps, and how to use it: one slide per part of the app. */
 const SLIDES = [
   {
-    emoji: '🧺',
+    art: 'jars' as ArtName,
     title: tk('Know what’s in your kitchen'),
     why: tk('No more forgotten vegetables or buying what you already have.'),
     how: [tk('Add rice, dal, vegetables, milk… with how much you have'), tk('Get a reminder before things expire'), tk('Say it: “I bought 1 kg tomato and 2 litres milk”')],
   },
   {
-    emoji: '🍳',
+    art: 'kadai' as ArtName,
     title: tk('What can I cook now?'),
     why: tk('See dishes you can make right now with what you have.'),
     how: [tk('Ready, almost ready, and “cook this first” before it spoils'), tk('Recipes scale to the number of people'), tk('Tap “Cook” and the ingredients come out of your kitchen')],
   },
   {
-    emoji: '📅',
+    art: 'tiffin' as ArtName,
     title: tk('Plan the week in one tap'),
     why: tk('No daily “what to cook today?” worry.'),
     how: [tk('Smart plan: veg / non-veg, high protein, lighter, or your calorie goal'), tk('No two similar dishes on one day'), tk('Print it or save an A4 PDF for the fridge')],
   },
   {
-    emoji: '🛒',
+    art: 'basket' as ArtName,
     title: tk('A grocery list that thinks'),
     why: tk('Buy only what’s missing for your plan. Save money, less waste.'),
     how: [tk('The list subtracts what you already have'), tk('Tick items as you shop'), tk('One tap adds them back to your kitchen')],
   },
   {
-    emoji: '💪',
+    art: 'idli' as ArtName,
     title: tk('Your friendly health coach'),
     why: tk('Eat well for your goal: lose, gain or stay fit.'),
     how: [tk('A daily calorie and protein target made for you'), tk('Tick meals you ate, add extras like “2 vada and a coffee”'), tk('10,000 steps challenge, streaks and badges')],
   },
   {
-    emoji: '🎙️',
+    art: 'mic' as ArtName,
     title: tk('Speak in Tamil or English'),
     why: tk('Use the app the way you talk at home.'),
     how: [tk('Switch language anytime with த / EN at the top'), tk('Tap the mic to add items, recipes or food by voice'), tk('Nothing is saved until you check and confirm')],
@@ -149,9 +150,11 @@ export default function WelcomePage() {
 
         {slide && (
           <div key={step} className="text-center">
-            <div className="relative mx-auto grid size-44 place-items-center">
-              <Kolam classic className="absolute inset-0 size-44 text-brand opacity-25" strokeWidth={0.05} />
-              <span className="relative grid size-24 place-items-center rounded-full bg-white text-5xl shadow-[0_8px_30px_rgb(122_67_32/0.15)]">{slide.emoji}</span>
+            <div className="relative mx-auto grid size-60 place-items-center">
+              <Kolam classic colorful className="absolute inset-0 size-60 opacity-60" strokeWidth={0.04} />
+              <span className="relative grid size-32 place-items-center rounded-full bg-white shadow-[0_8px_30px_rgb(228_87_46/0.2)]">
+                <Art name={slide.art} className="size-24" />
+              </span>
             </div>
             <h1 className="mt-6 font-display text-[1.75rem] leading-tight font-semibold">{t(slide.title)}</h1>
             <p className="mx-auto mt-2 max-w-xs text-muted">{t(slide.why)}</p>
@@ -168,7 +171,7 @@ export default function WelcomePage() {
 
         {step === last && (
           <div className="text-center">
-            <Kolam classic animate className="mx-auto size-28 text-brand" strokeWidth={0.06} />
+            <Kolam classic animate colorful className="mx-auto size-28" strokeWidth={0.06} />
             <h1 className="mt-5 font-display text-[1.9rem] leading-tight font-semibold">{t('You’re all set! 🎉')}</h1>
             <p className="mx-auto mt-2 max-w-xs text-muted">{t('Start by adding what you have at home. Everything else works from there.')}</p>
             <div className="mt-8 space-y-3">

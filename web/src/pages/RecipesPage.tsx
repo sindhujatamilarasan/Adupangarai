@@ -79,7 +79,7 @@ export default function RecipesPage() {
         {recipes.loading && !recipes.data && <Spinner label={t('Finding recipes…')} />}
         {recipes.error && <ErrorState message={recipes.error} onRetry={recipes.reload} />}
         {recipes.data?.data.length === 0 && (
-          <EmptyState emoji="📖" title={t('No recipes found')}>
+          <EmptyState art="idli" title={t('No recipes found')}>
             {filter === 'mine=1' ? t('Recipes you create will appear here.') : t('Try a different search or filter.')}
           </EmptyState>
         )}

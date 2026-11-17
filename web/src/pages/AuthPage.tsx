@@ -64,7 +64,7 @@ export default function AuthPage({ mode }: { mode: 'login' | 'register' }) {
         <p className="font-tamil text-sm text-muted">அடுப்பங்கரை</p>
         <div className="mx-auto my-3 flex w-60 items-center gap-3" aria-hidden>
           <span className="h-px flex-1 bg-line" />
-          <Kolam classic className="size-16 text-brand/80" strokeWidth={0.06} />
+          <Kolam classic colorful className="size-16" strokeWidth={0.06} />
           <span className="h-px flex-1 bg-line" />
         </div>
         <p className="text-muted">{isRegister ? t('Set up your kitchen') : t('Welcome back to your kitchen')}</p>

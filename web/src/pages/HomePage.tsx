@@ -4,6 +4,7 @@ import { fmtQty, useApi, type CoachResponse, type Dashboard } from '../api'
 import { useAuth } from '../auth'
 import { nm, unitLabel, useI18n } from '../i18n'
 import { Badge, ErrorState, Spinner } from '../components/ui'
+import Art, { type ArtName } from '../components/Art'
 import Kolam from '../components/Kolam'
 import RecipeCover, { IconTile } from '../components/RecipeCover'
 import { VegDot } from './RecipesPage'
@@ -39,12 +40,22 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4">
-      <header className="relative overflow-hidden pt-2 pb-1">
-        <Kolam classic className="pointer-events-none absolute -top-3 -right-4 size-40 text-brand opacity-[.13]" strokeWidth={0.05} />
-        <p className="text-sm text-muted">{greeting}</p>
-        <h1 className="font-display text-[2rem] leading-tight font-semibold tracking-tight">{user!.name}</h1>
-        <p className="mt-0.5 text-sm text-muted">{user!.household.name}</p>
+      <header className="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-[#b8330f] via-[#d4461c] to-[#e2731a] p-5 pr-32 text-white shadow-[0_10px_30px_rgb(228_87_46/0.25)]">
+        <Kolam classic className="pointer-events-none absolute -top-6 -left-6 size-36 text-white opacity-20" strokeWidth={0.05} />
+        <p className="relative text-sm font-semibold text-white/90">{greeting} 🙏</p>
+        <h1 className="relative font-display text-[2rem] leading-tight font-semibold tracking-tight">{user!.name}</h1>
+        <p className="relative mt-0.5 text-sm font-semibold text-white/90">{user!.household.name}</p>
+        <Art name="idli" className="absolute right-1 -bottom-2 size-32" />
       </header>
+
+      {d && (
+        <div className="grid grid-cols-2 gap-3">
+          <Tile to="/planner" art="tiffin" bg="bg-[#dff0f8]" title={t('Plan the week')} sub={t('Lunch box, family or working-day plans')} />
+          <Tile to="/groceries" art="basket" bg="bg-[#fff0cc]" big={d.grocery_remaining} title={t('Groceries to buy')} />
+          <Tile to="/kitchen" art="jars" bg="bg-[#fde2ec]" big={d.low_stock.length} title={t('Low stock')} sub={d.low_stock.map((i) => nm(i.ingredient)).join(', ')} />
+          <Tile to="/cook" art="kadai" bg="bg-[#e2f2da]" big={d.cook_now.length} title={t('Ready to cook')} />
+        </div>
+      )}
 
       {res.loading && !d && <Spinner label={t('Checking your kitchen…')} />}
       {res.error && !d && <ErrorState message={res.error} onRetry={res.reload} />}
@@ -138,20 +149,21 @@ export default function HomePage() {
             </Card>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <Link to="/kitchen" className="card p-5">
-              <p className="text-3xl font-semibold">{d.low_stock.length}</p>
-              <p className="text-sm font-semibold text-muted">{t('Low stock')}</p>
-              {d.low_stock.length > 0 && <p className="mt-1 truncate text-xs text-muted">{d.low_stock.map((i) => nm(i.ingredient)).join(', ')}</p>}
-            </Link>
-            <Link to="/groceries" className="card p-5">
-              <p className="text-3xl font-semibold">{d.grocery_remaining}</p>
-              <p className="text-sm font-semibold text-muted">{t('Groceries to buy')}</p>
-            </Link>
-          </div>
         </>
       )}
     </div>
+  )
+}
+
+/** A bright shortcut tile with a cartoon: the main jobs (plan, buy, stock, cook) one tap away. */
+function Tile({ to, art, bg, title, sub, big }: { to: string; art: ArtName; bg: string; title: string; sub?: string; big?: number }) {
+  return (
+    <Link to={to} className={`relative block min-h-32 overflow-hidden rounded-[1.25rem] p-4 pb-14 active:scale-[.98] ${bg}`}>
+      {big !== undefined && <p className="text-3xl leading-none font-semibold">{big}</p>}
+      <p className={`font-bold leading-snug ${big !== undefined ? 'mt-1 text-sm' : 'font-display text-lg'}`}>{title}</p>
+      {sub && <p className="mt-0.5 line-clamp-2 text-xs text-ink/70">{sub}</p>}
+      <Art name={art} className="absolute -right-1 -bottom-1 size-16" />
+    </Link>
   )
 }
 

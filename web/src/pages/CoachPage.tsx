@@ -45,7 +45,7 @@ export default function CoachPage() {
     return (
       <div className="space-y-4">
         <header className="relative overflow-hidden pt-2">
-          <Kolam classic className="pointer-events-none absolute -top-3 -right-4 size-36 text-brand opacity-[.12]" strokeWidth={0.05} />
+          <Kolam classic colorful className="pointer-events-none absolute -top-3 -right-4 size-36 opacity-25" strokeWidth={0.05} />
           <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{c ? t('Edit your goal') : t('Your health coach')}</h1>
           {!c && <p className="mt-1 max-w-xs text-sm text-muted">{t('Set a goal and I’ll give you a daily calorie target, plan meals to it, cheer you on and hand out badges. 🏅')}</p>}
         </header>
@@ -77,7 +77,7 @@ export default function CoachPage() {
   return (
     <div className="space-y-4">
       <header className="relative overflow-hidden pt-2">
-        <Kolam classic className="pointer-events-none absolute -top-3 -right-4 size-36 text-brand opacity-[.12]" strokeWidth={0.05} />
+        <Kolam classic colorful className="pointer-events-none absolute -top-3 -right-4 size-36 opacity-25" strokeWidth={0.05} />
         <p className="text-sm text-muted">{goalLine}</p>
         <h1 className="font-display text-[1.75rem] font-semibold tracking-tight">{t('Coach')}</h1>
         <div className="mt-2 flex items-center gap-2">

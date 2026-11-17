@@ -13,7 +13,7 @@ export default function TopBar() {
     api('/profile', { method: 'PUT', body: { locale: next } }).catch(() => {})
   }
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-cream/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
+    <header className="sticky top-0 z-20 bg-cream/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
       <div className="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
         <Link to="/" className="flex items-center gap-2.5" aria-label={t('Adupangarai home')}>
           <img src="/logo.svg" alt="" className="size-9 rounded-[10px]" />
@@ -38,6 +38,7 @@ export default function TopBar() {
           </Link>
         </div>
       </div>
+      <div className="rangoli" aria-hidden />
     </header>
   )
 }

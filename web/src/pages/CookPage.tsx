@@ -106,7 +106,7 @@ export default function CookPage() {
           </div>
         )}
         {res.data?.data.length === 0 && (
-          <EmptyState emoji={empty[filter][0]} title={t(empty[filter][1])}>
+          <EmptyState emoji={empty[filter][0]} art={filter === 'all' || filter === 'available' ? 'kadai' : undefined} title={t(empty[filter][1])}>
             {t(empty[filter][2])}
           </EmptyState>
         )}

@@ -100,7 +100,7 @@ export default function KitchenPage() {
         {view !== 'plan' && pantry.loading && !pantry.data && <Spinner label={t('Checking your shelves…')} />}
         {pantry.error && <ErrorState message={pantry.error} onRetry={pantry.reload} />}
         {view !== 'plan' && pantry.data && pantry.data.data.length === 0 && (
-          <EmptyState emoji={emptyText[view][0]} title={t(emptyText[view][1])}>
+          <EmptyState emoji={emptyText[view][0]} art={view === 'all' ? 'jars' : undefined} title={t(emptyText[view][1])}>
             {t(emptyText[view][2])}
           </EmptyState>
         )}
@@ -162,7 +162,7 @@ function PlanNeeds() {
   const { data: rows, meals, summary } = res.data
   if (meals === 0) {
     return (
-      <EmptyState emoji="📅" title={t('No meals planned for the next 7 days')}>
+      <EmptyState art="tiffin" title={t('No meals planned for the next 7 days')}>
         {t('Plan your week and this shows exactly what you need from the kitchen.')}{' '}
         <Link to="/planner" className="font-bold text-brand">{t('Open planner')} →</Link>
       </EmptyState>

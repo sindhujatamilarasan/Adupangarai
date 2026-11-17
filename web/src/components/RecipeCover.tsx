@@ -3,10 +3,10 @@ import Kolam from './Kolam'
 import { assetUrl } from '../lib/native'
 
 const looks: Record<MealType, { emoji: string; bg: string }> = {
-  breakfast: { emoji: '🍳', bg: 'from-[#fbf1e1] to-[#f5e2c4]' },
-  lunch: { emoji: '🍛', bg: 'from-[#f9ede3] to-[#f1d9c4]' },
-  snack: { emoji: '☕', bg: 'from-[#f5f1ea] to-[#e9e1d4]' },
-  dinner: { emoji: '🍲', bg: 'from-[#f6e9df] to-[#ead3c1]' },
+  breakfast: { emoji: '🍳', bg: 'from-[#fff4c2] to-[#ffd36b]' },
+  lunch: { emoji: '🍛', bg: 'from-[#ffe1cf] to-[#ffb38a]' },
+  snack: { emoji: '☕', bg: 'from-[#ffe0ec] to-[#f9b3cf]' },
+  dinner: { emoji: '🍲', bg: 'from-[#dcf0f8] to-[#a9d6ea]' },
 }
 
 /** Recipe photo, or a warm meal-type illustration when there is none. */
@@ -28,7 +28,7 @@ export default function RecipeCover({
   }
   return (
     <div className={`relative grid place-items-center bg-gradient-to-br ${look.bg} ${className}`} role="img" aria-label={recipe.name}>
-      {framed && <Kolam classic className="absolute right-1 bottom-1 size-10 text-brand opacity-30" strokeWidth={0.08} />}
+      {framed && <Kolam classic colorful className="absolute right-1 bottom-1 size-10 opacity-50" strokeWidth={0.08} />}
       <span className={big ? 'text-7xl drop-shadow-sm' : 'text-3xl'}>{look.emoji}</span>
     </div>
   )

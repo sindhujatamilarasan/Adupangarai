@@ -1,5 +1,6 @@
 import { useI18n } from '../i18n'
 import Kolam from './Kolam'
+import Art, { type ArtName } from './Art'
 import { onBackClose } from '../lib/native'
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
 
@@ -7,7 +8,7 @@ export function Spinner({ label }: { label?: string }) {
   const { t } = useI18n()
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted" role="status">
-      <Kolam classic animate className="size-16 text-brand" strokeWidth={0.07} />
+      <Kolam classic animate colorful className="size-16" strokeWidth={0.07} />
       <span className="text-sm">{label ?? t('Loading…')}</span>
     </div>
   )
@@ -28,10 +29,10 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   )
 }
 
-export function EmptyState({ emoji, title, children }: { emoji: string; title: string; children?: ReactNode }) {
+export function EmptyState({ emoji, art, title, children }: { emoji?: string; art?: ArtName; title: string; children?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center py-14 text-center">
-      <div className="mb-3 text-5xl">{emoji}</div>
+    <div className="flex flex-col items-center py-12 text-center">
+      {art ? <Art name={art} className="mb-3 size-32" /> : <div className="mb-3 text-5xl">{emoji}</div>}
       <p className="text-lg font-bold">{title}</p>
       {children && <div className="mt-1 max-w-xs text-sm text-muted">{children}</div>}
     </div>

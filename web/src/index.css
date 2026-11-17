@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Adupangarai: light, calm and warm. Brown is used sparingly (primary action, active state);
- * the kolam appears only as a signature (logo, a faint watermark, the login ornament).
- * All text pairs >= 5:1.
+ * Adupangarai: warm and festive. Brown stays the main action colour; the festival colours
+ * (kumkum, turmeric, peacock, lotus, leaf) colour kolams, cartoons, tiles and the tab bar.
+ * Body text pairs >= 5:1; bright colours carry white text only at large/bold sizes.
  */
 @theme {
   --color-cream: #fbf8f3;
@@ -14,6 +14,11 @@
   --color-brand-dark: #5c3118;
   --color-accent: #c8872e;
   --color-leaf: #4f8a3c;
+  --color-kumkum: #e4572e;
+  --color-turmeric: #f2b705;
+  --color-peacock: #2e86ab;
+  --color-lotus: #c2417a;
+  --color-mango: #f28c28;
   --font-sans: "Plus Jakarta Sans", "Noto Sans Tamil", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", "Noto Serif Tamil", Georgia, serif;
   --font-tamil: "Noto Sans Tamil", ui-sans-serif, sans-serif;
@@ -21,6 +26,12 @@
 
 body {
   @apply bg-cream text-ink antialiased;
+}
+
+/* Rangoli strip: a row of festival-coloured pulli dots, used under the top bar. */
+@utility rangoli {
+  height: 4px;
+  background: repeating-linear-gradient(90deg, #e4572e 0 18px, #f2b705 18px 36px, #4f8a3c 36px 54px, #2e86ab 54px 72px, #c2417a 72px 90px);
 }
 
 /* The one card style: white, hairline border, barely-there shadow. */

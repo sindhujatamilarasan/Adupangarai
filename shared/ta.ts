@@ -675,6 +675,10 @@ const ta: Record<string, string> = {
   'Meat costs ₹{n} this week. One veg day with sambar or egg curry saves a good amount.': 'இந்த வாரம் கறிக்கு ₹{n}. ஒரு நாள் சாம்பார் இல்லனா முட்டை குழம்பு வெச்சா நல்லா மிச்சம் ஆகும்.',
   '{n} items are needed only in small amounts. The rest stays in your kitchen, so you won’t buy them again next week.': '{n} சாமான் கொஞ்சம் தான் தேவை. மீதி கிச்சன்லயே இருக்கும், அடுத்த வாரம் திரும்ப வாங்க வேண்டாம்.',
   'Buy vegetables at the uzhavar sandhai or weekly market — usually cheaper and fresher.': 'காய்கறி உழவர் சந்தை இல்லனா வாரச் சந்தைல வாங்குங்க — விலையும் கம்மி, ஃப்ரெஷ்ஷாவும் இருக்கும்.',
+  // Phase D: home tiles
+  'Plan the week': 'வாரத்துக்கு பிளான் போடு',
+  'Lunch box, family or working-day plans': 'லஞ்ச் பாக்ஸ், குடும்பம், வேலை நாள் பிளான்',
+  'Ready to cook': 'இப்போவே சமைக்கலாம்',
 }
 
 export default ta

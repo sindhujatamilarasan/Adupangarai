@@ -15,10 +15,14 @@ type Props = {
   animate?: boolean
   className?: string
   strokeWidth?: number
+  /** Each loop in a festival colour (like coloured rangoli) instead of currentColor. */
+  colorful?: boolean
 }
 
+const FESTIVAL = ['#e4572e', '#f2b705', '#2e86ab', '#c2417a', '#4f8a3c']
+
 /** A real sikku kolam, generated (see shared/kolam.ts). Colours follow currentColor. */
-export default function Kolam({ m = 3, n = 4, diamond = false, classic = false, animate = false, className = '', strokeWidth = 0.07 }: Props) {
+export default function Kolam({ m = 3, n = 4, diamond = false, classic = false, animate = false, className = '', strokeWidth = 0.07, colorful = false }: Props) {
   if (classic) [m, n, diamond] = [4, 4, true]
   const loops = useMemo(() => sikkuLoopPaths(m, n), [m, n])
   const dots = useMemo(() => [...pulliDots(m, n), ...(classic ? inBetweenDots(m, n) : [])], [m, n, classic])
@@ -34,7 +38,7 @@ export default function Kolam({ m = 3, n = 4, diamond = false, classic = false, 
             d={d}
             pathLength={1}
             fill="none"
-            stroke="currentColor"
+            stroke={colorful ? FESTIVAL[i % FESTIVAL.length] : 'currentColor'}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -42,7 +46,7 @@ export default function Kolam({ m = 3, n = 4, diamond = false, classic = false, 
           />
         ))}
         {dots.map(([x, y]) => (
-          <circle key={`${x}-${y}`} cx={x} cy={y} r={strokeWidth * 1.3} className="fill-accent" />
+          <circle key={`${x}-${y}`} cx={x} cy={y} r={strokeWidth * (colorful ? 1.6 : 1.3)} className={colorful ? 'fill-kumkum' : 'fill-accent'} />
         ))}
       </g>
     </svg>

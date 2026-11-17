@@ -131,7 +131,7 @@ export default function GroceriesPage() {
         </form>
 
         {list.data.length === 0 && (
-          <EmptyState emoji="🛒" title={t('Your list is empty')}>
+          <EmptyState art="basket" title={t('Your list is empty')}>
             {t('Plan some meals, then tap “Update from meal plan” — or add items yourself.')}
           </EmptyState>
         )}
